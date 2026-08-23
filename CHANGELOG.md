@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Simplified the popup connection tab around a provider → API Key → model flow, moving routes, custom Base URL, protocol, and endpoint mode into one collapsed advanced section.
+- Removed the redundant connection summary grid and the inline route panel toggle; profile management now sits in a compact section below the test action.
+- Kept provider settings, profiles, and model cache storage fully compatible with previous versions.
+
 ## 1.4.1 - 2026-06-27
 
 - Added a popup setting for default compact sidebar mode so the sidebar can always open with more space reserved for the summary.

@@ -402,7 +402,7 @@ test('popup DOM, tabs, autosave, provider settings, connection test, and entrypo
   assert.ok(js.includes("action: 'openShortcutSettings'"));
   assert.ok(js.includes('ProviderPresets.listPresets()'));
   assert.ok(js.includes('ProviderPresets.getProviderRoutes('));
-  ['providerRoute', 'providerRoutePanel', 'toggleRoutePanelBtn', 'advancedConnectionSettings', 'connectionSummary'].forEach((id) => {
+  ['providerRoute', 'advancedConnectionSettings'].forEach((id) => {
     assert.ok(ids.has(id), 'popup.html missing provider flow id: ' + id);
   });
 });

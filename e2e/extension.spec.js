@@ -180,13 +180,15 @@ test.describe('Yilan extension E2E', () => {
 
       const popupPage = await openExtensionPage(harness.context, harness.extensionId, 'popup.html');
       await popupPage.selectOption('#providerPreset', 'mimo');
-      await expect(popupPage.locator('#connectionBaseUrlValue')).toContainText('api.xiaomimimo.com');
+      await expect(popupPage.locator('#baseURL')).toHaveValue('https://api.xiaomimimo.com/v1');
 
-      await popupPage.locator('#toggleRoutePanelBtn').click();
+      const advanced = popupPage.locator('#advancedConnectionSettings');
+      if (!(await advanced.getAttribute('open'))) {
+        await advanced.locator('summary').click();
+      }
       await expect(popupPage.locator('#providerRoute option')).toHaveCount(8);
       await popupPage.selectOption('#providerRoute', 'mimo-openai-token-plan-sgp');
       await expect(popupPage.locator('#baseURL')).toHaveValue('https://token-plan-sgp.xiaomimimo.com/v1');
-      await expect(popupPage.locator('#connectionBaseUrlValue')).toContainText('token-plan-sgp.xiaomimimo.com');
       await expect(popupPage.locator('#apiKeyHint')).toContainText('tp-');
     } finally {
       await harness.close();

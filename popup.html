@@ -616,71 +616,11 @@
     >
       <div class="card connection-card">
         <div class="card-title">模型连接</div>
-        <div class="field">
-          <label for="profileSelect">配置方案</label>
-          <div class="inline-row">
-            <select id="profileSelect"></select>
-            <button
-              type="button"
-              id="profileActionsBtn"
-              class="icon-btn"
-              title="管理配置方案"
-              aria-label="管理配置方案"
-              aria-expanded="false"
-              aria-controls="profileActionsMenu"
-            >
-              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                <circle cx="12" cy="5" r="1.8"></circle>
-                <circle cx="12" cy="12" r="1.8"></circle>
-                <circle cx="12" cy="19" r="1.8"></circle>
-              </svg>
-            </button>
-          </div>
-          <div id="profileActionsMenu" class="profile-actions-menu" hidden>
-            <button type="button" id="profileNewBtn">新建配置方案</button>
-            <button type="button" id="profileSaveAsBtn">另存为…</button>
-            <button type="button" id="profileRenameBtn">重命名…</button>
-            <button type="button" id="profileDeleteBtn" class="danger">删除</button>
-          </div>
-          <div id="profileHint" class="hint"></div>
-        </div>
 
         <div class="field">
-          <label for="providerPreset">Provider</label>
+          <label for="providerPreset">服务商</label>
           <select id="providerPreset"></select>
           <div id="presetHint" class="hint"></div>
-        </div>
-
-        <div id="connectionSummary" class="connection-summary" aria-live="polite">
-          <div>
-            <span class="summary-label">服务商</span>
-            <strong id="connectionProviderValue">未选择</strong>
-          </div>
-          <div>
-            <span class="summary-label">地址</span>
-            <strong id="connectionRouteValue">使用推荐地址</strong>
-          </div>
-          <div>
-            <span class="summary-label">接口</span>
-            <strong id="connectionEndpointValue">自动判断</strong>
-          </div>
-          <div>
-            <span class="summary-label">模型</span>
-            <strong id="connectionModelValue">默认模型</strong>
-          </div>
-        </div>
-
-        <div class="route-summary">
-          <div>
-            <span class="summary-label">Base URL</span>
-            <span id="connectionBaseUrlValue">使用推荐地址</span>
-          </div>
-          <button type="button" id="toggleRoutePanelBtn" class="text-btn" aria-expanded="false" aria-controls="providerRoutePanel">更改地址</button>
-        </div>
-        <div id="providerRoutePanel" class="route-panel" hidden>
-          <label for="providerRoute">地址选项</label>
-          <select id="providerRoute"></select>
-          <div id="routeHint" class="hint"></div>
         </div>
 
         <div class="field">
@@ -694,18 +634,28 @@
         </div>
 
         <div class="field">
-          <label for="modelName">模型名称</label>
+          <label for="modelName">模型</label>
           <div class="inline-row">
             <input id="modelName" type="text" placeholder="gpt-4o-mini" data-autosave="debounced" list="modelNameOptions">
             <button type="button" id="refreshModelsBtn">刷新</button>
           </div>
           <datalist id="modelNameOptions"></datalist>
-          <div id="modelHint" class="hint"></div>
           <div id="modelListHint" class="hint"></div>
         </div>
 
         <details id="advancedConnectionSettings" class="advanced-settings">
-          <summary>高级兼容设置</summary>
+          <summary>高级设置</summary>
+          <div class="field">
+            <label for="providerRoute">接口地址</label>
+            <select id="providerRoute"></select>
+            <div id="routeHint" class="hint"></div>
+          </div>
+          <div class="field">
+            <label for="baseURL">自定义 Base URL</label>
+            <input id="baseURL" type="text" placeholder="留空使用推荐地址" data-autosave="debounced">
+            <div id="baseURLHint" class="hint"></div>
+            <div id="endpointPreview" class="endpoint-preview"></div>
+          </div>
           <div class="field">
             <label for="aiProvider">协议类型</label>
             <select id="aiProvider">
@@ -714,21 +664,46 @@
             </select>
           </div>
           <div class="field">
-            <label for="endpointMode">Endpoint Mode</label>
+            <label for="endpointMode">接口模式</label>
             <select id="endpointMode"></select>
             <div id="endpointModeHint" class="hint"></div>
-          </div>
-          <div class="field">
-            <label for="baseURL">Base URL</label>
-            <input id="baseURL" type="text" placeholder="留空使用默认地址" data-autosave="debounced">
-            <div id="baseURLHint" class="hint"></div>
-            <div id="endpointPreview" class="endpoint-preview"></div>
           </div>
           <div id="providerCatalogMeta" class="hint"></div>
         </details>
 
         <div class="btn-row single connection-actions">
           <button type="button" id="testBtn" class="primary">测试连接</button>
+        </div>
+
+        <div class="connection-profiles">
+          <div class="field">
+            <label for="profileSelect">配置方案</label>
+            <div class="inline-row">
+              <select id="profileSelect"></select>
+              <button
+                type="button"
+                id="profileActionsBtn"
+                class="icon-btn"
+                title="管理配置方案"
+                aria-label="管理配置方案"
+                aria-expanded="false"
+                aria-controls="profileActionsMenu"
+              >
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <circle cx="12" cy="5" r="1.8"></circle>
+                  <circle cx="12" cy="12" r="1.8"></circle>
+                  <circle cx="12" cy="19" r="1.8"></circle>
+                </svg>
+              </button>
+            </div>
+            <div id="profileActionsMenu" class="profile-actions-menu" hidden>
+              <button type="button" id="profileNewBtn">新建配置方案</button>
+              <button type="button" id="profileSaveAsBtn">另存为…</button>
+              <button type="button" id="profileRenameBtn">重命名…</button>
+              <button type="button" id="profileDeleteBtn" class="danger">删除</button>
+            </div>
+            <div id="profileHint" class="hint"></div>
+          </div>
         </div>
       </div>
     </section>

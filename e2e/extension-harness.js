@@ -41,7 +41,9 @@ function buildDefaultSettings(origin, overrides) {
 async function launchExtensionContext() {
   const userDataDir = await fs.mkdtemp(path.join(os.tmpdir(), 'yilan-playwright-'));
   const context = await chromium.launchPersistentContext(userDataDir, {
-    channel: 'chromium',
+    // YILAN_E2E_CHANNEL=chrome|msedge runs against an installed system browser,
+    // for machines where the Playwright-managed chromium download is unavailable.
+    channel: process.env.YILAN_E2E_CHANNEL || 'chromium',
     headless: process.env.PW_HEADLESS !== '0',
     acceptDownloads: true,
     viewport: { width: 1440, height: 960 },

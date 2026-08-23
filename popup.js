@@ -554,27 +554,6 @@ function maybeApplySuggestedValue(fieldId, suggestedValue, options = {}) {
   }
 }
 
-function renderConnectionSummary(selection) {
-  const { preset, route, provider, endpointMode } = selection;
-  const baseUrl = normalizeBaseURLInput($('baseURL')?.value || '') || route?.baseUrl || '';
-  const model = String($('modelName')?.value || '').trim() || route?.defaultModel || selection.profile?.defaultModel || '默认模型';
-  const routeLabel = route?.label || '自定义地址';
-
-  $('connectionProviderValue').textContent = preset?.label || '自定义兼容接口';
-  $('connectionRouteValue').textContent = routeLabel;
-  $('connectionEndpointValue').textContent = `${UiLabels.getProviderLabel(provider, { variant: 'settings', fallback: provider })} · ${getEndpointModeLabel(endpointMode)}`;
-  $('connectionBaseUrlValue').textContent = baseUrl || '需要填写自定义 Base URL';
-  $('connectionModelValue').textContent = model;
-}
-
-function setAdvancedSettingsState(presetId) {
-  const details = $('advancedConnectionSettings');
-  if (!details) return;
-  if (presetId === 'custom') {
-    details.open = true;
-  }
-}
-
 function updateHints() {
   const selection = getCurrentSelection();
   const { provider, endpointMode, preset, profile, route } = selection;
@@ -585,7 +564,7 @@ function updateHints() {
     : '';
 
   $('presetHint').textContent = preset?.hint || '选择服务商后会自动填入推荐接口地址。';
-  $('routeHint').textContent = [route?.hint || '', route?.keyHint || ''].filter(Boolean).join(' ');
+  $('routeHint').textContent = route?.hint || '';
   $('apiKeyHint').textContent = route?.keyHint || '填写所选服务商的 API Key。';
   $('endpointModeHint').textContent = [
     endpointMeta.description || '',
@@ -597,15 +576,9 @@ function updateHints() {
     : (PROVIDER_FALLBACK_HINTS[provider] || '');
   $('baseURLHint').textContent = [baseUrlHint, BASE_URL_SECURITY_HINT].filter(Boolean).join(' ');
 
-  $('modelHint').textContent = profile?.defaultModel
-    ? `推荐模型：${profile.defaultModel}。如果你有专属模型 ID，也可以直接覆盖。`
-    : '请填写目标厂商实际可用的模型名称。';
-
   $('providerCatalogMeta').textContent = sourceText;
   $('baseURL').placeholder = route?.baseUrl || profile?.baseUrl || '留空使用默认地址';
   $('modelName').placeholder = route?.defaultModel || profile?.defaultModel || (provider === 'anthropic' ? 'claude-sonnet-4-20250514' : 'gpt-4o-mini');
-  setAdvancedSettingsState(selection.presetId);
-  renderConnectionSummary(selection);
   renderEndpointPreview();
 }
 
@@ -836,8 +809,8 @@ function renderProfileHint() {
   const activeEntry = findProfileIndexEntry(activeId);
 
   hint.textContent = activeId && activeEntry
-    ? `已绑定：${activeEntry.name}。后续修改会自动更新该配置。`
-    : '未绑定：可以选择配置方案，或点击“另存为”创建一个可快速切换的配置。';
+    ? `已绑定「${activeEntry.name}」，修改会自动保存到该方案。`
+    : '可保存多套连接配置，方便快速切换。';
 
   const renameBtn = $('profileRenameBtn');
   const deleteBtn = $('profileDeleteBtn');
@@ -1363,17 +1336,6 @@ async function openShortcutSettings() {
 }
 
 function bindSelectionListeners() {
-  const toggleRoutePanelBtn = $('toggleRoutePanelBtn');
-  const routePanel = $('providerRoutePanel');
-  if (toggleRoutePanelBtn && routePanel) {
-    toggleRoutePanelBtn.addEventListener('click', () => {
-      const nextOpen = routePanel.hidden;
-      routePanel.hidden = !nextOpen;
-      toggleRoutePanelBtn.setAttribute('aria-expanded', nextOpen ? 'true' : 'false');
-      toggleRoutePanelBtn.textContent = nextOpen ? '收起地址' : '更改地址';
-    });
-  }
-
   $('providerPreset').addEventListener('change', () => {
     const presetId = $('providerPreset').value || 'custom';
     const route = ProviderPresets.getDefaultRoute(presetId);

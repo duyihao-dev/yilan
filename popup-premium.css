@@ -282,75 +282,16 @@ code {
   margin-bottom: 0;
 }
 
-.connection-summary {
-  background: var(--surface-soft);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-md);
-  display: grid;
-  gap: 10px;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  padding: 12px;
+.connection-profiles {
+  border-top: 1px solid var(--line);
+  margin-top: 2px;
+  padding-top: 14px;
 }
 
-.connection-summary > div,
-.route-summary > div {
-  display: grid;
-  gap: 3px;
-  min-width: 0;
+.connection-profiles .field {
+  margin-bottom: 0;
 }
 
-.summary-label {
-  color: var(--text-soft);
-  font-size: var(--text-xs);
-}
-
-.connection-summary strong,
-.route-summary span:last-child {
-  color: var(--text);
-  font-size: var(--text-sm);
-  font-weight: 600;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.route-summary {
-  align-items: center;
-  background: var(--field);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-md);
-  display: flex;
-  gap: 12px;
-  justify-content: space-between;
-  padding: 12px;
-}
-
-.text-btn {
-  background: transparent;
-  border-color: transparent;
-  color: var(--accent);
-  min-height: 0;
-  padding: 4px 0;
-  width: auto;
-}
-
-.text-btn:hover {
-  background: transparent;
-  border-color: transparent;
-  color: var(--accent-strong);
-  transform: none;
-}
-
-.route-panel {
-  background: var(--surface-soft);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-md);
-  display: grid;
-  gap: 8px;
-  padding: 12px;
-}
-
-.inline-help,
 .advanced-settings {
   background: var(--surface-soft);
   border: 1px solid var(--line);
@@ -361,7 +302,6 @@ code {
   padding: 10px 12px;
 }
 
-.inline-help summary,
 .advanced-settings summary {
   color: var(--text);
   cursor: pointer;
@@ -369,8 +309,22 @@ code {
   user-select: none;
 }
 
+.inline-help {
+  color: var(--text-soft);
+  font-size: var(--text-xs);
+  line-height: 1.5;
+  margin-top: 2px;
+}
+
+.inline-help summary {
+  color: var(--text-soft);
+  cursor: pointer;
+  font-weight: 500;
+  user-select: none;
+}
+
 .inline-help > div {
-  margin-top: 8px;
+  margin-top: 6px;
 }
 
 .advanced-settings {
