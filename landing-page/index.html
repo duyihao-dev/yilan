@@ -3,26 +3,35 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>一览 Yilan | 把网页与视频变成可回看的工作台</title>
+  <title>一览 Yilan - 网页 / YouTube / B 站 AI 摘要浏览器扩展（BYOK 本地优先）</title>
   <meta
     name="description"
-    content="一览是一个面向 Chromium 浏览器的 AI 阅读与摘要扩展，支持网页抽取、YouTube 与 Bilibili 视频总结、结构化摘要、二次生成、历史沉淀与专注阅读。"
+    content="一览是一款本地优先的 Chromium 浏览器扩展：网页正文智能抽取、YouTube 字幕与翻译字幕总结、Bilibili 官方 AI 总结或字幕回退、结构化摘要与二次生成、历史收藏与专注阅读。BYOK，自带 API Key 即用。"
   >
   <meta name="theme-color" content="#F7FAF7">
+  <link rel="canonical" href="https://www.yilan.app/">
+  <meta property="og:url" content="https://www.yilan.app/">
+  <meta property="og:site_name" content="一览 Yilan">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="一览 Yilan | 网页、YouTube 与 B 站视频的 AI 摘要浏览器扩展">
+  <meta name="twitter:description" content="BYOK 本地优先：网页抽取、YouTube 字幕、B 站官方 AI 总结、结构化摘要、历史沉淀与专注阅读。">
+  <meta name="twitter:image" content="https://www.yilan.app/assets/screens/hero-main-light.png">
   <link rel="icon" type="image/svg+xml" href="./assets/brand/favicon.svg">
   <link rel="shortcut icon" href="./assets/brand/favicon.svg">
-  <meta property="og:title" content="一览 Yilan | 把网页与视频变成可回看的工作台">
+  <meta property="og:title" content="一览 Yilan | 网页、YouTube 与 B 站视频的 AI 摘要浏览器扩展">
   <meta
     property="og:description"
-    content="网页抽取、YouTube 字幕与翻译字幕、Bilibili 官方 AI 总结或字幕回退、结构化总结、行动项、术语表、问答卡片、历史沉淀与专注阅读。"
+    content="BYOK 本地优先：网页抽取、YouTube 字幕、B 站官方 AI 总结、结构化摘要、历史沉淀与专注阅读。"
   >
   <meta property="og:type" content="website">
   <meta
     property="og:image"
-    content="./assets/screens/hero-main-light.png"
+    content="https://www.yilan.app/assets/screens/hero-main-light.png"
     data-light-src="./assets/screens/hero-main-light.png"
     data-dark-src="./assets/screens/hero-main-dark.png"
   >
+  <meta property="og:image:width" content="1280">
+  <meta property="og:image:height" content="800">
   <script>
     (function () {
       var root = document.documentElement;
@@ -61,6 +70,95 @@
   >
   <link rel="stylesheet" href="./styles.css">
   <link rel="stylesheet" href="./premium.css">
+  <script type="application/ld+json">
+  [
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "一览 Yilan",
+      "url": "https://www.yilan.app/",
+      "description": "一览是一款本地优先的 Chromium 浏览器扩展：网页正文智能抽取、YouTube 字幕与翻译字幕总结、Bilibili 官方 AI 总结或字幕回退、结构化摘要与二次生成、历史收藏与专注阅读。BYOK，自带 API Key 即用。",
+      "applicationCategory": "BrowserApplication",
+      "operatingSystem": "Chrome, Edge 及其他 Chromium 内核浏览器",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "sameAs": [
+        "https://github.com/mutuyihao/yilan"
+      ]
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "一览 Yilan",
+      "url": "https://www.yilan.app/"
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "怎么安装「一览」？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "推荐从 Chrome Web Store 一键安装，商店地址：https://chromewebstore.google.com/detail/%E4%B8%80%E8%A7%88-ai-%E9%98%85%E8%AF%BB%E5%B7%A5%E4%BD%9C%E5%8F%B0/danicaalimfiaednaiellfgbkihjlanh 。也可以到 GitHub Releases（https://github.com/mutuyihao/yilan/releases）下载对应版本的压缩包手动加载。安装后在设置页填入自己的 API Key 即可开始使用。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "“一览”是怎么开始工作的？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "打开任意网页后，右键选择“用「一览」总结此页”，或者直接按 Alt + S。侧栏会打开，并按你的入口设置自动开始生成，或者等待你手动触发。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "需要先配置 API Key 吗？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "需要。“一览”采用 BYOK 模式，首次使用前要在设置页填入你自己的 API Key，并选择厂商预设、Provider 和 Endpoint Mode。保存后可以先点“测试连接”确认配置可用。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "生成成功了，为什么历史里没有？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "通常是因为开启了无痕模式，或者关闭了“默认写入历史”。在这两种情况下，结果只会停留在当前侧栏，不会进入本地历史，也不能加入收藏。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "视频没有字幕或官方总结怎么办？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "一览会自动降级到标题、简介、频道或 UP 主、分 P 和页面可见信息。此时结果更像视频信息概要，不等同于完整内容总结。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "哪些网页可能无法提取？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "浏览器内部页面、扩展商店页面，或者其他受浏览器权限限制的页面，通常无法注入内容脚本。这不是“一览”侧栏本身的问题，而是浏览器的安全限制。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "正式版问题在哪里反馈？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "请优先通过 GitHub Issues 反馈，并附上浏览器、版本号、页面类型和可复现步骤。社区讨论可以继续使用 Discord。"
+          }
+        }
+      ]
+    }
+  ]
+  </script>
 </head>
 <body>
   <div class="page-shell">
@@ -102,7 +200,7 @@
             快速读懂，也能把每次处理结果留在本地，方便检索、收藏和回顾。
           </p>
           <div class="cta-row">
-            <a class="primary-btn large" href="https://github.com/mutuyihao/yilan" target="_blank" rel="noreferrer noopener">开始使用</a>
+            <a class="primary-btn large" href="https://chromewebstore.google.com/detail/%E4%B8%80%E8%A7%88-ai-%E9%98%85%E8%AF%BB%E5%B7%A5%E4%BD%9C%E5%8F%B0/danicaalimfiaednaiellfgbkihjlanh" target="_blank" rel="noreferrer noopener">从 Chrome 商店安装</a>
             <a class="ghost-btn large" href="#workflow">看工作流</a>
           </div>
           <ul class="hero-points">
@@ -117,10 +215,10 @@
           <figure class="shot-frame shot-hero">
             <img
               class="theme-shot"
-              src="./assets/screens/hero-main-light.png"
-              data-light-src="./assets/screens/hero-main-light.png"
-              data-dark-src="./assets/screens/hero-main-dark.png"
-              alt="一览主界面截图占位图"
+              src="./assets/screens/hero-main-light.webp"
+              data-light-src="./assets/screens/hero-main-light.webp"
+              data-dark-src="./assets/screens/hero-main-dark.webp"
+              alt="一览侧栏生成 YouTube 视频结构化摘要的产品界面"
               width="1280"
               height="800"
               decoding="async"
@@ -230,10 +328,10 @@
           <figure class="shot-frame shot-workflow">
             <img
               class="theme-shot"
-              src="./assets/screens/workflow-summary-light.png"
-              data-light-src="./assets/screens/workflow-summary-light.png"
-              data-dark-src="./assets/screens/workflow-summary-dark.png"
-              alt="一览工作流截图占位图"
+              src="./assets/screens/workflow-summary-light.webp"
+              data-light-src="./assets/screens/workflow-summary-light.webp"
+              data-dark-src="./assets/screens/workflow-summary-dark.webp"
+              alt="一览工作流：网页触发、结构化总结、历史沉淀三步流程界面"
               width="1280"
               height="800"
               decoding="async"
@@ -255,7 +353,7 @@
               src="./assets/screens/history-reader-light.png"
               data-light-src="./assets/screens/history-reader-light.png"
               data-dark-src="./assets/screens/history-reader-dark.png"
-              alt="历史与阅读页截图占位图"
+              alt="一览历史列表与独立阅读器界面"
               width="1280"
               height="800"
               decoding="async"
@@ -267,7 +365,7 @@
               src="./assets/screens/settings-panel-light.png"
               data-light-src="./assets/screens/settings-panel-light.png"
               data-dark-src="./assets/screens/settings-panel-dark.png"
-              alt="设置页截图占位图"
+              alt="一览设置页：模型厂商预设与 API Key 配置界面"
               width="1280"
               height="800"
               decoding="async"
@@ -278,7 +376,7 @@
 
       <section id="limits" class="limits-section">
         <div class="section-heading compact">
-          <div class="eyebrow">Limits & Disclaimer</div>
+          <div class="eyebrow">Limits &amp; Disclaimer</div>
           <h2>使用边界说清楚：哪些能做，哪些不能承诺</h2>
         </div>
         <div class="limit-grid">
@@ -308,6 +406,7 @@
         </div>
         <div class="cta-row">
           <a class="primary-btn large" href="https://github.com/mutuyihao/yilan">打开仓库</a>
+          <a class="ghost-btn large" href="https://chromewebstore.google.com/detail/%E4%B8%80%E8%A7%88-ai-%E9%98%85%E8%AF%BB%E5%B7%A5%E4%BD%9C%E5%8F%B0/danicaalimfiaednaiellfgbkihjlanh" target="_blank" rel="noreferrer noopener">Chrome 商店安装</a>
           <a class="ghost-btn large" href="https://github.com/mutuyihao/yilan/issues" target="_blank" rel="noreferrer noopener">问题反馈</a>
         </div>
       </section>
@@ -318,6 +417,10 @@
           <h2>第一次使用“一览”时，用户可能碰到的几个问题</h2>
         </div>
         <div class="faq-grid">
+          <article class="faq-card">
+            <h3>怎么安装「一览」？</h3>
+            <p>推荐从 Chrome Web Store 一键安装：<a href="https://chromewebstore.google.com/detail/%E4%B8%80%E8%A7%88-ai-%E9%98%85%E8%AF%BB%E5%B7%A5%E4%BD%9C%E5%8F%B0/danicaalimfiaednaiellfgbkihjlanh" target="_blank" rel="noreferrer noopener">Chrome 商店页面</a>。也可以到 <a href="https://github.com/mutuyihao/yilan/releases" target="_blank" rel="noreferrer noopener">GitHub Releases</a> 下载对应版本的压缩包手动加载。安装后在设置页填入自己的 API Key 即可开始使用。</p>
+          </article>
           <article class="faq-card">
             <h3>“一览”是怎么开始工作的？</h3>
             <p>打开任意网页后，右键选择“用「一览」总结此页”，或者直接按 <kbd>Alt + S</kbd>。侧栏会打开，并按你的入口设置自动开始生成，或者等待你手动触发。</p>
