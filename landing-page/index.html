@@ -3,35 +3,36 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>一览 Yilan - 网页 / YouTube / B 站 AI 摘要浏览器扩展（BYOK 本地优先）</title>
+  <title>一览 Yilan - 网页 / YouTube / B 站 AI 摘要浏览器插件（BYOK 本地优先）</title>
   <meta
     name="description"
-    content="一览是一款本地优先的 Chromium 浏览器扩展：网页正文智能抽取、YouTube 字幕与翻译字幕总结、Bilibili 官方 AI 总结或字幕回退、结构化摘要与二次生成、历史收藏与专注阅读。BYOK，自带 API Key 即用。"
+    content="一览（Yilan）是一款本地优先的 AI 网页阅读与摘要浏览器扩展：网页正文智能抽取、YouTube 字幕与翻译字幕总结、Bilibili 官方 AI 总结或字幕回退、结构化摘要与二次生成、历史收藏与专注阅读，助你更快吸收核心信息。BYOK，自带 API Key 即用。"
   >
+  <meta name="keywords" content="一览, Yilan, AI 摘要, 网页总结, YouTube 摘要, B 站总结, AI 阅读, 浏览器插件, Chrome 扩展, 效率工具">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
   <meta name="theme-color" content="#F7FAF7">
   <link rel="canonical" href="https://www.yilan.app/">
   <meta property="og:url" content="https://www.yilan.app/">
   <meta property="og:site_name" content="一览 Yilan">
   <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="https://www.yilan.app/">
   <meta name="twitter:title" content="一览 Yilan | 网页、YouTube 与 B 站视频的 AI 摘要浏览器扩展">
   <meta name="twitter:description" content="BYOK 本地优先：网页抽取、YouTube 字幕、B 站官方 AI 总结、结构化摘要、历史沉淀与专注阅读。">
-  <meta name="twitter:image" content="https://www.yilan.app/assets/screens/hero-main-light.png">
+  <meta name="twitter:image" content="https://www.yilan.app/og-image.png">
   <link rel="icon" type="image/svg+xml" href="./assets/brand/favicon.svg">
   <link rel="shortcut icon" href="./assets/brand/favicon.svg">
+  <link rel="apple-touch-icon" href="./assets/brand/apple-touch-icon.png">
   <meta property="og:title" content="一览 Yilan | 网页、YouTube 与 B 站视频的 AI 摘要浏览器扩展">
   <meta
     property="og:description"
     content="BYOK 本地优先：网页抽取、YouTube 字幕、B 站官方 AI 总结、结构化摘要、历史沉淀与专注阅读。"
   >
   <meta property="og:type" content="website">
-  <meta
-    property="og:image"
-    content="https://www.yilan.app/assets/screens/hero-main-light.png"
-    data-light-src="./assets/screens/hero-main-light.png"
-    data-dark-src="./assets/screens/hero-main-dark.png"
-  >
-  <meta property="og:image:width" content="1280">
-  <meta property="og:image:height" content="800">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:image" content="https://www.yilan.app/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="一览 Yilan 产品界面预览图">
   <script>
     (function () {
       var root = document.documentElement;
@@ -77,9 +78,19 @@
       "@type": "SoftwareApplication",
       "name": "一览 Yilan",
       "url": "https://www.yilan.app/",
+      "image": "https://www.yilan.app/og-image.png",
       "description": "一览是一款本地优先的 Chromium 浏览器扩展：网页正文智能抽取、YouTube 字幕与翻译字幕总结、Bilibili 官方 AI 总结或字幕回退、结构化摘要与二次生成、历史收藏与专注阅读。BYOK，自带 API Key 即用。",
       "applicationCategory": "BrowserApplication",
       "operatingSystem": "Chrome, Edge 及其他 Chromium 内核浏览器",
+      "softwareRequirements": "Chromium 浏览器（Chrome / Edge / Brave / Arc）",
+      "featureList": [
+        "网页正文智能抽取",
+        "YouTube 字幕与翻译字幕总结",
+        "Bilibili 官方 AI 总结或字幕回退",
+        "结构化摘要与二次生成（行动项 / 术语表 / 问答卡片）",
+        "本地历史、收藏与检索",
+        "专注阅读与导出"
+      ],
       "offers": {
         "@type": "Offer",
         "price": "0",
