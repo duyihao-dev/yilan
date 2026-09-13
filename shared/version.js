@@ -1,5 +1,5 @@
 (function initYilanVersion(global) {
-  const FALLBACK_VERSION = '1.5.0';
+  const FALLBACK_VERSION = '1.5.1';
   const globalAny = /** @type {any} */ (global);
 
   function resolveVersion() {

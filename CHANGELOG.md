@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.5.1 - 2026-09-13
+
+- Fixed switching between saved profiles overwriting the previously active profile: activating profile B ran the settings persist while the active profile id still pointed at A, so B's freshly applied settings were written into A's storage slot. `persistSettings` now accepts `skipProfileSync`, and profile activation uses it so switching only writes the main settings keys while profile slots and the index are updated by the activation flow itself.
+- Added popup profile unit tests covering A→B→A switching and the unbound state, asserting previously saved profile payloads stay intact.
+
 ## 1.5.0 - 2026-09-13
 
 - Renamed the extension to "一览 Yilan - AI 摘要插件：网页/YouTube/B站总结"（英文 "Yilan - AI Summaries: Web, YouTube, Bilibili"）and rewrote the store-facing descriptions around search keywords; also fixed the English manifest description exceeding Chrome's 132-character limit.
