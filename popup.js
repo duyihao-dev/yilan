@@ -199,7 +199,7 @@ async function persistSettings(options = {}) {
     const activeProfileId = String(profileState.activeId || '').trim();
     const payload = Object.assign({}, settings);
 
-    if (activeProfileId) {
+    if (activeProfileId && !options.skipProfileSync) {
       const profileKey = getProfileStorageKey(activeProfileId);
       if (profileKey) {
         payload[profileKey] = Object.assign({}, settings);

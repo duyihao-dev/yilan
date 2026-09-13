@@ -20,6 +20,7 @@ require('./unit-sidebar-events.test');
 require('./unit-sidebar-state.test');
 require('./unit-record-store.test');
 require('./unit-chrome-api.test');
+require('./unit-popup-profiles.test');
 require('./unit-i18n.test');
 require('./unit-prompt-locale.test');
 require('./static-contracts.test');

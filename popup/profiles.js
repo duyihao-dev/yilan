@@ -179,7 +179,9 @@
     }
 
     applySettingsToForm(profileSettings);
-    await persistSettings({ force: true, silentStatus: true, skipSuccessStatus: true });
+    // At this point profileState.activeId still points at the previous profile, so
+    // persistSettings must not sync the incoming settings into that profile's slot.
+    await persistSettings({ force: true, silentStatus: true, skipSuccessStatus: true, skipProfileSync: true });
 
     profileState.activeId = id;
     const now = new Date().toISOString();
