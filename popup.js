@@ -617,6 +617,27 @@ window.addEventListener('DOMContentLoaded', () => {
   $('settingsForm').addEventListener('submit', handleSave);
   $('testBtn').addEventListener('click', handleTestConnection);
   $('historyBtn').addEventListener('click', openHistory);
+
+  // Toggle API key visibility; the i18n binding attributes are swapped too so
+  // a later locale switch re-applies the correct label for the current state.
+  const apiKeyVisibilityBtn = $('apiKeyVisibilityBtn');
+  if (apiKeyVisibilityBtn) {
+    apiKeyVisibilityBtn.addEventListener('click', () => {
+      const field = /** @type {HTMLInputElement} */ ($('apiKey'));
+      if (!field) return;
+      const reveal = field.type === 'password';
+      field.type = reveal ? 'text' : 'password';
+      const copyKey = reveal ? 'popup_api_key_hide' : 'popup_api_key_show';
+      apiKeyVisibilityBtn.setAttribute('aria-pressed', reveal ? 'true' : 'false');
+      apiKeyVisibilityBtn.setAttribute('data-i18n-title', copyKey);
+      apiKeyVisibilityBtn.setAttribute('data-i18n-aria-label', copyKey);
+      const label = I18n.get(copyKey);
+      if (label) {
+        apiKeyVisibilityBtn.title = label;
+        apiKeyVisibilityBtn.setAttribute('aria-label', label);
+      }
+    });
+  }
   $('refreshEntrypointsBtn').addEventListener('click', () => {
     loadEntrypointStatus().catch((error) => {
       setStatus(String(error?.message || error || I18n.get('popup_entrypoint_check_failed')), 'error');

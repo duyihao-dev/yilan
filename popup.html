@@ -9,557 +9,6 @@
   <script src="shared/ui-format.js"></script>
   <script src="shared/i18n.js"></script>
   <script src="shared/ui-labels.js"></script>
-  <style>
-    :root {
-      --bg: var(--color-base-dark);
-      --panel: var(--color-surface-dark);
-      --field: var(--color-field-dark);
-      --line: var(--color-line-dark);
-      --text: var(--color-ink-dark);
-      --text-soft: var(--color-muted-dark);
-      --accent: var(--color-accent-dark);
-      --accent-strong: var(--color-accent-strong-dark);
-      --danger: #ff7a88;
-      --success: #6fd59a;
-      --warning: #f3c86b;
-      --radius: 16px;
-      --body-bg: var(--body-bg-dark);
-      --brand-gradient: linear-gradient(135deg, var(--color-accent-dark), var(--color-accent-strong-dark));
-      --brand-ink: var(--color-accent-ink-dark);
-      --primary-ink: var(--color-accent-ink-dark);
-      --card-shadow: var(--shadow-md-dark);
-      --surface-soft: var(--color-surface-soft-dark);
-      --surface-strong: var(--color-surface-strong-dark);
-      --surface-outline: var(--color-line-dark);
-      --focus-border: rgba(93, 219, 189, 0.6);
-      --focus-ring: rgba(93, 219, 189, 0.12);
-      --status-bg: rgba(255, 255, 255, 0.04);
-    }
-
-    :root[data-theme='light'] {
-      --bg: var(--color-base-light);
-      --panel: var(--color-surface-light);
-      --field: var(--color-field-light);
-      --line: var(--color-line-light);
-      --text: var(--color-ink-light);
-      --text-soft: var(--color-muted-light);
-      --accent: var(--color-accent-light);
-      --accent-strong: var(--color-accent-strong-light);
-      --danger: #c34f61;
-      --success: #2f8764;
-      --warning: var(--color-warning-light);
-      --body-bg: var(--body-bg-light);
-      --brand-gradient: linear-gradient(135deg, var(--color-accent-light), #1fa89e);
-      --brand-ink: var(--color-accent-ink-light);
-      --primary-ink: var(--color-accent-ink-light);
-      --card-shadow: var(--shadow-md-light);
-      --surface-soft: var(--color-surface-soft-light);
-      --surface-strong: var(--color-surface-strong-light);
-      --surface-outline: var(--color-line-light);
-      --focus-border: rgba(18, 138, 116, 0.45);
-      --focus-ring: rgba(18, 138, 116, 0.12);
-      --status-bg: var(--color-surface-soft-light);
-    }
-
-    :root[data-theme='light'] html,
-    :root[data-theme='light'] body,
-    :root[data-theme='light'] textarea {
-      scrollbar-color: rgba(18, 138, 116, 0.35) rgba(21, 47, 69, 0.06);
-    }
-
-    :root[data-theme='light'] html::-webkit-scrollbar-track,
-    :root[data-theme='light'] body::-webkit-scrollbar-track,
-    :root[data-theme='light'] textarea::-webkit-scrollbar-track {
-      background: rgba(21, 47, 69, 0.05);
-    }
-
-    :root[data-theme='light'] html::-webkit-scrollbar-thumb,
-    :root[data-theme='light'] body::-webkit-scrollbar-thumb,
-    :root[data-theme='light'] textarea::-webkit-scrollbar-thumb {
-      background:
-        linear-gradient(180deg, rgba(90, 149, 232, 0.72), rgba(18, 138, 116, 0.72)) padding-box,
-        linear-gradient(180deg, transparent, transparent) border-box;
-    }
-
-    :root[data-theme='light'] html::-webkit-scrollbar-thumb:hover,
-    :root[data-theme='light'] body::-webkit-scrollbar-thumb:hover,
-    :root[data-theme='light'] textarea::-webkit-scrollbar-thumb:hover {
-      background:
-        linear-gradient(180deg, rgba(90, 149, 232, 0.86), rgba(18, 138, 116, 0.86)) padding-box,
-        linear-gradient(180deg, transparent, transparent) border-box;
-    }
-
-    * { box-sizing: border-box; }
-
-    body {
-      width: 388px;
-      margin: 0;
-      padding: 18px;
-      background: var(--body-bg);
-      color: var(--text);
-      font: 13px/1.6 'IBM Plex Sans', 'Noto Sans SC', 'Segoe UI', sans-serif;
-      transition: background 0.22s ease, color 0.22s ease;
-    }
-
-    html,
-    body,
-    textarea {
-      scrollbar-width: thin;
-      scrollbar-color: rgba(101, 225, 195, 0.42) rgba(255, 255, 255, 0.04);
-    }
-
-    html::-webkit-scrollbar,
-    body::-webkit-scrollbar,
-    textarea::-webkit-scrollbar {
-      width: 10px;
-      height: 10px;
-    }
-
-    html::-webkit-scrollbar-track,
-    body::-webkit-scrollbar-track,
-    textarea::-webkit-scrollbar-track {
-      background: rgba(255, 255, 255, 0.03);
-      border-radius: 999px;
-    }
-
-    html::-webkit-scrollbar-thumb,
-    body::-webkit-scrollbar-thumb,
-    textarea::-webkit-scrollbar-thumb {
-      border-radius: 999px;
-      border: 2px solid transparent;
-      background:
-        linear-gradient(180deg, rgba(95, 160, 220, 0.75), rgba(62, 192, 160, 0.78)) padding-box,
-        linear-gradient(180deg, transparent, transparent) border-box;
-    }
-
-    html::-webkit-scrollbar-thumb:hover,
-    body::-webkit-scrollbar-thumb:hover,
-    textarea::-webkit-scrollbar-thumb:hover {
-      background:
-        linear-gradient(180deg, rgba(125, 190, 242, 0.88), rgba(85, 225, 188, 0.9)) padding-box,
-        linear-gradient(180deg, transparent, transparent) border-box;
-    }
-
-    .hero, .card {
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      box-shadow: var(--card-shadow);
-      transition: background 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
-    }
-
-    .hero {
-      padding: 16px;
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .mark {
-      width: 42px;
-      height: 42px;
-      border-radius: 14px;
-      background: var(--brand-gradient);
-      color: var(--brand-ink);
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    h1 {
-      margin: 0;
-      font-size: 17px;
-    }
-
-    .sub {
-      color: var(--text-soft);
-      font-size: 12px;
-    }
-
-    .tabs {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 8px;
-      margin-bottom: 10px;
-    }
-
-    .tab {
-      border-radius: 999px;
-      font-weight: 700;
-      background: color-mix(in srgb, var(--surface-strong) 78%, transparent);
-    }
-
-    .tab.active {
-      border-color: transparent;
-      background: var(--brand-gradient);
-      color: var(--primary-ink);
-      box-shadow: 0 12px 24px color-mix(in srgb, var(--accent) 28%, transparent);
-    }
-
-    .autosave-note {
-      margin-bottom: 12px;
-      padding: 10px 12px;
-      border-radius: 12px;
-      border: 1px solid var(--surface-outline);
-      background: var(--surface-soft);
-      color: var(--text-soft);
-      font-size: 12px;
-    }
-
-    .tab-panel {
-      display: none;
-      animation: panel-in 0.18s ease;
-    }
-
-    .tab-panel.active {
-      display: block;
-    }
-
-    @keyframes panel-in {
-      from {
-        opacity: 0.72;
-        transform: translateY(3px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .card {
-      padding: 14px;
-      margin-bottom: 12px;
-    }
-
-    .tab-panel .card:last-child {
-      margin-bottom: 0;
-    }
-
-    .card-title {
-      margin-bottom: 10px;
-      font-size: 11px;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--text-soft);
-    }
-
-    .field {
-      margin-bottom: 10px;
-    }
-
-    .field:last-child {
-      margin-bottom: 0;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 4px;
-      color: var(--text-soft);
-    }
-
-    input, select, textarea, button {
-      width: 100%;
-      font: inherit;
-    }
-
-    input, select, textarea {
-      padding: 10px 12px;
-      border-radius: 12px;
-      border: 1px solid var(--line);
-      background: var(--field);
-      color: var(--text);
-      outline: none;
-      transition: background 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease, color 0.22s ease;
-    }
-
-    input:focus, select:focus, textarea:focus {
-      border-color: var(--focus-border);
-      box-shadow: 0 0 0 3px var(--focus-ring);
-    }
-
-    textarea {
-      min-height: 90px;
-      resize: vertical;
-    }
-
-    .hint {
-      margin-top: 4px;
-      color: var(--text-soft);
-      font-size: 12px;
-    }
-
-    .status-grid {
-      display: grid;
-      gap: 10px;
-    }
-
-    .status-row {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 10px 12px;
-      border-radius: 12px;
-      background: var(--surface-soft);
-      border: 1px solid var(--surface-outline);
-    }
-
-    .status-row-main {
-      min-width: 0;
-      flex: 1;
-    }
-
-    .status-badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 78px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      background: var(--surface-strong);
-      color: var(--text);
-      font-size: 12px;
-      white-space: nowrap;
-    }
-
-    .status-badge.success {
-      background: color-mix(in srgb, var(--success) 14%, transparent);
-      color: var(--success);
-    }
-
-    .status-badge.warning {
-      background: color-mix(in srgb, var(--warning) 14%, transparent);
-      color: var(--warning);
-    }
-
-    .status-badge.error {
-      background: color-mix(in srgb, var(--danger) 14%, transparent);
-      color: var(--danger);
-    }
-
-    .status-meta {
-      margin-top: 10px;
-      color: var(--text-soft);
-      font-size: 12px;
-      line-height: 1.5;
-    }
-
-    .toggle-row {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 10px 12px;
-      border-radius: 12px;
-      background: var(--surface-soft);
-      border: 1px solid var(--surface-outline);
-      margin-bottom: 10px;
-    }
-
-    .toggle-row:last-child {
-      margin-bottom: 0;
-    }
-
-    .toggle-row input {
-      width: auto;
-      margin-top: 2px;
-      accent-color: var(--accent-strong);
-    }
-
-    .toggle-title {
-      display: block;
-      color: var(--text);
-    }
-
-    .toggle-desc {
-      display: block;
-      color: var(--text-soft);
-      font-size: 12px;
-    }
-
-    .btn-row {
-      display: grid;
-      gap: 10px;
-      margin-top: 14px;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .btn-row.single {
-      grid-template-columns: 1fr;
-    }
-
-    .inline-row {
-      display: flex;
-      align-items: stretch;
-      gap: 0;
-    }
-
-    .inline-row select,
-    .inline-row input {
-      flex: 1 1 auto;
-      min-width: 0;
-    }
-
-    .inline-row button {
-      flex: 0 0 auto;
-      width: auto;
-      padding: 10px 12px;
-      white-space: nowrap;
-    }
-
-    .inline-row > * {
-      border-radius: 0;
-    }
-
-    .inline-row > :first-child {
-      border-top-left-radius: 12px;
-      border-bottom-left-radius: 12px;
-    }
-
-    .inline-row > :last-child {
-      border-top-right-radius: 12px;
-      border-bottom-right-radius: 12px;
-    }
-
-    /* Prevent double borders when controls are attached */
-    .inline-row > * + * {
-      margin-left: -1px;
-    }
-
-    .inline-row > *:focus {
-      position: relative;
-      z-index: 2;
-    }
-
-    .inline-row > button:hover {
-      position: relative;
-      z-index: 1;
-      transform: none;
-    }
-
-    .icon-btn {
-      width: 42px;
-      padding: 0;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .icon-btn svg {
-      width: 18px;
-      height: 18px;
-    }
-
-    .icon-btn[aria-expanded="true"] {
-      border-color: var(--focus-border);
-      box-shadow: 0 0 0 3px var(--focus-ring);
-    }
-
-    .profile-actions-menu {
-      margin-top: 8px;
-      padding: 8px;
-      border-radius: 12px;
-      border: 1px solid var(--surface-outline);
-      background: var(--surface-soft);
-      display: grid;
-      gap: 8px;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .profile-actions-menu button {
-      width: 100%;
-      text-align: left;
-      padding: 10px 10px;
-      background: color-mix(in srgb, var(--surface-strong) 78%, transparent);
-    }
-
-    .profile-actions-menu button:hover {
-      transform: none;
-    }
-
-    button.danger {
-      border-color: color-mix(in srgb, var(--danger) 40%, transparent);
-      background: color-mix(in srgb, var(--danger) 12%, transparent);
-      color: var(--danger);
-    }
-
-    button {
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      padding: 10px 12px;
-      background: var(--surface-strong);
-      color: var(--text);
-      cursor: pointer;
-      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease, color 0.18s ease;
-    }
-
-    button:disabled {
-      opacity: 0.55;
-      cursor: not-allowed;
-    }
-
-    button:disabled:hover {
-      transform: none;
-      border-color: var(--line);
-    }
-
-    button:hover {
-      transform: translateY(-1px);
-      border-color: color-mix(in srgb, var(--text-soft) 32%, transparent);
-    }
-
-    .primary {
-      border-color: transparent;
-      background: var(--brand-gradient);
-      color: var(--primary-ink);
-      font-weight: 700;
-    }
-
-    .status {
-      margin-top: 12px;
-      padding: 10px 12px;
-      border-radius: 12px;
-      background: var(--status-bg);
-      color: var(--text-soft);
-      min-height: 20px;
-    }
-
-    .status.success { color: var(--success); }
-    .status.warning { color: var(--warning); }
-    .status.error { color: var(--danger); }
-
-    .status-details {
-      margin-top: 10px;
-      padding: 10px 12px;
-      border-radius: 12px;
-      border: 1px solid var(--surface-outline);
-      background: var(--surface-soft);
-      color: var(--text-soft);
-      font-size: 12px;
-    }
-
-    .status-details summary {
-      cursor: pointer;
-      color: var(--text);
-      font-size: 12px;
-      user-select: none;
-    }
-
-    .status-details pre {
-      margin: 10px 0 0;
-      white-space: pre-wrap;
-      word-break: break-word;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      color: var(--text-soft);
-    }
-
-    /* Ensure the HTML `hidden` attribute always works even when display is customized. */
-    [hidden] {
-      display: none !important;
-    }
-  </style>
   <link rel="stylesheet" href="reset.css">
   <link rel="stylesheet" href="design-tokens.css">
   <link rel="stylesheet" href="typography.css">
@@ -567,13 +16,13 @@
   <link rel="stylesheet" href="popup-premium.css">
 </head>
 <body>
-  <div class="hero">
+  <header class="hero">
     <div class="mark">览</div>
-    <div>
+    <div class="hero-copy">
       <h1>一览</h1>
       <div class="sub">Yilan · AI Reading Workspace <span class="version-pill" data-yilan-version>v1.4.1</span></div>
     </div>
-  </div>
+  </header>
 
   <form id="settingsForm" novalidate>
     <div class="tabs" role="tablist" aria-label="设置分组" data-i18n-aria-label="popup_tab_groups_aria">
@@ -609,8 +58,6 @@
       >入口</button>
     </div>
 
-    <div class="autosave-note" data-i18n="popup_autosave_note">设置变更后会自动保存。文本输入会在停顿后保存，离开输入框时也会立即保存。</div>
-
     <section
       class="tab-panel active"
       id="panel-connection"
@@ -618,33 +65,88 @@
       role="tabpanel"
       aria-labelledby="tab-connection"
     >
-      <div class="card connection-card">
-        <div class="card-title" data-i18n="popup_card_model_connection">模型连接</div>
-
-        <div class="field">
-          <label for="providerPreset" data-i18n="popup_label_provider">服务商</label>
-          <select id="providerPreset"></select>
-          <div id="presetHint" class="hint"></div>
+      <section class="section" aria-label="配置方案" data-i18n-aria-label="popup_label_profiles">
+        <div class="section-title" data-i18n="popup_label_profiles">配置方案</div>
+        <div class="inline-row">
+          <select id="profileSelect" aria-label="配置方案" data-i18n-aria-label="popup_label_profiles"></select>
+          <button
+            type="button"
+            id="profileActionsBtn"
+            class="icon-btn"
+            title="管理配置方案"
+            aria-label="管理配置方案"
+            aria-expanded="false"
+            aria-controls="profileActionsMenu"
+            data-i18n-title="popup_manage_profiles"
+            data-i18n-aria-label="popup_manage_profiles"
+          >
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <circle cx="12" cy="5" r="1.8"></circle>
+              <circle cx="12" cy="12" r="1.8"></circle>
+              <circle cx="12" cy="19" r="1.8"></circle>
+            </svg>
+          </button>
         </div>
-
-        <div class="field">
-          <label for="apiKey">API Key</label>
-          <input id="apiKey" type="password" placeholder="sk-..." autocomplete="off" data-autosave="debounced">
-          <div id="apiKeyHint" class="hint" data-i18n="popup_api_key_hint_default">填写所选服务商的 API Key。</div>
-          <details class="inline-help">
-            <summary data-i18n="popup_key_storage_summary">密钥存储说明</summary>
-            <div data-i18n="popup_key_storage_detail">API Key 会通过 Chrome 同步存储，可能同步到你的 Google 账号。如有顾虑，请在 Chrome 设置中关闭同步，或仅在不开启同步的浏览器配置中使用。</div>
-          </details>
+        <div id="profileActionsMenu" class="profile-actions-menu" hidden>
+          <button type="button" id="profileNewBtn" data-i18n="popup_profile_new_btn">新建配置方案</button>
+          <button type="button" id="profileSaveAsBtn" data-i18n="popup_profile_save_as_btn">另存为…</button>
+          <button type="button" id="profileRenameBtn" data-i18n="popup_profile_rename_btn">重命名…</button>
+          <button type="button" id="profileDeleteBtn" class="danger" data-i18n="popup_profile_delete_btn">删除</button>
         </div>
+        <div id="profileHint" class="hint"></div>
+      </section>
 
-        <div class="field">
-          <label for="modelName" data-i18n="popup_label_model">模型</label>
-          <div class="inline-row">
-            <input id="modelName" type="text" placeholder="gpt-4o-mini" data-autosave="debounced" list="modelNameOptions">
-            <button type="button" id="refreshModelsBtn" data-i18n="popup_refresh_models_btn">刷新</button>
+      <section class="section" aria-label="模型连接" data-i18n-aria-label="popup_card_model_connection">
+        <div class="section-title" data-i18n="popup_card_model_connection">模型连接</div>
+        <div class="connection-steps">
+          <div class="field">
+            <label for="providerPreset" data-i18n="popup_label_provider">服务商</label>
+            <select id="providerPreset"></select>
+            <div id="presetHint" class="hint"></div>
           </div>
-          <datalist id="modelNameOptions"></datalist>
-          <div id="modelListHint" class="hint"></div>
+
+          <div class="field">
+            <label for="apiKey">API Key</label>
+            <div class="inline-row">
+              <input id="apiKey" type="password" placeholder="sk-..." autocomplete="off" data-autosave="debounced">
+              <button
+                type="button"
+                id="apiKeyVisibilityBtn"
+                class="icon-btn"
+                aria-pressed="false"
+                title="显示 API Key"
+                aria-label="显示 API Key"
+                data-i18n-title="popup_api_key_show"
+                data-i18n-aria-label="popup_api_key_show"
+              >
+                <svg class="icon-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                <svg class="icon-eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M17.94 17.94A10.6 10.6 0 0 1 12 19c-6.5 0-10-7-10-7a17.6 17.6 0 0 1 4.06-4.94"></path>
+                  <path d="M9.9 4.24A9.9 9.9 0 0 1 12 5c6.5 0 10 7 10 7a17.7 17.7 0 0 1-2.16 3.19"></path>
+                  <path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"></path>
+                  <path d="m2 2 20 20"></path>
+                </svg>
+              </button>
+            </div>
+            <div id="apiKeyHint" class="hint" data-i18n="popup_api_key_hint_default">填写所选服务商的 API Key。</div>
+            <details class="inline-help">
+              <summary data-i18n="popup_key_storage_summary">密钥存储说明</summary>
+              <div data-i18n="popup_key_storage_detail">API Key 会通过 Chrome 同步存储，可能同步到你的 Google 账号。如有顾虑，请在 Chrome 设置中关闭同步，或仅在不开启同步的浏览器配置中使用。</div>
+            </details>
+          </div>
+
+          <div class="field">
+            <label for="modelName" data-i18n="popup_label_model">模型</label>
+            <div class="inline-row">
+              <input id="modelName" type="text" placeholder="gpt-4o-mini" data-autosave="debounced" list="modelNameOptions">
+              <button type="button" id="refreshModelsBtn" data-i18n="popup_refresh_models_btn">刷新</button>
+            </div>
+            <datalist id="modelNameOptions"></datalist>
+            <div id="modelListHint" class="hint"></div>
+          </div>
         </div>
 
         <details id="advancedConnectionSettings" class="advanced-settings">
@@ -675,43 +177,10 @@
           <div id="providerCatalogMeta" class="hint"></div>
         </details>
 
-        <div class="btn-row single connection-actions">
+        <div class="btn-row single">
           <button type="button" id="testBtn" class="primary" data-i18n="popup_test_btn">测试连接</button>
         </div>
-
-        <div class="connection-profiles">
-          <div class="field">
-            <label for="profileSelect" data-i18n="popup_label_profiles">配置方案</label>
-            <div class="inline-row">
-              <select id="profileSelect"></select>
-              <button
-                type="button"
-                id="profileActionsBtn"
-                class="icon-btn"
-                title="管理配置方案"
-                aria-label="管理配置方案"
-                aria-expanded="false"
-                aria-controls="profileActionsMenu"
-                data-i18n-title="popup_manage_profiles"
-                data-i18n-aria-label="popup_manage_profiles"
-              >
-                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                  <circle cx="12" cy="5" r="1.8"></circle>
-                  <circle cx="12" cy="12" r="1.8"></circle>
-                  <circle cx="12" cy="19" r="1.8"></circle>
-                </svg>
-              </button>
-            </div>
-            <div id="profileActionsMenu" class="profile-actions-menu" hidden>
-              <button type="button" id="profileNewBtn" data-i18n="popup_profile_new_btn">新建配置方案</button>
-              <button type="button" id="profileSaveAsBtn" data-i18n="popup_profile_save_as_btn">另存为…</button>
-              <button type="button" id="profileRenameBtn" data-i18n="popup_profile_rename_btn">重命名…</button>
-              <button type="button" id="profileDeleteBtn" class="danger" data-i18n="popup_profile_delete_btn">删除</button>
-            </div>
-            <div id="profileHint" class="hint"></div>
-          </div>
-        </div>
-      </div>
+      </section>
     </section>
 
     <section
@@ -722,8 +191,8 @@
       aria-labelledby="tab-preferences"
       hidden
     >
-      <div class="card">
-        <div class="card-title" data-i18n="popup_card_behaviors">产品行为</div>
+      <section class="section" aria-label="产品行为" data-i18n-aria-label="popup_card_behaviors">
+        <div class="section-title" data-i18n="popup_card_behaviors">产品行为</div>
         <div class="field">
           <label for="systemPrompt" data-i18n="popup_label_system_prompt">额外系统要求</label>
           <textarea
@@ -732,13 +201,6 @@
             data-autosave="debounced"
             data-i18n-placeholder="popup_system_prompt_placeholder"
           ></textarea>
-        </div>
-        <div class="toggle-row">
-          <div>
-            <span class="toggle-title" data-i18n="popup_toggle_auto_translate_title">自动翻译输出</span>
-            <span class="toggle-desc" data-i18n="popup_toggle_auto_translate_desc">根据默认语言自动切换摘要输出语言。</span>
-          </div>
-          <input id="autoTranslate" type="checkbox" data-autosave="immediate">
         </div>
         <div class="field">
           <label for="defaultLanguage" data-i18n="popup_label_default_language">默认输出语言</label>
@@ -760,10 +222,17 @@
           </select>
           <div class="hint" data-i18n="popup_chunk_concurrency_hint">长文分段摘要的并行请求数；1 为逐段串行，默认 2，网关限流严格时可调低。</div>
         </div>
-      </div>
+        <div class="toggle-row">
+          <div class="toggle-copy">
+            <span class="toggle-title" data-i18n="popup_toggle_auto_translate_title">自动翻译输出</span>
+            <span class="toggle-desc" data-i18n="popup_toggle_auto_translate_desc">根据默认语言自动切换摘要输出语言。</span>
+          </div>
+          <input id="autoTranslate" type="checkbox" data-autosave="immediate">
+        </div>
+      </section>
 
-      <div class="card">
-        <div class="card-title" data-i18n="popup_card_appearance">界面外观</div>
+      <section class="section" aria-label="界面外观" data-i18n-aria-label="popup_card_appearance">
+        <div class="section-title" data-i18n="popup_card_appearance">界面外观</div>
         <div class="field">
           <label for="uiLanguage" data-i18n="popup_label_ui_language">界面语言</label>
           <select id="uiLanguage" data-autosave="immediate">
@@ -784,79 +253,67 @@
         <div class="field">
           <div id="themePaletteLabel" class="field-label" data-i18n="popup_label_palette">色彩方案</div>
           <input id="themePalette" type="hidden" value="jade">
-          <div id="themePaletteGroup" class="palette-grid" role="radiogroup" aria-labelledby="themePaletteLabel">
-            <button type="button" class="palette-option palette-option--jade" data-palette-option="jade" role="radio" aria-checked="true">
+          <div id="themePaletteGroup" class="palette-row" role="radiogroup" aria-labelledby="themePaletteLabel">
+            <button type="button" class="palette-option palette-option--jade" data-palette-option="jade" role="radio" aria-checked="true" title="默认，清爽稳定" data-i18n-title="popup_palette_jade_desc">
               <span class="palette-swatch" aria-hidden="true">
                 <span></span><span></span><span></span>
               </span>
-              <span class="palette-copy">
-                <span class="palette-name" data-i18n="popup_palette_jade_name">松石绿</span>
-                <span class="palette-desc" data-i18n="popup_palette_jade_desc">默认，清爽稳定</span>
-              </span>
+              <span class="palette-name" data-i18n="popup_palette_jade_name">松石绿</span>
             </button>
-            <button type="button" class="palette-option palette-option--slate" data-palette-option="slate" role="radio" aria-checked="false">
+            <button type="button" class="palette-option palette-option--slate" data-palette-option="slate" role="radio" aria-checked="false" title="冷静，阅读感强" data-i18n-title="popup_palette_slate_desc">
               <span class="palette-swatch" aria-hidden="true">
                 <span></span><span></span><span></span>
               </span>
-              <span class="palette-copy">
-                <span class="palette-name" data-i18n="popup_palette_slate_name">雾蓝</span>
-                <span class="palette-desc" data-i18n="popup_palette_slate_desc">冷静，阅读感强</span>
-              </span>
+              <span class="palette-name" data-i18n="popup_palette_slate_name">雾蓝</span>
             </button>
-            <button type="button" class="palette-option palette-option--copper" data-palette-option="copper" role="radio" aria-checked="false">
+            <button type="button" class="palette-option palette-option--copper" data-palette-option="copper" role="radio" aria-checked="false" title="温润，不偏黄" data-i18n-title="popup_palette_copper_desc">
               <span class="palette-swatch" aria-hidden="true">
                 <span></span><span></span><span></span>
               </span>
-              <span class="palette-copy">
-                <span class="palette-name" data-i18n="popup_palette_copper_name">岩茶棕</span>
-                <span class="palette-desc" data-i18n="popup_palette_copper_desc">温润，不偏黄</span>
-              </span>
+              <span class="palette-name" data-i18n="popup_palette_copper_name">岩茶棕</span>
             </button>
-            <button type="button" class="palette-option palette-option--plum" data-palette-option="plum" role="radio" aria-checked="false">
+            <button type="button" class="palette-option palette-option--plum" data-palette-option="plum" role="radio" aria-checked="false" title="克制，有品牌感" data-i18n-title="popup_palette_plum_desc">
               <span class="palette-swatch" aria-hidden="true">
                 <span></span><span></span><span></span>
               </span>
-              <span class="palette-copy">
-                <span class="palette-name" data-i18n="popup_palette_plum_name">檀紫</span>
-                <span class="palette-desc" data-i18n="popup_palette_plum_desc">克制，有品牌感</span>
-              </span>
+              <span class="palette-name" data-i18n="popup_palette_plum_name">檀紫</span>
             </button>
           </div>
           <div id="paletteHint" class="hint" data-i18n="popup_palette_hint_default">色彩方案会同步到 popup、侧栏和阅读页。</div>
         </div>
         <div class="toggle-row">
-          <div>
+          <div class="toggle-copy">
             <span class="toggle-title" data-i18n="popup_toggle_compact_title">侧栏默认精简模式</span>
             <span class="toggle-desc" data-i18n="popup_toggle_compact_desc">开启后，每次打开侧栏都会自动进入精简布局，优先把空间留给总结内容。</span>
           </div>
           <input id="sidebarCompactMode" type="checkbox" data-autosave="immediate">
         </div>
-      </div>
+      </section>
 
-      <div class="card">
-        <div class="card-title" data-i18n="popup_card_privacy">隐私与控制</div>
-        <div class="toggle-row">
-          <div>
+      <section class="section" aria-label="隐私与控制" data-i18n-aria-label="popup_card_privacy">
+        <div class="section-title" data-i18n="popup_card_privacy">隐私与控制</div>
+        <div class="toggle-row toggle-row--first">
+          <div class="toggle-copy">
             <span class="toggle-title" data-i18n="popup_toggle_privacy_title">无痕模式</span>
             <span class="toggle-desc" data-i18n="popup_toggle_privacy_desc">仍会把当前页面内容发送给模型，但不会写入本地历史记录。</span>
           </div>
           <input id="privacyMode" type="checkbox" data-autosave="immediate">
         </div>
         <div class="toggle-row">
-          <div>
+          <div class="toggle-copy">
             <span class="toggle-title" data-i18n="popup_toggle_history_title">默认写入历史</span>
             <span class="toggle-desc" data-i18n="popup_toggle_history_desc">关闭后，新的总结结果只保留在当前侧栏，不进入历史记录。</span>
           </div>
           <input id="defaultAllowHistory" type="checkbox" data-autosave="immediate">
         </div>
         <div class="toggle-row">
-          <div>
+          <div class="toggle-copy">
             <span class="toggle-title" data-i18n="popup_toggle_share_title">允许分享卡</span>
             <span class="toggle-desc" data-i18n="popup_toggle_share_desc">控制长截图分享功能，分享卡会附带来源链接。</span>
           </div>
           <input id="defaultAllowShare" type="checkbox" data-autosave="immediate">
         </div>
-      </div>
+      </section>
     </section>
 
     <section
@@ -867,38 +324,38 @@
       aria-labelledby="tab-entrypoints"
       hidden
     >
-      <div class="card">
-        <div class="card-title" data-i18n="popup_card_quick_actions">快捷操作</div>
-        <div class="hint"><span data-i18n="popup_quick_hint_prefix">右键菜单“用一览总结此页”或快捷键</span> <code>Alt + S</code> <span data-i18n="popup_quick_hint_suffix">可直接打开侧栏。</span></div>
+      <section class="section" aria-label="快捷操作" data-i18n-aria-label="popup_card_quick_actions">
+        <div class="section-title" data-i18n="popup_card_quick_actions">快捷操作</div>
+        <p class="section-lead"><span data-i18n="popup_quick_hint_prefix">右键菜单“用一览总结此页”或快捷键</span> <code>Alt + S</code> <span data-i18n="popup_quick_hint_suffix">可直接打开侧栏。</span></p>
+        <div class="btn-row single">
+          <button type="button" id="historyBtn" class="primary" data-i18n="popup_history_btn">打开历史记录</button>
+        </div>
         <div class="toggle-row">
-          <div>
+          <div class="toggle-copy">
             <span class="toggle-title" data-i18n="popup_toggle_autostart_title">入口自动生成摘要</span>
             <span class="toggle-desc" data-i18n="popup_toggle_autostart_desc">开启后，右键菜单或 Alt + S 会直接开始生成；关闭后只打开侧栏。</span>
           </div>
           <input id="entrypointAutoStart" type="checkbox" data-autosave="immediate">
         </div>
         <div class="toggle-row">
-          <div>
+          <div class="toggle-copy">
             <span class="toggle-title" data-i18n="popup_toggle_simple_title">入口默认简短总结</span>
             <span class="toggle-desc" data-i18n="popup_toggle_simple_desc">入口触发时默认使用更省 token 的简短模式。</span>
           </div>
           <input id="entrypointSimpleMode" type="checkbox" data-autosave="immediate">
         </div>
         <div class="toggle-row">
-          <div>
+          <div class="toggle-copy">
             <span class="toggle-title" data-i18n="popup_toggle_reuse_title">优先显示本页历史摘要</span>
             <span class="toggle-desc" data-i18n="popup_toggle_reuse_desc">如果当前页面已有已完成摘要，先直接展示最近一条记录，不自动重跑；仍可手动点击“重新生成”更新。</span>
           </div>
           <input id="entrypointReuseHistory" type="checkbox" data-autosave="immediate">
         </div>
-        <div class="btn-row single">
-          <button type="button" id="historyBtn" data-i18n="popup_history_btn">打开历史记录</button>
-        </div>
-      </div>
+      </section>
 
-      <div class="card">
-        <div class="card-title" data-i18n="popup_card_entrypoints">入口与快捷键</div>
-        <div class="status-grid">
+      <section class="section" aria-label="入口与快捷键" data-i18n-aria-label="popup_card_entrypoints">
+        <div class="section-title" data-i18n="popup_card_entrypoints">入口与快捷键</div>
+        <div class="status-list">
           <div class="status-row">
             <div class="status-row-main">
               <span class="toggle-title" data-i18n="popup_context_menu_title">右键菜单</span>
@@ -920,14 +377,16 @@
           <button type="button" id="refreshEntrypointsBtn" data-i18n="popup_refresh_entrypoints_btn">检查入口</button>
           <button type="button" id="shortcutSettingsBtn" data-i18n="popup_shortcut_settings_btn">快捷键设置</button>
         </div>
-      </div>
+      </section>
     </section>
 
-    <div id="status" class="status" data-i18n="popup_idle_status">设置修改后会自动保存。</div>
-    <details id="statusDetails" class="status-details" hidden>
-      <summary data-i18n="popup_status_details_summary">错误详情</summary>
-      <pre id="statusDetailsText"></pre>
-    </details>
+    <footer class="footer">
+      <div id="status" class="status" data-i18n="popup_idle_status">设置修改后会自动保存。</div>
+      <details id="statusDetails" class="status-details" hidden>
+        <summary data-i18n="popup_status_details_summary">错误详情</summary>
+        <pre id="statusDetailsText"></pre>
+      </details>
+    </footer>
   </form>
 
   <script src="shared/errors.js"></script>

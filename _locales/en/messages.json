@@ -476,6 +476,12 @@
   "popup_api_key_hint_default": {
     "message": "Enter the API Key for the selected provider."
   },
+  "popup_api_key_show": {
+    "message": "Show API Key"
+  },
+  "popup_api_key_hide": {
+    "message": "Hide API Key"
+  },
   "popup_endpoint_mode_hint_suffix": {
     "message": "The final path is appended according to this mode: $path$.",
     "placeholders": {

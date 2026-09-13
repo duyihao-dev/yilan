@@ -476,6 +476,12 @@
   "popup_api_key_hint_default": {
     "message": "填写所选服务商的 API Key。"
   },
+  "popup_api_key_show": {
+    "message": "显示 API Key"
+  },
+  "popup_api_key_hide": {
+    "message": "隐藏 API Key"
+  },
   "popup_endpoint_mode_hint_suffix": {
     "message": "当前会按这个模式补最终路径：$path$。",
     "placeholders": {
