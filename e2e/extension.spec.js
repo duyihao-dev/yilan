@@ -149,6 +149,32 @@ test.describe('Yilan extension E2E', () => {
     }
   });
 
+  test('switching the uiLanguage setting repaints the popup copy', async () => {
+    const harness = await launchExtensionContext();
+    try {
+      await resetExtensionState(harness.serviceWorker);
+
+      const popupPage = await openExtensionPage(harness.context, harness.extensionId, 'popup.html');
+      await expect(popupPage.locator('#testBtn')).toContainText('测试连接');
+      await expect(popupPage.locator('#status')).toContainText('设置修改后会自动保存。');
+
+      await popupPage.click('.tab[data-tab="preferences"]');
+      await popupPage.selectOption('#uiLanguage', 'en');
+
+      // The autosaved setting drives YilanI18n's override: data-i18n copy and
+      // the dynamic idle status must both switch without reopening the popup.
+      await expect(popupPage.locator('#testBtn')).toContainText('Test connection');
+      await expect(popupPage.locator('#status')).toContainText('Changes are saved automatically.');
+      await expect(popupPage.locator('#uiLanguage')).toHaveValue('en');
+
+      await popupPage.reload();
+      await expect(popupPage.locator('#testBtn')).toContainText('Test connection');
+      await expect(popupPage.locator('#uiLanguage')).toHaveValue('en');
+    } finally {
+      await harness.close();
+    }
+  });
+
   test('popup debounced autosave persists edited settings without explicit submit', async () => {
     const harness = await launchExtensionContext();
     try {
@@ -693,7 +719,8 @@ test.describe('Yilan extension E2E', () => {
     try {
       await resetExtensionState(harness.serviceWorker);
       await overrideRuntimePolicy(harness.serviceWorker, {
-        maxRetries: 2
+        maxRetries: 2,
+        jitter: 'deterministic'
       });
       await mockFetchFailures(harness.serviceWorker, ['Failed to fetch']);
       await setSyncSettings(harness.serviceWorker, buildDefaultSettings(server.origin, {
@@ -727,7 +754,8 @@ test.describe('Yilan extension E2E', () => {
     try {
       await resetExtensionState(harness.serviceWorker);
       await overrideRuntimePolicy(harness.serviceWorker, {
-        maxRetries: 3
+        maxRetries: 3,
+        jitter: 'deterministic'
       });
       await mockFetchFailures(harness.serviceWorker, ['Failed to fetch', 'Failed to fetch']);
       await setSyncSettings(harness.serviceWorker, buildDefaultSettings(server.origin, {

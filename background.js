@@ -1,4 +1,5 @@
 importScripts(
+  'shared/i18n.js',
   'shared/domain.js',
   'shared/errors.js',
   'shared/provider-catalog.generated.js',
@@ -6,6 +7,7 @@ importScripts(
   'shared/constants.js',
   'shared/adapter-utils.js',
   'shared/url-utils.js',
+  'shared/chrome-api.js',
   'adapters/openai-adapter.js',
   'adapters/anthropic-adapter.js',
   'adapters/registry.js'
@@ -16,7 +18,9 @@ importScripts(
   'shared/transport-utils.js',
   'background/run-state.js',
   'background/reader-sessions.js',
-  'background/entrypoints.js'
+  'background/entrypoints.js',
+  'background/endpoint-cache.js',
+  'background/models-cache.js'
 );
 
 const AbortUtils = self.AISummaryAbortUtils;
@@ -26,8 +30,19 @@ const Constants = self.AISummaryConstants;
 const UrlUtils = self.AISummaryUrlUtils;
 const AdapterRegistry = self.AISummaryAdapterRegistry;
 const TransportUtils = self.AISummaryTransportUtils;
+const ChromeApi = self.YilanChromeApi;
 const RunState = self.YilanRunState;
 const ReaderSessions = self.YilanReaderSessions;
+const AutoEndpointCache = self.YilanAutoEndpointCache;
+const ModelsCache = self.YilanModelsCache;
+
+function bgText(key, fallback) {
+  try {
+    return self.chrome.i18n?.getMessage?.(key) || fallback;
+  } catch (error) {
+    return fallback;
+  }
+}
 const Entrypoints = self.YilanEntrypoints;
 
 const CONTENT_SCRIPT_FILES = [
@@ -42,185 +57,7 @@ const CONTENT_SCRIPT_FILES = [
   'content.js'
 ];
 
-const AUTO_ENDPOINT_CACHE_STORAGE_KEY = 'yilanAutoEndpointModeCacheV1';
-let autoEndpointModeCache = null;
-let autoEndpointModeCacheLoad = null;
-
-const MODELS_CACHE_STORAGE_KEY = 'yilanModelsCacheV1';
-let modelsCache = null;
-let modelsCacheLoad = null;
-
-function storageLocalGetStrict(keys) {
-  return new Promise((resolve, reject) => {
-    chrome.storage.local.get(keys, (items) => {
-      const error = readRuntimeLastErrorMessage();
-      if (error) {
-        reject(new Error(error));
-        return;
-      }
-      resolve(items || {});
-    });
-  });
-}
-
-function storageLocalSetStrict(payload) {
-  return new Promise((resolve, reject) => {
-    chrome.storage.local.set(payload, () => {
-      const error = readRuntimeLastErrorMessage();
-      if (error) {
-        reject(new Error(error));
-        return;
-      }
-      resolve();
-    });
-  });
-}
-
-function normalizeStoredCacheRecord(raw) {
-  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return {};
-  return Object.assign({}, raw);
-}
-
-function loadAutoEndpointModeCache() {
-  if (autoEndpointModeCache) return Promise.resolve(autoEndpointModeCache);
-  if (autoEndpointModeCacheLoad) return autoEndpointModeCacheLoad;
-
-  autoEndpointModeCacheLoad = storageLocalGetStrict([AUTO_ENDPOINT_CACHE_STORAGE_KEY])
-    .then((items) => {
-      autoEndpointModeCache = normalizeStoredCacheRecord(items?.[AUTO_ENDPOINT_CACHE_STORAGE_KEY]);
-      return autoEndpointModeCache;
-    })
-    .catch((error) => {
-      autoEndpointModeCacheLoad = null;
-      console.warn('[Yilan] Failed to load auto endpoint cache.', error);
-      return {};
-    });
-
-  return autoEndpointModeCacheLoad;
-}
-
-function normalizeOpenAiBaseRootForCache(value) {
-  const raw = String(value || '').trim();
-  if (!raw) return '';
-
-  // Normalize by stripping common endpoint suffixes and removing hash/search.
-  try {
-    const parsed = new URL(raw);
-    parsed.hash = '';
-    parsed.search = '';
-    let path = String(parsed.pathname || '').replace(/\/+$/g, '');
-    path = path
-      .replace(/\/chat\/completions$/i, '')
-      .replace(/\/responses$/i, '')
-      .replace(/\/completions$/i, '');
-    parsed.pathname = path || '/';
-    return parsed.toString().replace(/\/$/g, '');
-  } catch {
-    return raw
-      .replace(/\/+$/g, '')
-      .replace(/\/chat\/completions$/i, '')
-      .replace(/\/responses$/i, '')
-      .replace(/\/completions$/i, '')
-      .toLowerCase();
-  }
-}
-
-function getAutoEndpointModeCacheKey(settings) {
-  const provider = String(settings?.aiProvider || '').toLowerCase();
-  if (provider !== 'openai') return '';
-
-  const baseUrl = String(settings?.aiBaseURL || '').trim() || 'https://api.openai.com/v1';
-  const baseRoot = normalizeOpenAiBaseRootForCache(baseUrl);
-  return baseRoot ? provider + '|' + baseRoot : '';
-}
-
-async function getCachedAutoEndpointMode(cacheKey) {
-  if (!cacheKey) return '';
-  const cache = await loadAutoEndpointModeCache();
-  const value = cache?.[cacheKey];
-  return typeof value === 'string' ? value : '';
-}
-
-async function setCachedAutoEndpointMode(cacheKey, mode) {
-  if (!cacheKey || !mode) return;
-  const cache = normalizeStoredCacheRecord(await loadAutoEndpointModeCache());
-  if (cache[cacheKey] === mode) return;
-
-  const nextCache = Object.assign({}, cache, { [cacheKey]: mode });
-  try {
-    await storageLocalSetStrict({ [AUTO_ENDPOINT_CACHE_STORAGE_KEY]: nextCache });
-    autoEndpointModeCache = nextCache;
-  } catch (error) {
-    console.warn('[Yilan] Failed to persist auto endpoint cache.', error);
-  }
-}
-
-function loadModelsCache() {
-  if (modelsCache) return Promise.resolve(modelsCache);
-  if (modelsCacheLoad) return modelsCacheLoad;
-
-  modelsCacheLoad = storageLocalGetStrict([MODELS_CACHE_STORAGE_KEY])
-    .then((items) => {
-      modelsCache = normalizeStoredCacheRecord(items?.[MODELS_CACHE_STORAGE_KEY]);
-      return modelsCache;
-    })
-    .catch((error) => {
-      modelsCacheLoad = null;
-      console.warn('[Yilan] Failed to load models cache.', error);
-      return {};
-    });
-
-  return modelsCacheLoad;
-}
-
-function getModelsCacheKey(settings, runtime) {
-  const provider = String(settings?.aiProvider || '').toLowerCase();
-  if (!provider) return '';
-
-  const baseUrl = String(runtime?.baseUrl || settings?.aiBaseURL || '').trim() || (provider === 'openai' ? 'https://api.openai.com/v1' : '');
-  if (!baseUrl) return provider;
-
-  const baseRoot = normalizeOpenAiBaseRootForCache(baseUrl);
-  return baseRoot ? provider + '|' + baseRoot.toLowerCase() : provider;
-}
-
-function normalizeModelsCacheEntry(entry) {
-  if (!entry || typeof entry !== 'object') return null;
-  const models = Array.isArray(entry.models) ? entry.models.filter((id) => typeof id === 'string' && id.trim()) : [];
-  if (!models.length) return null;
-
-  return {
-    fetchedAt: String(entry.fetchedAt || ''),
-    models
-  };
-}
-
-async function setCachedModels(cacheKey, entry) {
-  if (!cacheKey) return;
-
-  const normalized = normalizeModelsCacheEntry(entry);
-  if (!normalized) return;
-
-  const cache = normalizeStoredCacheRecord(await loadModelsCache());
-  const nextCache = Object.assign({}, cache, { [cacheKey]: normalized });
-
-  const entries = Object.entries(nextCache);
-  if (entries.length > 20) {
-    entries
-      .sort((a, b) => String(b?.[1]?.fetchedAt || '').localeCompare(String(a?.[1]?.fetchedAt || '')))
-      .slice(20)
-      .forEach(([key]) => {
-        delete nextCache[key];
-      });
-  }
-
-  try {
-    await storageLocalSetStrict({ [MODELS_CACHE_STORAGE_KEY]: nextCache });
-    modelsCache = nextCache;
-  } catch (error) {
-    console.warn('[Yilan] Failed to persist models cache.', error);
-  }
-}
+const normalizeOpenAiBaseRootForCache = UrlUtils.normalizeOpenAiBaseRoot;
 
 function createErrorResponse(error, fallbackMessage, additionalFields = {}) {
   const normalized = Errors.normalizeError(error, error?.code, error);
@@ -231,18 +68,7 @@ function createErrorResponse(error, fallbackMessage, additionalFields = {}) {
   };
 }
 
-function createTab(url) {
-  return new Promise((resolve) => {
-    chrome.tabs.create({ url }, (tab) => {
-      const error = chrome.runtime.lastError?.message || '';
-      resolve({
-        success: !error,
-        error,
-        tab: tab || null
-      });
-    });
-  });
-}
+const createTab = ChromeApi.createTab;
 
 async function safeInjectAndRun(tab, action) {
   if (!tab?.id) return;
@@ -273,17 +99,11 @@ Entrypoints.bindEntrypoints({
   onTrigger: safeInjectAndRun
 });
 
-function wait(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-function tryParseJson(raw) {
-  try {
-    return JSON.parse(raw);
-  } catch {
-    return null;
-  }
-}
+const tryParseJson = TransportUtils.tryParseJson;
+const createTransportPayload = TransportUtils.createTransportPayload;
+const sanitizeErrorForTransport = TransportUtils.sanitizeErrorForTransport;
+const sanitizeDiagnosticsForTransport = TransportUtils.sanitizeDiagnosticsForTransport;
+const safePortPost = TransportUtils.safePortPost;
 
 function buildErrorContext(runtime, stage) {
   return {
@@ -292,6 +112,7 @@ function buildErrorContext(runtime, stage) {
     stage: stage || ''
   };
 }
+
 
 function createDiagnostics(runId, runtime, meta) {
   return {
@@ -320,115 +141,9 @@ function createDiagnostics(runId, runtime, meta) {
   };
 }
 
-function toSerializableValue(value, seen) {
-  if (value === null) return null;
 
-  const type = typeof value;
-  if (type === 'string' || type === 'number' || type === 'boolean') return value;
-  if (type === 'bigint') return String(value);
-  if (type === 'undefined' || type === 'function' || type === 'symbol') return null;
-  if (value instanceof Date) return value.toISOString();
-  if (Array.isArray(value)) {
-    return value.map((item) => toSerializableValue(item, seen));
-  }
-
-  if (type !== 'object') {
-    return String(value);
-  }
-
-  if (seen.has(value)) {
-    return '[Circular]';
-  }
-
-  seen.add(value);
-
-  if (value instanceof Error) {
-    const serializedError = {
-      name: value.name || 'Error',
-      message: value.message || String(value),
-      stack: value.stack || ''
-    };
-    seen.delete(value);
-    return serializedError;
-  }
-
-  const output = {};
-  Object.keys(value).forEach((key) => {
-    const next = toSerializableValue(value[key], seen);
-    if (typeof next !== 'undefined') {
-      output[key] = next;
-    }
-  });
-
-  seen.delete(value);
-  return output;
-}
-
-function createTransportPayload(payload) {
-  return toSerializableValue(payload, new WeakSet());
-}
-
-function sanitizeErrorForTransport(errorLike) {
-  if (!errorLike) return null;
-
-  const normalized = Errors.normalizeError(errorLike, errorLike?.code, {});
-  const safeError = {
-    code: normalized.code || Errors.ERROR_CODES.UNKNOWN_ERROR,
-    message: normalized.message || '',
-    retriable: !!normalized.retriable,
-    detail: normalized.detail || '',
-    stage: normalized.stage || '',
-    provider: normalized.provider || '',
-    endpointMode: normalized.endpointMode || ''
-  };
-
-  if (errorLike?.status) safeError.status = errorLike.status;
-  if (errorLike?.name) safeError.name = errorLike.name;
-
-  return createTransportPayload(safeError);
-}
-
-function sanitizeDiagnosticsForTransport(diagnostics) {
-  if (!diagnostics) return null;
-
-  const safeDiagnostics = Object.assign({}, diagnostics);
-
-  // Remove sensitive fields that could expose user configuration
-  delete safeDiagnostics.baseUrl;  // Custom API endpoints
-  delete safeDiagnostics.family;   // Internal adapter family classification
-
-  safeDiagnostics.lastError = diagnostics.lastError ? sanitizeErrorForTransport(diagnostics.lastError) : null;
-  return createTransportPayload(safeDiagnostics);
-}
-
-function safePortPost(port, payload) {
-  if (!port) return false;
-  try {
-    port.postMessage(createTransportPayload(payload));
-    return true;
-  } catch (error) {
-    console.warn('[Yilan] Failed to post message to stream port.', error);
-    return false;
-  }
-}
-
-function readRuntimeLastErrorMessage() {
-  return chrome.runtime.lastError?.message || '';
-}
-
-function safeSendResponse(sendResponse, payload) {
-  if (typeof sendResponse !== 'function') return false;
-  try {
-    sendResponse(createTransportPayload(payload));
-    return true;
-  } catch (error) {
-    console.warn('[Yilan] Failed to send runtime response.', error);
-    try {
-      sendResponse({ success: false, error: 'response_serialization_failed' });
-    } catch {}
-    return false;
-  }
-}
+const readRuntimeLastErrorMessage = ChromeApi.readRuntimeLastErrorMessage;
+const safeSendResponse = TransportUtils.safeSendResponse;
 
 function normalizeRuntimeError(error, runtime, stage, runId, options) {
   return TransportUtils.normalizeTransportError(error, runtime, stage, Object.assign({
@@ -463,18 +178,9 @@ function isAutoEndpointNotSupportedError(errorLike) {
   return false;
 }
 
-function normalizeUrlNoTrailingSlash(value) {
-  return String(value || '').trim().replace(/\/+$/, '');
-}
-
-function looksLikeOpenAiEndpointUrl(value) {
-  const lowerValue = normalizeUrlNoTrailingSlash(value).toLowerCase();
-  return (
-    lowerValue.endsWith('/chat/completions') ||
-    lowerValue.endsWith('/responses') ||
-    lowerValue.endsWith('/completions')
-  );
-}
+const normalizeUrlNoTrailingSlash = UrlUtils.normalizeUrlNoTrailingSlash;
+const looksLikeOpenAiEndpointUrl = UrlUtils.looksLikeOpenAiEndpointUrl;
+const toggleTrailingV1 = UrlUtils.toggleTrailingV1;
 
 function canAutoToggleTrailingV1(value) {
   const normalized = normalizeUrlNoTrailingSlash(value);
@@ -487,15 +193,6 @@ function canAutoToggleTrailingV1(value) {
   } catch {
     return /^(?:https?:\/\/[^/]+)(?:\/v1)?$/i.test(normalized);
   }
-}
-
-function toggleTrailingV1(value) {
-  const normalized = normalizeUrlNoTrailingSlash(value);
-  if (!normalized) return normalized;
-  if (/\/v1$/i.test(normalized)) {
-    return normalized.replace(/\/v1$/i, '');
-  }
-  return normalized + '/v1';
 }
 
 function assertAllowedModelEndpointUrl(value, stage, provider, endpointMode) {
@@ -533,7 +230,7 @@ async function consumeNonStreamResponse(response, adapter, runtime, signal) {
   };
 }
 
-async function consumeStreamResponse(response, adapter, runtime, onToken, signal) {
+async function consumeStreamResponse(response, adapter, runtime, onToken, signal, options) {
   if (!response.body) {
     return {
       text: '',
@@ -542,12 +239,26 @@ async function consumeStreamResponse(response, adapter, runtime, onToken, signal
     };
   }
 
+  const idleTimeoutMs = Number(options?.idleTimeoutMs) > 0 ? Number(options.idleTimeoutMs) : 0;
+  const rawBodyMaxChars = Number(options?.rawBodyMaxChars) > 0 ? Number(options.rawBodyMaxChars) : 0;
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
   let rawBody = '';
+  let rawBodyCapped = false;
   let text = '';
   let usage = null;
   let abortError = null;
+
+  function appendRawBody(chunk) {
+    if (rawBodyCapped) return;
+    rawBody += chunk;
+    // The raw capture only feeds the preview and the fallback parser; long
+    // token streams do not need to stay in memory in full.
+    if (rawBodyMaxChars && rawBody.length > rawBodyMaxChars) {
+      rawBody = rawBody.slice(0, rawBodyMaxChars);
+      rawBodyCapped = true;
+    }
+  }
 
   function handleAbort() {
     abortError = AbortUtils.toAbortError(signal);
@@ -557,6 +268,21 @@ async function consumeStreamResponse(response, adapter, runtime, onToken, signal
       console.warn('[Background] Failed to cancel stream reader:', error);
     }
   }
+
+  // Aborts the read loop when the server stops sending bytes without closing
+  // the connection; surfaces as NETWORK_TIMEOUT so the retry policy applies.
+  const idleWatchdog = AbortUtils.createIdleWatchdog({
+    timeoutMs: idleTimeoutMs,
+    onTimeout() {
+      const idleError = new Error('idle_timeout');
+      idleError.name = 'AbortError';
+      try {
+        reader.cancel(idleError);
+      } catch (error) {
+        console.warn('[Background] Failed to cancel stalled stream reader:', error);
+      }
+    }
+  });
 
   if (signal?.aborted) {
     handleAbort();
@@ -595,15 +321,16 @@ async function consumeStreamResponse(response, adapter, runtime, onToken, signal
       const { done, value } = await reader.read();
       if (done) break;
 
+      idleWatchdog.bump();
       const chunk = decoder.decode(value, { stream: true });
-      rawBody += chunk;
+      appendRawBody(chunk);
       parser.push(chunk, false);
     }
 
     AbortUtils.throwIfAborted(signal);
     const tail = decoder.decode();
     if (tail) {
-      rawBody += tail;
+      appendRawBody(tail);
       parser.push(tail, false);
     }
 
@@ -620,11 +347,16 @@ async function consumeStreamResponse(response, adapter, runtime, onToken, signal
       preview: TransportUtils.normalizePreview(rawBody)
     };
   } catch (error) {
+    // Parse/abort failures must not leave the connection open.
+    try {
+      reader.cancel(error);
+    } catch {}
     if (signal?.aborted && !AbortUtils.isAbortError(error) && abortError) {
       throw abortError;
     }
     throw error;
   } finally {
+    idleWatchdog.dispose();
     signal?.removeEventListener('abort', handleAbort);
     try {
       reader.releaseLock();
@@ -653,8 +385,8 @@ async function executeRun(options) {
 
   const isOpenAiProvider = provider === 'openai';
   const wantsAutoEndpointMode = isOpenAiProvider && String(settings?.endpointMode || '').trim() === 'auto';
-  const autoEndpointCacheKey = wantsAutoEndpointMode ? getAutoEndpointModeCacheKey(settings) : '';
-  const cachedEndpointMode = wantsAutoEndpointMode ? await getCachedAutoEndpointMode(autoEndpointCacheKey) : '';
+  const autoEndpointCacheKey = wantsAutoEndpointMode ? AutoEndpointCache.getCacheKey(settings) : '';
+  const cachedEndpointMode = wantsAutoEndpointMode ? await AutoEndpointCache.getCachedMode(autoEndpointCacheKey) : '';
   let effectiveSettings = settings;
   if (wantsAutoEndpointMode && cachedEndpointMode) {
     effectiveSettings = Object.assign({}, settings, { endpointMode: cachedEndpointMode });
@@ -693,6 +425,10 @@ async function executeRun(options) {
   const maxRetries = runtime.retryPolicy?.maxRetries || Constants.DEFAULT_MAX_RETRIES;
   const timeoutMs = runtime.timeoutMs || Constants.DEFAULT_REQUEST_TIMEOUT_MS;
   const startedAt = Date.now();
+  // Compatibility-switch attempts (auto endpoint mode / trailing-v1 tweak)
+  // probe an unverified URL shape, so they run with a short timeout instead
+  // of the full request deadline.
+  let probeNextAttempt = false;
 
   RunState.prepareRun(runId, {
     portId: options.portId || '',
@@ -712,8 +448,12 @@ async function executeRun(options) {
     diagnostics.responseContentType = '';
     diagnostics.requestId = '';
 
+    const attemptTimeoutMs = probeNextAttempt ? Math.min(timeoutMs, Constants.ENDPOINT_PROBE_TIMEOUT_MS) : timeoutMs;
+    probeNextAttempt = false;
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort('timeout'), timeoutMs);
+    // The deadline covers the whole request: headers AND body. Clearing it
+    // after the headers would let a stalled body hang the run forever.
+    const timeout = setTimeout(() => controller.abort('timeout'), attemptTimeoutMs);
     RunState.setRunController(runId, controller);
 
     try {
@@ -726,7 +466,6 @@ async function executeRun(options) {
         credentials: 'omit'
       }), controller.signal);
 
-      clearTimeout(timeout);
       diagnostics.httpStatus = response.status;
       diagnostics.responseContentType = response.headers.get('content-type') || '';
       diagnostics.requestId = response.headers.get('x-request-id') || '';
@@ -741,14 +480,19 @@ async function executeRun(options) {
         }
         throw Errors.createHttpError(response.status, errorText, Object.assign({
           responseContentType: diagnostics.responseContentType,
-          requestId: diagnostics.requestId
+          requestId: diagnostics.requestId,
+          retryAfterMs: TransportUtils.parseRetryAfterMs(response.headers.get('retry-after'), Constants.RETRY_AFTER_MAX_MS)
         }, buildErrorContext(runtime, meta.stage)));
       }
 
       const result = stream
-        ? await consumeStreamResponse(response, adapter, runtime, options.onToken || (() => {}), controller.signal)
+        ? await consumeStreamResponse(response, adapter, runtime, options.onToken || (() => {}), controller.signal, {
+            idleTimeoutMs: Constants.STREAM_IDLE_TIMEOUT_MS,
+            rawBodyMaxChars: Constants.STREAM_RAW_BODY_MAX_CHARS
+          })
         : await consumeNonStreamResponse(response, adapter, runtime, controller.signal);
 
+      clearTimeout(timeout);
       AbortUtils.throwIfAborted(controller.signal);
 
       if (!result.text.trim()) {
@@ -770,7 +514,7 @@ async function executeRun(options) {
         diagnostics.autoEndpointSelected = runtime?.endpointMode || '';
       }
       if (wantsAutoEndpointMode && autoEndpointCacheKey) {
-        await setCachedAutoEndpointMode(autoEndpointCacheKey, runtime?.endpointMode || '');
+        await AutoEndpointCache.setCachedMode(autoEndpointCacheKey, runtime?.endpointMode || '');
       }
       if (meta?.stage === 'test' && canTryV1Toggle) {
         const originalBase = normalizeUrlNoTrailingSlash(settings?.aiBaseURL || '');
@@ -821,6 +565,7 @@ async function executeRun(options) {
 
             // Keep the attempt number stable when switching endpoint modes.
             attempt -= 1;
+            probeNextAttempt = true;
             continue;
           }
         }
@@ -863,6 +608,7 @@ async function executeRun(options) {
 
             // Keep the attempt number stable when tweaking base URL.
             attempt -= 1;
+            probeNextAttempt = true;
             continue;
           }
         }
@@ -882,7 +628,16 @@ async function executeRun(options) {
 
       const shouldRetry = normalized.retriable && attempt < maxRetries;
       if (shouldRetry) {
-        const delay = Math.min(Constants.RETRY_BASE_DELAY_MS * Math.pow(2, attempt - 1), Constants.RETRY_MAX_DELAY_MS);
+        // 'deterministic' disables jitter for tests that assert backoff timing.
+        const retryJitter = runtime.retryPolicy?.jitter === 'deterministic' ? () => 1 : Math.random;
+        const delay = TransportUtils.computeRetryDelayMs({
+          attempt,
+          retryAfterMs: typeof normalized.retryAfterMs === 'number' ? normalized.retryAfterMs : null,
+          baseDelayMs: Constants.RETRY_BASE_DELAY_MS,
+          maxDelayMs: Constants.RETRY_MAX_DELAY_MS,
+          maxRetryAfterMs: Constants.RETRY_AFTER_MAX_MS,
+          jitter: retryJitter
+        });
         diagnostics.retryCount += 1;
         options.onRetry?.({ attempt, delay, error: normalized });
         const retryController = controller.signal.aborted ? new AbortController() : controller;
@@ -937,7 +692,7 @@ async function listModels(settings) {
       success: true,
       fetchedAt: new Date().toISOString(),
       models: [],
-      rawHint: '当前 provider 暂不支持自动拉取模型列表（仍可手动输入模型 ID）。'
+      rawHint: bgText('bg_models_raw_hint', '当前 provider 暂不支持自动拉取模型列表（仍可手动输入模型 ID）。')
     };
   }
 
@@ -950,7 +705,7 @@ async function listModels(settings) {
 
   const resolution = AdapterRegistry.resolve(Object.assign({}, settings, { endpointMode: 'responses' })) || AdapterRegistry.resolve(settings);
   const runtime = resolution?.snapshot || null;
-  const cacheKey = getModelsCacheKey(settings, runtime);
+  const cacheKey = ModelsCache.getKey(settings, runtime);
 
   const baseRoot = normalizeOpenAiBaseRootForCache(runtime?.baseUrl || settings?.aiBaseURL || 'https://api.openai.com/v1');
   if (!baseRoot) {
@@ -967,6 +722,8 @@ async function listModels(settings) {
     if (!root) continue;
 
     const url = root + '/models';
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort('timeout'), Constants.MODELS_REQUEST_TIMEOUT_MS);
     try {
       const response = await fetch(url, {
         method: 'GET',
@@ -976,7 +733,8 @@ async function listModels(settings) {
           Authorization: 'Bearer ' + String(settings?.apiKey || '')
         },
         mode: 'cors',
-        credentials: 'omit'
+        credentials: 'omit',
+        signal: controller.signal
       });
 
       if (!response.ok) {
@@ -1004,6 +762,7 @@ async function listModels(settings) {
 
       const json = await response.json().catch(() => null);
       if (!json || typeof json !== 'object') {
+        AbortUtils.throwIfAborted(controller.signal);
         throw Errors.createError(Errors.ERROR_CODES.PARSE_ERROR, {
           stage,
           provider: 'openai',
@@ -1033,7 +792,7 @@ async function listModels(settings) {
 
       const fetchedAt = new Date().toISOString();
       if (cacheKey) {
-        await setCachedModels(cacheKey, {
+        await ModelsCache.setModels(cacheKey, {
           fetchedAt,
           models: models.map((item) => String(item?.id || '')).filter(Boolean)
         });
@@ -1046,6 +805,8 @@ async function listModels(settings) {
       };
     } catch (error) {
       lastError = error;
+    } finally {
+      clearTimeout(timeout);
     }
   }
 
@@ -1112,6 +873,12 @@ chrome.runtime.onConnect.addListener((port) => {
       return;
     }
 
+    if (message.action === 'ping') {
+      // Heartbeat from the sidebar while a run is in flight; receiving any
+      // port message resets the MV3 service-worker idle timer.
+      return;
+    }
+
     if (message.action === 'cancelRun' && message.runId) {
       safePortPost(port, {
         type: 'cancelAck',
@@ -1170,7 +937,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }).then((result) => {
       sendResponse({ success: true, diagnostics: result.diagnostics, text: result.text });
     }).catch((error) => {
-      sendResponse(createErrorResponse(error, '连接测试失败。', {
+      sendResponse(createErrorResponse(error, bgText('bg_connection_test_failed', '连接测试失败。'), {
         diagnostics: error?.diagnostics || null
       }));
     });
@@ -1187,7 +954,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }).then((result) => {
       sendResponse(result);
     }).catch((error) => {
-      sendResponse(createErrorResponse(error, '生成摘要失败。', {
+      sendResponse(createErrorResponse(error, bgText('bg_run_failed', '生成摘要失败。'), {
         runId: message.runId,
         diagnostics: error?.diagnostics || null
       }));
@@ -1210,17 +977,17 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       sendResponse({ success: true });
     }).catch((error) => {
       console.error('[Yilan] Failed to show history.', error);
-      sendResponse(createErrorResponse(error, '打开历史记录失败。'));
+      sendResponse(createErrorResponse(error, bgText('bg_history_open_failed', '打开历史记录失败。')));
     });
     return true;
   }
 
   if (message.action === 'getEntrypointStatus') {
-    Entrypoints.getEntrypointStatus().then((entrypoints) => {
+    Entrypoints.getEntrypointStatus({ ensure: message?.ensure !== false }).then((entrypoints) => {
       sendResponse({ success: true, entrypoints });
     }).catch((error) => {
       console.error('[Yilan] Failed to get entrypoint status.', error);
-      sendResponse(createErrorResponse(error, '获取入口状态失败。'));
+      sendResponse(createErrorResponse(error, bgText('bg_entrypoint_status_failed', '获取入口状态失败。')));
     });
     return true;
   }
@@ -1230,7 +997,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       sendResponse(result);
     }).catch((error) => {
       console.error('[Yilan] Failed to open shortcut settings.', error);
-      sendResponse(createErrorResponse(error, '打开快捷键设置失败。', {
+      sendResponse(createErrorResponse(error, bgText('bg_shortcut_settings_failed', '打开快捷键设置失败。'), {
         url: Entrypoints.SHORTCUT_SETTINGS_URL
       }));
     });
@@ -1250,7 +1017,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       sendResponse(result);
     }).catch((error) => {
       console.error('[Yilan] Failed to open reader tab.', error);
-      sendResponse(createErrorResponse(error, '打开阅读页失败。'));
+      sendResponse(createErrorResponse(error, bgText('bg_reader_open_failed', '打开阅读页失败。')));
     });
     return true;
   }
@@ -1259,7 +1026,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     listModels(message.settings || {}).then((result) => {
       sendResponse(result);
     }).catch((error) => {
-      sendResponse(createErrorResponse(error, '模型列表获取失败。'));
+      sendResponse(createErrorResponse(error, bgText('popup_models_fetch_failed', '模型列表获取失败。')));
     });
     return true;
   }

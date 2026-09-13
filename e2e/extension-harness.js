@@ -11,6 +11,7 @@ const CONTENT_SCRIPT_FILES = [
   'shared/article-utils.js',
   'shared/bilibili-source.js',
   'shared/youtube-source.js',
+  'shared/constants.js',
   'libs/readability.js',
   'content.js'
 ];
@@ -25,7 +26,11 @@ function buildDefaultSettings(origin, overrides) {
     aiBaseURL: origin + '/v1',
     modelName: 'mock-model',
     systemPrompt: '',
-    autoTranslate: false,
+    // Playwright's chromium build ships no locale packs, so
+    // chrome.i18n.getUILanguage() is always en-US regardless of --lang.
+    // Pin the prompt locale through the target language instead so the
+    // zh-CN mock-server branches and text assertions stay deterministic.
+    autoTranslate: true,
     defaultLanguage: 'zh',
     themePreference: 'system',
     themePalette: 'jade',
@@ -48,6 +53,9 @@ async function launchExtensionContext() {
     acceptDownloads: true,
     viewport: { width: 1440, height: 960 },
     args: [
+      // Pin the app locale so chrome.i18n resolves the default (zh_CN) catalog
+      // and text assertions stay stable regardless of the machine locale.
+      '--lang=zh-CN',
       `--disable-extensions-except=${EXTENSION_ROOT}`,
       `--load-extension=${EXTENSION_ROOT}`
     ]
@@ -197,7 +205,8 @@ async function overrideRuntimePolicy(serviceWorker, overrides) {
 
       if (typeof policy?.maxRetries === 'number') {
         result.snapshot.retryPolicy = Object.assign({}, result.snapshot.retryPolicy || {}, {
-          maxRetries: policy.maxRetries
+          maxRetries: policy.maxRetries,
+          jitter: policy.jitter || result.snapshot.retryPolicy?.jitter
         });
       }
 

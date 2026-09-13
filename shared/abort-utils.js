@@ -96,12 +96,48 @@
     });
   }
 
+  // Fires onTimeout after timeoutMs without a bump() call; used as a stall
+  // watchdog for streamed response bodies. Timer functions are injectable so
+  // tests can drive it without real delays.
+  function createIdleWatchdog(options) {
+    const timeoutMs = Number(options?.timeoutMs) > 0 ? Number(options.timeoutMs) : 0;
+    const scheduleTimer = typeof options?.setTimeoutFn === 'function' ? options.setTimeoutFn : setTimeout;
+    const cancelTimer = typeof options?.clearTimeoutFn === 'function' ? options.clearTimeoutFn : clearTimeout;
+    let timer = null;
+
+    function dispose() {
+      if (timer === null) return;
+      cancelTimer(timer);
+      timer = null;
+    }
+
+    function fire() {
+      timer = null;
+      if (typeof options?.onTimeout === 'function') {
+        options.onTimeout();
+      }
+    }
+
+    function bump() {
+      if (!timeoutMs) return;
+      dispose();
+      timer = scheduleTimer(fire, timeoutMs);
+    }
+
+    if (timeoutMs) {
+      bump();
+    }
+
+    return { bump, dispose };
+  }
+
   const api = {
     isAbortError,
     toAbortError,
     throwIfAborted,
     raceWithAbort,
-    waitWithAbort
+    waitWithAbort,
+    createIdleWatchdog
   };
 
   global.AISummaryAbortUtils = api;

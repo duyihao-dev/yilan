@@ -62,7 +62,7 @@ function createController(overrides) {
     recordStore: {
       saveRecord: async (record) => Object.assign({}, record, { saved: true })
     },
-    domain: {
+    domain: overrides?.domain || {
       createRuntimeId: () => 'run_generated',
       hashString: (value) => 'hash_' + String(value || '').length
     },
@@ -74,7 +74,7 @@ function createController(overrides) {
       },
       createError: (code, payload) => Object.assign(new Error(code), { code }, payload || {})
     },
-    articleUtils: {},
+    articleUtils: overrides?.articleUtils || {},
     runUtils: overrides?.runUtils || {},
     trust: overrides?.trust || {},
     loadRuntimeSettings: overrides?.loadRuntimeSettings || (async () => ({ apiKey: 'test' })),
@@ -95,7 +95,6 @@ function createController(overrides) {
     setStatus: (text, tone) => {
       calls.statuses.push({ text, tone });
     },
-    setStats: () => {},
     refreshActionStates: () => {
       calls.refreshes += 1;
     },
@@ -271,4 +270,157 @@ test('sidebar generation uses Bilibili official summary without model streaming'
   assert.strictEqual(state.generating, false);
   assert.deepStrictEqual(portBundle.posted, []);
   assert.ok(calls.statuses.some((item) => String(item.text || '').includes('B 站官方 AI 总结')));
+});
+
+test('sidebar stream run drops tokens from the aborted attempt on retry', [
+  'transport.streaming',
+  'generation.primary'
+], async () => {
+  const portBundle = createPort();
+  const { controller, state, calls } = createController({ portBundle });
+
+  const pending = controller.runPromptViaStream({ apiKey: 'k' }, 'prompt', { stage: 'primary' }, null, {
+    onToken(token) {
+      state.summaryMarkdown += token;
+    }
+  });
+
+  const [messageListener] = portBundle.listeners.message;
+  messageListener({ runId: 'run_generated', type: 'started' });
+  messageListener({ runId: 'run_generated', type: 'token', token: 'A' });
+  messageListener({ runId: 'run_generated', type: 'retry', retry: { attempt: 2 } });
+  messageListener({ runId: 'run_generated', type: 'token', token: 'B' });
+  messageListener({ runId: 'run_generated', type: 'done', text: 'B', usage: null });
+
+  const result = await pending;
+  assert.strictEqual(result.text, 'B');
+  assert.strictEqual(state.summaryMarkdown, 'B');
+  assert.ok(calls.scheduled >= 1, 'markdown render is rescheduled after the retry reset');
+});
+
+test('chunked primary summary runs chunks with bounded concurrency and keeps synthesis order', [
+  'generation.primary',
+  'transport.streaming'
+], async () => {
+  const portBundle = createPort();
+  let runCounter = 0;
+  const { controller, state, calls } = createController({
+    portBundle,
+    state: {
+      generating: false,
+      article: {
+        articleId: 'art_1',
+        chunkCount: 2,
+        chunks: [
+          { index: 0, content: 'c1' },
+          { index: 1, content: 'c2' }
+        ]
+      }
+    },
+    domain: {
+      createRuntimeId: (prefix) => prefix + '_' + (++runCounter),
+      hashString: (value) => 'hash_' + String(value || '').length
+    },
+    articleUtils: {
+      buildChunkPrompt: ({ chunk }) => 'chunk_prompt_' + chunk.index,
+      buildSynthesisPrompt: ({ partialSummaries }) => 'synth_' + partialSummaries.join('|')
+    },
+    runUtils: {
+      mapWithConcurrency: freshRequire('shared/run-utils.js').mapWithConcurrency,
+      buildTerminalRecordPatch: (record, diagnostics, status, updates) => Object.assign({}, updates, { status })
+    },
+    trust: {
+      buildTrustPolicy: () => ({ allowHistory: true })
+    }
+  });
+
+  const pending = controller.startPrimarySummary('medium');
+  await new Promise((resolve) => setTimeout(resolve, 0));
+
+  const startMessages = () => portBundle.posted.filter((message) => message.action === 'startStream');
+  const chunkRunIds = startMessages().map((message) => message.runId);
+  assert.strictEqual(chunkRunIds.length, 2, 'both chunk runs start concurrently');
+
+  const listeners = portBundle.listeners.message;
+  const deliver = (runId, message) => {
+    listeners.forEach((listener) => listener(Object.assign({ runId }, message)));
+  };
+
+  // Complete chunk 2 first; aggregation must stay in chunk order.
+  deliver(chunkRunIds[1], { type: 'done', text: 'SUMMARY_2' });
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  deliver(chunkRunIds[0], { type: 'done', text: 'SUMMARY_1' });
+  await new Promise((resolve) => setTimeout(resolve, 0));
+
+  const synthesisMessage = startMessages().find((message) => String(message.prompt).startsWith('synth_'));
+  assert.ok(synthesisMessage, 'synthesis starts after both chunks settle');
+  assert.strictEqual(synthesisMessage.prompt, 'synth_SUMMARY_1|SUMMARY_2');
+
+  deliver(synthesisMessage.runId, { type: 'token', token: 'SYNTHESIS_OUTPUT' });
+  deliver(synthesisMessage.runId, { type: 'done', text: 'SYNTHESIS_OUTPUT', usage: null });
+
+  await pending;
+  assert.strictEqual(state.summaryMarkdown, 'SYNTHESIS_OUTPUT');
+});
+
+test('chunkConcurrency setting of 1 runs chunks strictly one by one', [
+  'generation.primary',
+  'transport.streaming'
+], async () => {
+  const portBundle = createPort();
+  let runCounter = 0;
+  const { controller, state } = createController({
+    portBundle,
+    state: {
+      generating: false,
+      article: {
+        articleId: 'art_1',
+        chunkCount: 2,
+        chunks: [
+          { index: 0, content: 'c1' },
+          { index: 1, content: 'c2' }
+        ]
+      }
+    },
+    loadRuntimeSettings: async () => ({ apiKey: 'test', chunkConcurrency: 1 }),
+    domain: {
+      createRuntimeId: (prefix) => prefix + '_' + (++runCounter),
+      hashString: (value) => 'hash_' + String(value || '').length
+    },
+    articleUtils: {
+      buildChunkPrompt: ({ chunk }) => 'chunk_prompt_' + chunk.index,
+      buildSynthesisPrompt: ({ partialSummaries }) => 'synth_' + partialSummaries.join('|')
+    },
+    runUtils: {
+      mapWithConcurrency: freshRequire('shared/run-utils.js').mapWithConcurrency,
+      buildTerminalRecordPatch: (record, diagnostics, status, updates) => Object.assign({}, updates, { status })
+    },
+    trust: {
+      buildTrustPolicy: () => ({ allowHistory: true })
+    }
+  });
+
+  const pending = controller.startPrimarySummary('medium');
+  await new Promise((resolve) => setTimeout(resolve, 0));
+
+  const startMessages = () => portBundle.posted.filter((message) => message.action === 'startStream');
+  assert.strictEqual(startMessages().length, 1, 'concurrency 1 starts only the first chunk');
+
+  const listeners = portBundle.listeners.message;
+  const firstRunId = startMessages()[0].runId;
+  listeners.forEach((listener) => listener({ runId: firstRunId, type: 'done', text: 'SUMMARY_1' }));
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  assert.strictEqual(startMessages().length, 2, 'the second chunk starts only after the first settles');
+
+  const secondRunId = startMessages()[1].runId;
+  listeners.forEach((listener) => listener({ runId: secondRunId, type: 'done', text: 'SUMMARY_2' }));
+  await new Promise((resolve) => setTimeout(resolve, 0));
+
+  const synthesisMessage = startMessages().find((message) => String(message.prompt).startsWith('synth_'));
+  assert.ok(synthesisMessage, 'synthesis starts after both chunks settle');
+  assert.strictEqual(synthesisMessage.prompt, 'synth_SUMMARY_1|SUMMARY_2');
+
+  listeners.forEach((listener) => listener({ runId: synthesisMessage.runId, type: 'done', text: 'SYNTHESIS_OUTPUT', usage: null }));
+  await pending;
+  assert.strictEqual(state.summaryMarkdown, 'SYNTHESIS_OUTPUT');
 });

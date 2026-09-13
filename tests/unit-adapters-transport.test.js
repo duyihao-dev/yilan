@@ -233,3 +233,59 @@ test('transport errors normalize abort, CORS, DNS, TLS, network, stream, endpoin
     Errors.ERROR_CODES.UNKNOWN_ERROR
   );
 });
+
+test('http error retryability follows status classes and honors explicit overrides', 'transport.errors', () => {
+  [408, 429, 500, 502, 503, 599].forEach((status) => {
+    assert.strictEqual(Errors.createHttpError(status, 'body').retriable, true, 'status ' + status + ' should be retriable');
+  });
+  [400, 401, 403, 404, 422, 499].forEach((status) => {
+    assert.strictEqual(Errors.createHttpError(status, 'body').retriable, false, 'status ' + status + ' should fail fast');
+  });
+  assert.strictEqual(Errors.createHttpError(401, 'body', { retriable: true }).retriable, true);
+  assert.strictEqual(Errors.isRetriableHttpStatus(429), true);
+  assert.strictEqual(Errors.isRetriableHttpStatus(401), false);
+  assert.strictEqual(Errors.isRetriableHttpStatus('500'), true);
+});
+
+test('retry delay honors Retry-After and adds full jitter to exponential backoff', 'transport.errors', () => {
+  assert.strictEqual(TransportUtils.parseRetryAfterMs('12', 30000), 12000);
+  assert.strictEqual(TransportUtils.parseRetryAfterMs('0', 30000), 0);
+  assert.strictEqual(TransportUtils.parseRetryAfterMs('999', 30000), 30000);
+  assert.strictEqual(TransportUtils.parseRetryAfterMs('', 30000), null);
+  assert.strictEqual(TransportUtils.parseRetryAfterMs('soon', 30000), null);
+
+  const future = new Date(Date.now() + 5000).toUTCString();
+  const parsedDate = TransportUtils.parseRetryAfterMs(future, 30000);
+  assert.ok(parsedDate > 0 && parsedDate <= 5000, 'http-date parses into remaining milliseconds');
+
+  assert.strictEqual(
+    TransportUtils.computeRetryDelayMs({ attempt: 1, retryAfterMs: 6500, baseDelayMs: 1000, maxDelayMs: 8000, jitter: () => 0 }),
+    6500
+  );
+  assert.strictEqual(
+    TransportUtils.computeRetryDelayMs({ attempt: 1, retryAfterMs: 99999, baseDelayMs: 1000, maxDelayMs: 8000 }),
+    30000
+  );
+  assert.strictEqual(
+    TransportUtils.computeRetryDelayMs({ attempt: 1, baseDelayMs: 1000, maxDelayMs: 8000, jitter: () => 0 }),
+    0
+  );
+  assert.strictEqual(
+    TransportUtils.computeRetryDelayMs({ attempt: 1, baseDelayMs: 1000, maxDelayMs: 8000, jitter: () => 1 }),
+    1000
+  );
+  assert.strictEqual(
+    TransportUtils.computeRetryDelayMs({ attempt: 5, baseDelayMs: 1000, maxDelayMs: 8000, jitter: () => 1 }),
+    8000
+  );
+  // null/undefined Retry-After must fall through to the jittered backoff,
+  // not collapse to a zero delay (Number(null) === 0).
+  assert.strictEqual(
+    TransportUtils.computeRetryDelayMs({ attempt: 1, retryAfterMs: null, baseDelayMs: 1000, maxDelayMs: 8000, jitter: () => 1 }),
+    1000
+  );
+  assert.strictEqual(
+    TransportUtils.computeRetryDelayMs({ attempt: 1, baseDelayMs: 1000, maxDelayMs: 8000, jitter: () => 1 }),
+    1000
+  );
+});

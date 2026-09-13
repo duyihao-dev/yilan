@@ -37,6 +37,8 @@ test('sidebar state module creates isolated default state and navigation constan
     'systemPrompt',
     'autoTranslate',
     'defaultLanguage',
+    'uiLanguage',
+    'chunkConcurrency',
     'themePreference',
     'themePalette',
     'sidebarCompactMode',

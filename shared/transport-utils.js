@@ -45,8 +45,47 @@
     return Errors.createError(code, payload);
   }
 
-  function isLikelyResponsesCompatibilityFailure(status, body, runtime) {
-    if (runtime?.endpointMode !== 'responses') return false;
+  // Parses a Retry-After header value (delay-seconds or HTTP-date) into
+  // milliseconds, clamped to maxMs. Returns null when absent/unparseable.
+  function parseRetryAfterMs(value, maxMs) {
+    const raw = String(value || '').trim();
+    if (!raw) return null;
+    const cap = Number(maxMs) > 0 ? Number(maxMs) : Infinity;
+
+    if (/^\d+$/.test(raw)) {
+      return Math.min(Number(raw) * 1000, cap);
+    }
+
+    const date = Date.parse(raw);
+    if (!Number.isNaN(date)) {
+      return Math.min(Math.max(date - Date.now(), 0), cap);
+    }
+
+    return null;
+  }
+
+  // Retry delay: honor the server-provided Retry-After when present, else
+  // exponential backoff with full jitter (random within [0, ceiling]) so many
+  // clients retrying after an outage do not synchronize.
+  function computeRetryDelayMs(options) {
+    const config = options || {};
+    const attempt = Number(config.attempt) > 0 ? Number(config.attempt) : 1;
+    const baseDelayMs = Number(config.baseDelayMs) > 0 ? Number(config.baseDelayMs) : 1000;
+    const maxDelayMs = Number(config.maxDelayMs) > 0 ? Number(config.maxDelayMs) : 8000;
+    const maxRetryAfterMs = Number(config.maxRetryAfterMs) > 0 ? Number(config.maxRetryAfterMs) : 30000;
+    const jitter = typeof config.jitter === 'function' ? config.jitter : Math.random;
+
+    const retryAfterRaw = config.retryAfterMs;
+    const retryAfterMs = retryAfterRaw === null || retryAfterRaw === undefined ? NaN : Number(retryAfterRaw);
+    if (Number.isFinite(retryAfterMs) && retryAfterMs >= 0) {
+      return Math.min(retryAfterMs, maxRetryAfterMs);
+    }
+
+    const ceiling = Math.min(baseDelayMs * Math.pow(2, attempt - 1), maxDelayMs);
+    return Math.round(jitter() * ceiling);
+  }
+
+  function isLikelyResponsesCompatibilityFailure(status, body, runtime) {    if (runtime?.endpointMode !== 'responses') return false;
 
     const text = String(body || '').toLowerCase();
     if (status === 404) return true;
@@ -277,12 +316,127 @@
     return usage;
   }
 
+  function toSerializableValue(value, seen) {
+    if (value === null) return null;
+
+    const type = typeof value;
+    if (type === 'string' || type === 'number' || type === 'boolean') return value;
+    if (type === 'bigint') return String(value);
+    if (type === 'undefined' || type === 'function' || type === 'symbol') return null;
+    if (value instanceof Date) return value.toISOString();
+    if (Array.isArray(value)) {
+      return value.map((item) => toSerializableValue(item, seen));
+    }
+
+    if (type !== 'object') {
+      return String(value);
+    }
+
+    if (seen.has(value)) {
+      return '[Circular]';
+    }
+
+    seen.add(value);
+
+    if (value instanceof Error) {
+      const serializedError = {
+        name: value.name || 'Error',
+        message: value.message || String(value),
+        stack: value.stack || ''
+      };
+      seen.delete(value);
+      return serializedError;
+    }
+
+    const output = {};
+    Object.keys(value).forEach((key) => {
+      const next = toSerializableValue(value[key], seen);
+      if (typeof next !== 'undefined') {
+        output[key] = next;
+      }
+    });
+
+    seen.delete(value);
+    return output;
+  }
+
+  function createTransportPayload(payload) {
+    return toSerializableValue(payload, new WeakSet());
+  }
+
+  function sanitizeErrorForTransport(errorLike) {
+    if (!errorLike) return null;
+
+    const normalized = Errors.normalizeError(errorLike, errorLike?.code, {});
+    const safeError = {
+      code: normalized.code || Errors.ERROR_CODES.UNKNOWN_ERROR,
+      message: normalized.message || '',
+      retriable: !!normalized.retriable,
+      detail: normalized.detail || '',
+      stage: normalized.stage || '',
+      provider: normalized.provider || '',
+      endpointMode: normalized.endpointMode || ''
+    };
+
+    if (errorLike?.status) safeError.status = errorLike.status;
+    if (errorLike?.name) safeError.name = errorLike.name;
+
+    return createTransportPayload(safeError);
+  }
+
+  function sanitizeDiagnosticsForTransport(diagnostics) {
+    if (!diagnostics) return null;
+
+    const safeDiagnostics = Object.assign({}, diagnostics);
+
+    // Remove sensitive fields that could expose user configuration
+    delete safeDiagnostics.baseUrl;  // Custom API endpoints
+    delete safeDiagnostics.family;   // Internal adapter family classification
+
+    safeDiagnostics.lastError = diagnostics.lastError ? sanitizeErrorForTransport(diagnostics.lastError) : null;
+    return createTransportPayload(safeDiagnostics);
+  }
+
+  function safePortPost(port, payload) {
+    if (!port) return false;
+    try {
+      port.postMessage(createTransportPayload(payload));
+      return true;
+    } catch (error) {
+      console.warn('[Yilan] Failed to post message to stream port.', error);
+      return false;
+    }
+  }
+
+  function safeSendResponse(sendResponse, payload) {
+    if (typeof sendResponse !== 'function') return false;
+    try {
+      sendResponse(createTransportPayload(payload));
+      return true;
+    } catch (error) {
+      console.warn('[Yilan] Failed to send runtime response.', error);
+      try {
+        sendResponse({ success: false, error: 'response_serialization_failed' });
+      } catch {}
+      return false;
+    }
+  }
+
   const api = {
     normalizePreview,
+    tryParseJson,
+    toSerializableValue,
+    createTransportPayload,
+    sanitizeErrorForTransport,
+    sanitizeDiagnosticsForTransport,
+    safePortPost,
+    safeSendResponse,
     createSseParser,
     extractTextFromRawBody,
     extractUsageFromRawBody,
     normalizeTransportError,
+    parseRetryAfterMs,
+    computeRetryDelayMs,
     isLikelyResponsesCompatibilityFailure,
     createEndpointCompatibilityError
   };

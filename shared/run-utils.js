@@ -507,6 +507,51 @@
     return lines.filter(Boolean).join('\n');
   }
 
+  // Runs an async worker over items with a bounded number of in-flight tasks.
+  // Results resolve in item order; once every started task has settled, the
+  // first error in item order rejects the whole call. shouldStop() stops
+  // scheduling new tasks (already-started ones run to completion); onSettled
+  // fires after each task so callers can report progress.
+  function mapWithConcurrency(items, limit, worker, options) {
+    const list = Array.isArray(items) ? items : [];
+    const config = options || {};
+    const shouldStop = typeof config.shouldStop === 'function' ? config.shouldStop : null;
+    const onSettled = typeof config.onSettled === 'function' ? config.onSettled : null;
+    const results = new Array(list.length);
+    const errors = new Array(list.length);
+    let cursor = 0;
+    let settledCount = 0;
+
+    async function runner() {
+      while (true) {
+        if (shouldStop && shouldStop()) return;
+        const index = cursor;
+        cursor += 1;
+        if (index >= list.length) return;
+        try {
+          results[index] = await worker(list[index], index);
+        } catch (error) {
+          errors[index] = error;
+        }
+        settledCount += 1;
+        if (onSettled) onSettled(settledCount, list.length, index);
+      }
+    }
+
+    const lanes = Math.max(1, Math.min(Number(limit) || 1, list.length || 1));
+    const runners = [];
+    for (let i = 0; i < lanes; i += 1) {
+      runners.push(runner());
+    }
+
+    return Promise.all(runners).then(() => {
+      for (let i = 0; i < errors.length; i += 1) {
+        if (errors[i]) throw errors[i];
+      }
+      return results;
+    });
+  }
+
   const api = {
     pickTerminalRun,
     buildTerminalRecordPatch,
@@ -520,7 +565,8 @@
     sanitizeArticleSnapshotForPersistence,
     sanitizeDiagnosticsForPersistence,
     describeCancellation,
-    buildDiagnosticsSummary
+    buildDiagnosticsSummary,
+    mapWithConcurrency
   };
 
   global.AISummaryRunUtils = api;

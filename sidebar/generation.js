@@ -1,26 +1,30 @@
 (function initYilanSidebarGeneration(global) {
+  const I18n = () => global.YilanI18n;
+  const ChromeApi = global.YilanChromeApi || (typeof require === 'function' ? require('../shared/chrome-api.js') : null);
+
   function readDefaultRuntimeLastErrorMessage() {
+    if (ChromeApi?.readRuntimeLastErrorMessage) return ChromeApi.readRuntimeLastErrorMessage();
     return typeof chrome !== 'undefined' ? (chrome.runtime.lastError?.message || '') : '';
   }
 
   function buildStreamStartStatus(meta) {
-    if (meta?.stage === 'synthesis') return '\u6b63\u5728\u6c47\u603b\u6700\u7ec8\u7ed3\u679c...';
+    if (meta?.stage === 'synthesis') return I18n().get('sidebar_stream_synthesis');
     if (meta?.stage === 'chunk') {
       if (typeof meta?.chunkIndex === 'number' && typeof meta?.chunkCount === 'number') {
-        return '\u6b63\u5728\u603b\u7ed3\u7b2c ' + (meta.chunkIndex + 1) + '/' + meta.chunkCount + ' \u6bb5...';
+        return I18n().get('sidebar_stream_chunk_index', [meta.chunkIndex + 1, meta.chunkCount]);
       }
-      return '\u6b63\u5728\u603b\u7ed3\u5f53\u524d\u5206\u6bb5...';
+      return I18n().get('sidebar_stream_chunk');
     }
-    return '\u6b63\u5728\u751f\u6210\u603b\u7ed3...';
+    return I18n().get('sidebar_stream_generating');
   }
 
   function buildStreamRetryStatus(meta, attempt) {
     const prefix = meta?.stage === 'chunk'
       ? buildStreamStartStatus(meta).replace(/\.\.\.$/, '')
       : meta?.stage === 'synthesis'
-        ? '\u6b63\u5728\u6c47\u603b\u6700\u7ec8\u7ed3\u679c'
-        : '\u6b63\u5728\u751f\u6210\u603b\u7ed3';
-    return prefix + '\uff0c\u63a5\u53e3\u6ce2\u52a8\uff0c\u6b63\u5728\u8fdb\u884c\u7b2c ' + attempt + ' \u6b21\u91cd\u8bd5...';
+        ? I18n().get('sidebar_stream_synthesis_short')
+        : I18n().get('sidebar_stream_generating_short');
+    return I18n().get('sidebar_stream_retry', [prefix, attempt]);
   }
 
   function createGenerationController(deps) {
@@ -48,7 +52,6 @@
     const renderArticleMeta = deps.renderArticleMeta;
     const renderInlineNote = deps.renderInlineNote;
     const setStatus = deps.setStatus;
-    const setStats = deps.setStats;
     const refreshActionStates = deps.refreshActionStates;
     const renderChunkProgress = deps.renderChunkProgress;
     const scheduleMarkdownRender = deps.scheduleMarkdownRender;
@@ -153,7 +156,7 @@
       const state = getState();
       if (!state.generating || state.cancelRequested) return;
       state.cancelRequested = true;
-      setStatus('\u6b63\u5728\u53d6\u6d88\u672c\u6b21\u751f\u6210...', 'warning');
+      setStatus(I18n().get('sidebar_cancelling'), 'warning');
 
       refreshActionStates();
       abortCurrentRun('user_cancelled');
@@ -177,18 +180,43 @@
         const state = getState();
         let settled = false;
         let text = '';
+        let heartbeatTimer = null;
 
         state.activePort = port;
         state.activeStreamRunId = runId;
         addActiveRun(runId);
 
+        // Pinging the service worker mid-run keeps the MV3 worker alive while
+        // a long request has no other events to deliver.
+        function startHeartbeat() {
+          stopHeartbeat();
+          heartbeatTimer = setInterval(() => {
+            try {
+              port.postMessage({ action: 'ping', runId });
+            } catch {}
+          }, (global.AISummaryConstants && global.AISummaryConstants.STREAM_HEARTBEAT_INTERVAL_MS) || 20000);
+        }
+
+        function stopHeartbeat() {
+          if (heartbeatTimer === null) return;
+          clearInterval(heartbeatTimer);
+          heartbeatTimer = null;
+        }
+
         function cleanup() {
           if (settled) return;
           settled = true;
+          stopHeartbeat();
           removeActiveRun(runId);
           signal?.removeEventListener('abort', onAbort);
           if (getState().activePort === port) {
             safeDisconnectPort();
+          } else {
+            // A concurrent run has taken over the tracked port; close this
+            // run's own port so it does not linger after the run finished.
+            try {
+              port.disconnect();
+            } catch {}
           }
         }
 
@@ -214,6 +242,13 @@
           }
 
           if (message.type === 'retry') {
+            // The provider re-runs the request from scratch; drop tokens
+            // accumulated by the aborted attempt so the retried attempt does
+            // not append to partial output (which would duplicate copy on
+            // screen and in the saved record).
+            text = '';
+            getState().summaryMarkdown = '';
+            scheduleMarkdownRender();
             if (typeof options.onRetry === 'function') {
               options.onRetry(message.retry || {}, message);
             }
@@ -271,6 +306,7 @@
           runId,
           meta
         });
+        startHeartbeat();
       });
     }
 
@@ -333,11 +369,10 @@
       renderDiagnostics();
       renderArticleMeta(article, { summaryMode });
       renderInlineNote(
-        '使用 B 站官方 AI 总结',
-        '已获取 B 站官方 AI 总结，本次不再请求你的模型接口。'
+        I18n().get('sidebar_bilibili_note_title'),
+        I18n().get('sidebar_bilibili_note_body')
       );
-      setStatus(trustPolicy.allowHistory ? '正在保存 B 站官方 AI 总结...' : '正在展示 B 站官方 AI 总结，本次不写入历史...');
-      setStats('');
+      setStatus(trustPolicy.allowHistory ? I18n().get('sidebar_bilibili_saving') : I18n().get('sidebar_bilibili_showing'));
       refreshActionStates();
 
       const draftRecord = createDraftRecord(article, settings, summaryMode, 'primary');
@@ -349,7 +384,7 @@
         adapterId: 'bilibili_official_ai_summary',
         family: 'bilibili',
         endpointMode: 'official_ai_summary',
-        model: 'Bilibili 官方 AI 总结',
+        model: I18n().get('sidebar_bilibili_model'),
         status: 'completed',
         articleId: article.articleId,
         chunkCount: article.chunkCount,
@@ -372,7 +407,7 @@
 
       const savedRecord = await persistRecord(completedRecord);
       bindSavedRecord(savedRecord, diagnostics);
-      setStatus(completedRecord.allowHistory === false ? '已展示 B 站官方 AI 总结，本次未写入历史' : '已使用 B 站官方 AI 总结', 'success');
+      setStatus(completedRecord.allowHistory === false ? I18n().get('sidebar_bilibili_done_nohistory') : I18n().get('sidebar_bilibili_done_saved'), 'success');
       refreshActionStates();
 
       if (!getElements().historyPanel.classList.contains('hidden')) {
@@ -428,13 +463,12 @@
       renderDiagnostics();
       renderArticleMeta(article, { summaryMode });
       renderInlineNote(
-        simpleModeEnabled ? '\u7b80\u5355\u603b\u7ed3\u6a21\u5f0f' : '\u51c6\u5907\u751f\u6210\u6458\u8981',
+        simpleModeEnabled ? I18n().get('sidebar_simple_mode_title') : I18n().get('sidebar_preparing_title'),
         simpleModeEnabled && article.chunkCount > 1
-          ? '\u5df2\u542f\u7528\u7b80\u5355\u6a21\u5f0f\uff0c\u5c06\u8df3\u8fc7\u957f\u6587\u5206\u6bb5\u4ee5\u8282\u7701 token\u3002'
-          : '\u6b63\u5728\u521d\u59cb\u5316\u672c\u6b21\u4efb\u52a1\uff0c\u8bf7\u7a0d\u5019\u3002'
+          ? I18n().get('sidebar_simple_mode_body')
+          : I18n().get('sidebar_preparing_body')
       );
-      setStatus(trustPolicy.allowHistory ? '\u6b63\u5728\u63d0\u53d6\u5e76\u751f\u6210\u603b\u7ed3...' : '\u6b63\u5728\u751f\u6210\u5f53\u524d\u9875\u9762\u6458\u8981\uff0c\u672c\u6b21\u4e0d\u4f1a\u5199\u5165\u5386\u53f2...');
-      setStats('');
+      setStatus(trustPolicy.allowHistory ? I18n().get('sidebar_generating_saving') : I18n().get('sidebar_generating_nohistory'));
       refreshActionStates();
 
       const runSignal = beginRunAbortController();
@@ -448,32 +482,56 @@
         const partialSummaries = [];
 
         if (article.chunkCount > 1 && !simpleModeEnabled) {
-          setStatus('\u6b63\u5728\u5206\u6bb5\u5206\u6790\u957f\u6587...');
+          setStatus(I18n().get('sidebar_chunking_long'));
 
-          for (const chunk of article.chunks) {
-            if (state.cancelRequested) {
-              throw errors.createError(errors.ERROR_CODES.RUN_CANCELLED);
+          // Run chunks with bounded parallelism; results and diagnostics stay
+          // in chunk order so synthesis input matches sequential runs. The
+          // user picks the limit (1-4) in the popup; 1 keeps sequential runs.
+          const configuredConcurrency = Math.round(Number(settings.chunkConcurrency));
+          const fallbackConcurrency = Number(global.AISummaryConstants?.CHUNK_REQUEST_CONCURRENCY) > 0
+            ? Number(global.AISummaryConstants.CHUNK_REQUEST_CONCURRENCY)
+            : 2;
+          const chunkConcurrency = configuredConcurrency >= 1 && configuredConcurrency <= 4
+            ? configuredConcurrency
+            : fallbackConcurrency;
+          const settledResults = [];
+          const chunkResults = await runUtils.mapWithConcurrency(
+            article.chunks,
+            chunkConcurrency,
+            async (chunk, index) => {
+              if (state.cancelRequested) {
+                throw errors.createError(errors.ERROR_CODES.RUN_CANCELLED);
+              }
+
+              const prompt = withCustomPrompt(articleUtils.buildChunkPrompt({
+                article,
+                chunk,
+                summaryMode,
+                targetLanguage: getTargetLanguage(settings, article)
+              }), settings);
+
+              const result = await runChunkPrompt(settings, prompt, {
+                stage: 'chunk',
+                articleId: article.articleId,
+                chunkIndex: chunk.index,
+                chunkCount: article.chunkCount
+              }, runSignal);
+              settledResults[index] = result;
+              return result;
+            },
+            {
+              shouldStop: () => state.cancelRequested,
+              onSettled: (completed, total) => {
+                renderChunkProgress(completed, total, settledResults.filter(Boolean).map((item) => item.text.trim()));
+              }
             }
+          );
 
-            renderChunkProgress(partialSummaries.length, article.chunkCount, partialSummaries);
-            const prompt = withCustomPrompt(articleUtils.buildChunkPrompt({
-              article,
-              chunk,
-              summaryMode,
-              targetLanguage: getTargetLanguage(settings, article)
-            }), settings);
-
-            const result = await runChunkPrompt(settings, prompt, {
-              stage: 'chunk',
-              articleId: article.articleId,
-              chunkIndex: chunk.index,
-              chunkCount: article.chunkCount
-            }, runSignal);
-
+          for (const result of chunkResults) {
             partialSummaries.push(result.text.trim());
             chunkRuns.push(result.diagnostics || null);
-            renderChunkProgress(partialSummaries.length, article.chunkCount, partialSummaries);
           }
+          renderChunkProgress(partialSummaries.length, article.chunkCount, partialSummaries);
         }
 
         if (state.cancelRequested) {
@@ -517,7 +575,7 @@
 
         const savedRecord = await persistRecord(completedRecord);
         bindSavedRecord(savedRecord, diagnostics);
-        setStatus(completedRecord.allowHistory === false ? '\u751f\u6210\u5b8c\u6210\uff0c\u672c\u6b21\u672a\u5199\u5165\u5386\u53f2' : '\u751f\u6210\u5b8c\u6210', 'success');
+        setStatus(completedRecord.allowHistory === false ? I18n().get('sidebar_completed_nohistory') : I18n().get('sidebar_completed'), 'success');
         refreshActionStates();
 
         if (!getElements().historyPanel.classList.contains('hidden')) {
@@ -558,7 +616,7 @@
       const settings = await loadRuntimeSettings();
       if (!settings.apiKey) {
         renderErrorBox(errors.createError(errors.ERROR_CODES.CONFIG_MISSING_API_KEY));
-        setStatus('\u8bf7\u5148\u914d\u7f6e API Key', 'error');
+        setStatus(I18n().get('sidebar_need_api_key'), 'error');
         return;
       }
 
@@ -569,7 +627,7 @@
       state.cancelRequested = false;
       state.lastDiagnostics = null;
       renderDiagnostics();
-      setStatus(trustPolicy.allowHistory ? '\u6b63\u5728\u751f\u6210 ' + getModeLabel(mode) + '...' : '\u6b63\u5728\u751f\u6210 ' + getModeLabel(mode) + '\uff0c\u672c\u6b21\u4e0d\u4f1a\u5199\u5165\u5386\u53f2...');
+      setStatus(trustPolicy.allowHistory ? I18n().get('sidebar_generating_mode', [getModeLabel(mode)]) : I18n().get('sidebar_generating_mode_nohistory', [getModeLabel(mode)]));
       refreshActionStates();
 
       const runSignal = beginRunAbortController();
@@ -583,7 +641,7 @@
       state.visibleRecord = draftRecord;
       state.summaryMarkdown = '';
       renderArticleMeta(article, { summaryMode: mode });
-      renderInlineNote('\u6b63\u5728\u8fdb\u884c\u4e8c\u6b21\u751f\u6210', '\u57fa\u4e8e\u5f53\u524d\u6458\u8981\u751f\u6210 ' + getModeLabel(mode) + '\u3002');
+      renderInlineNote(I18n().get('sidebar_secondary_title'), I18n().get('sidebar_secondary_body', [getModeLabel(mode)]));
 
       try {
         const prompt = withCustomPrompt(articleUtils.buildSecondaryPrompt({
@@ -613,7 +671,7 @@
 
         const savedRecord = await persistRecord(completedRecord);
         bindSavedRecord(savedRecord, diagnostics);
-        setStatus(completedRecord.allowHistory === false ? getModeLabel(mode) + ' \u751f\u6210\u5b8c\u6210\uff0c\u672c\u6b21\u672a\u5199\u5165\u5386\u53f2' : getModeLabel(mode) + ' \u751f\u6210\u5b8c\u6210', 'success');
+        setStatus(completedRecord.allowHistory === false ? I18n().get('sidebar_secondary_done_nohistory', [getModeLabel(mode)]) : I18n().get('sidebar_secondary_done', [getModeLabel(mode)]), 'success');
       } catch (errorLike) {
         const error = normalizeUiError(errorLike);
         const diagnostics = composeDiagnostics(article, [], null, error);

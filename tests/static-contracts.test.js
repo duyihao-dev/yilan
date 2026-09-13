@@ -49,6 +49,12 @@ function assertInOrder(values, expected) {
   assert.deepStrictEqual(indexes, sorted, 'Scripts are not in dependency order');
 }
 
+function extractContentScriptFiles(text) {
+  const match = text.match(/CONTENT_SCRIPT_FILES = \[([\s\S]*?)\]/);
+  assert.ok(match, 'CONTENT_SCRIPT_FILES declaration missing');
+  return Array.from(match[1].matchAll(/'([^']+)'/g), (item) => item[1]);
+}
+
 function countMatches(text, pattern) {
   return (text.match(pattern) || []).length;
 }
@@ -136,6 +142,8 @@ test('manifest declares MV3 shell, entrypoints, permissions, and accessible reso
     'sidebar/events.js',
     'sidebar.js',
     'shared/theme.js',
+    'shared/version.js',
+    'shared/i18n.js',
     'shared/ui-format.js',
     'shared/ui-labels.js',
     'shared/summary-text.js',
@@ -171,6 +179,7 @@ test('manifest, HTML script tags, and imported resources point to existing files
 
   const background = readText('background.js');
   [
+    'shared/i18n.js',
     'shared/domain.js',
     'shared/errors.js',
     'shared/provider-catalog.generated.js',
@@ -180,12 +189,43 @@ test('manifest, HTML script tags, and imported resources point to existing files
     'adapters/registry.js',
     'shared/abort-utils.js',
     'shared/transport-utils.js',
+    'shared/chrome-api.js',
     'background/run-state.js',
     'background/reader-sessions.js',
-    'background/entrypoints.js'
+    'background/entrypoints.js',
+    'background/endpoint-cache.js',
+    'background/models-cache.js'
   ].forEach((script) => {
     assert.ok(background.includes("'" + script + "'"), 'background importScripts missing ' + script);
   });
+});
+
+test('release version stays in sync across package.json, package-lock.json, manifest.json, and shared/version.js', [
+  'quality.release_version_sync'
+], () => {
+  const pkg = readJson('package.json');
+  const lock = readJson('package-lock.json');
+  const manifest = readJson('manifest.json');
+  const fallback = (readText('shared/version.js').match(/FALLBACK_VERSION = '([^']+)'/) || [])[1];
+  const lockVersion = (lock.packages && lock.packages[''] && lock.packages[''].version) || lock.version;
+
+  assert.ok(pkg.version, 'package.json is missing version');
+  assert.ok(lockVersion, 'package-lock.json is missing version');
+  assert.ok(manifest.version, 'manifest.json is missing version');
+  assert.ok(fallback, 'shared/version.js is missing FALLBACK_VERSION');
+
+  const versions = {
+    'package.json': pkg.version,
+    'package-lock.json': lockVersion,
+    'manifest.json': manifest.version,
+    'shared/version.js': fallback
+  };
+  const mismatched = Object.entries(versions).filter(([, version]) => version !== pkg.version);
+  assert.deepStrictEqual(
+    mismatched,
+    [],
+    'Release versions must all match package.json: ' + JSON.stringify(versions)
+  );
 });
 
 test('sidebar page DOM, scripts, actions, history, export, share, and reader contracts stay wired', [
@@ -220,6 +260,8 @@ test('sidebar page DOM, scripts, actions, history, export, share, and reader con
     'shared/domain.js',
     'shared/strings.js',
     'shared/page-strategy.js',
+    'shared/i18n.js',
+    'shared/errors.js',
     'shared/article-utils.js',
     'shared/trust-policy.js',
     'shared/run-utils.js',
@@ -376,13 +418,43 @@ test('popup DOM, tabs, autosave, provider settings, connection test, and entrypo
   const jsIds = extractQuotedCalls(js, /\$\('([^']+)'\)/g);
   assertAllIdsExist('popup.html', jsIds, ids);
 
+  assert.ok(extractScriptSources(html).includes('shared/i18n.js'), 'popup.html must load shared/i18n.js');
+  assert.ok(/data-i18n=/.test(html), 'popup.html must bind static copy through data-i18n');
+  assert.ok(js.includes('YilanI18n'), 'popup.js must resolve dynamic copy through YilanI18n');
+  assert.ok(html.includes('id="uiLanguage"'), 'popup.html must offer the uiLanguage selector');
+  assert.ok(js.includes('normalizeUiLanguage'), 'popup.js must normalize the uiLanguage setting');
+  assert.ok(html.includes('id="chunkConcurrency"'), 'popup.html must offer the chunkConcurrency selector');
+  assert.ok(js.includes('normalizeChunkConcurrency'), 'popup.js must normalize the chunkConcurrency setting');
+  const locales = readJson('_locales/zh_CN/messages.json');
+  [
+    'popup_idle_status',
+    'popup_waiting_autosave',
+    'popup_test_btn',
+    'popup_tab_connection',
+    'popup_title',
+    'popup_label_ui_language',
+    'popup_ui_language_auto',
+    'popup_ui_language_zh',
+    'popup_ui_language_en',
+    'popup_label_chunk_concurrency',
+    'popup_chunk_concurrency_hint'
+  ].forEach((key) => {
+    assert.ok(locales[key], 'zh_CN catalog missing popup key ' + key);
+  });
+
   assertInOrder(extractScriptSources(html), [
     'shared/ui-format.js',
+    'shared/i18n.js',
     'shared/ui-labels.js',
     'shared/errors.js',
     'shared/trust-policy.js',
     'shared/provider-catalog.generated.js',
     'shared/provider-presets.js',
+    'popup/theme-controls.js',
+    'popup/profiles.js',
+    'popup/provider-selection.js',
+    'popup/models.js',
+    'popup/entrypoints-view.js',
     'popup.js'
   ]);
 
@@ -398,10 +470,38 @@ test('popup DOM, tabs, autosave, provider settings, connection test, and entrypo
   assert.ok(js.includes('function flushPendingChanges()'));
   assert.ok(js.includes("action: 'testConnection'"));
   assert.ok(js.includes("action: 'triggerHistory'"));
-  assert.ok(js.includes("action: 'getEntrypointStatus'"));
-  assert.ok(js.includes("action: 'openShortcutSettings'"));
-  assert.ok(js.includes('ProviderPresets.listPresets()'));
-  assert.ok(js.includes('ProviderPresets.getProviderRoutes('));
+
+  // popup/* controller modules own their slices of the settings UI.
+  const themeControlsJs = readText('popup/theme-controls.js');
+  const profilesJs = readText('popup/profiles.js');
+  const providerSelectionJs = readText('popup/provider-selection.js');
+  const modelsJs = readText('popup/models.js');
+  const entrypointsViewJs = readText('popup/entrypoints-view.js');
+  [
+    ['popup/theme-controls.js', 'createThemeControlsController', 'global.YilanPopupThemeControls = api'],
+    ['popup/profiles.js', 'createProfilesController', 'global.YilanPopupProfiles = api'],
+    ['popup/provider-selection.js', 'createProviderSelectionController', 'global.YilanPopupProviderSelection = api'],
+    ['popup/models.js', 'createModelsController', 'global.YilanPopupModels = api'],
+    ['popup/entrypoints-view.js', 'createEntrypointsViewController', 'global.YilanPopupEntrypointsView = api']
+  ].forEach(([file, factory, globalName]) => {
+    const source = readText(file);
+    assert.ok(source.includes('function ' + factory + '('), file + ' missing ' + factory);
+    assert.ok(source.includes(globalName), file + ' missing global export');
+    assert.ok(js.includes(factory), 'popup.js does not wire ' + factory);
+  });
+  assert.ok(entrypointsViewJs.includes("action: 'getEntrypointStatus'"));
+  assert.ok(entrypointsViewJs.includes("action: 'openShortcutSettings'"));
+  assert.ok(providerSelectionJs.includes('ProviderPresets.listPresets()'));
+  assert.ok(providerSelectionJs.includes('ProviderPresets.getProviderRoutes('));
+  assert.ok(modelsJs.includes("action: 'listModels'"));
+  assert.ok(profilesJs.includes('yilanProfilesIndexV1'));
+  assert.ok(themeControlsJs.includes('syncThemePreferenceControl'));
+
+  // Every $('id') referenced from popup core or popup/* modules must exist in popup.html.
+  [js, themeControlsJs, profilesJs, providerSelectionJs, modelsJs, entrypointsViewJs].forEach((source, index) => {
+    assertAllIdsExist('popup.html module#' + index, extractQuotedCalls(source, /\$\('([^']+)'\)/g), ids);
+  });
+
   ['providerRoute', 'advancedConnectionSettings'].forEach((id) => {
     assert.ok(ids.has(id), 'popup.html missing provider flow id: ' + id);
   });
@@ -421,6 +521,7 @@ test('reader page DOM, markdown rendering, copy, diagnostics, and session lookup
 
   assertInOrder(extractScriptSources(html), [
     'shared/ui-format.js',
+    'shared/i18n.js',
     'shared/ui-labels.js',
     'shared/summary-text.js',
     'shared/reader-view.js',
@@ -431,7 +532,8 @@ test('reader page DOM, markdown rendering, copy, diagnostics, and session lookup
     'reader.js'
   ]);
 
-  assert.ok(js.includes('readerSession:'));
+  assert.ok(js.includes('Constants.READER_SESSION_PREFIX'));
+  assert.ok(readText('shared/constants.js').includes("READER_SESSION_PREFIX: 'readerSession:'"));
   assert.ok(js.includes('recordStore.getRecordById'));
   assert.ok(js.includes('navigator.clipboard.writeText'));
   assert.ok(js.includes('DOMPurify.sanitize'));
@@ -522,6 +624,11 @@ test('content script extraction, sidebar injection, and SPA navigation contracts
   assert.ok(js.includes('YoutubeSource.extractYoutubeVideoSource'));
   assert.ok(readText('background.js').includes("'shared/bilibili-source.js'"));
   assert.ok(readText('background.js').includes("'shared/youtube-source.js'"));
+  assert.deepStrictEqual(
+    extractContentScriptFiles(readText('e2e/extension-harness.js')),
+    extractContentScriptFiles(readText('background.js')),
+    'e2e harness injection list must match the background.js production list'
+  );
   assert.ok(js.includes('createSidebarFrame'));
   assert.ok(js.includes('injectSidebar'));
   assert.ok(js.includes('postToExistingSidebar'));

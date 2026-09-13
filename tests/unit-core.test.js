@@ -965,7 +965,7 @@ test('article prompt builders cover primary, chunk, synthesis, and secondary flo
   assert.ok(primary.includes('\u8bf7\u4f7f\u7528\u4e2d\u6587\u8f93\u51fa\u3002'));
 
   const chunkPrompt = ArticleUtils.buildChunkPrompt({ article, chunk: article.chunks[0], summaryMode: 'long', targetLanguage: 'en' });
-  assert.ok(chunkPrompt.includes('\u5f53\u524d\u5206\u6bb5'));
+  assert.ok(chunkPrompt.includes('Current chunk'));
   assert.ok(chunkPrompt.includes('Please answer in English.'));
 
   const synthesis = ArticleUtils.buildSynthesisPrompt({ article, summaryMode: 'short', targetLanguage: 'fr', partialSummaries: ['A', 'B'] });
@@ -1083,6 +1083,111 @@ test('abort utilities race promises, wait with abort, and preserve abort reasons
 
   const completed = await AbortUtils.raceWithAbort(Promise.resolve('ok'), null);
   assert.strictEqual(completed, 'ok');
+});
+
+test('idle watchdog fires once after inactivity, resets on bump, and can be disabled', 'transport.streaming', () => {
+  let now = 0;
+  const timers = new Set();
+  const setTimeoutFn = (fn, ms) => {
+    const timer = { fn, at: now + ms };
+    timers.add(timer);
+    return timer;
+  };
+  const clearTimeoutFn = (timer) => timers.delete(timer);
+  function advance(ms) {
+    now += ms;
+    for (const timer of Array.from(timers)) {
+      if (timer.at <= now) {
+        timers.delete(timer);
+        timer.fn();
+      }
+    }
+  }
+
+  const fired = [];
+  const watchdog = AbortUtils.createIdleWatchdog({
+    timeoutMs: 500,
+    onTimeout: () => fired.push(now),
+    setTimeoutFn,
+    clearTimeoutFn
+  });
+  assert.strictEqual(timers.size, 1, 'watchdog schedules immediately when armed');
+
+  advance(300);
+  watchdog.bump();
+  advance(300);
+  assert.strictEqual(fired.length, 0, 'bump resets the deadline');
+
+  advance(300);
+  assert.strictEqual(fired.length, 1, 'fires once after the idle deadline');
+  assert.strictEqual(timers.size, 0, 'one-shot watchdog does not reschedule itself');
+
+  watchdog.dispose();
+  advance(1000);
+  assert.strictEqual(fired.length, 1, 'dispose prevents further callbacks');
+
+  const disabled = AbortUtils.createIdleWatchdog({
+    timeoutMs: 0,
+    onTimeout: () => fired.push(now),
+    setTimeoutFn,
+    clearTimeoutFn
+  });
+  assert.strictEqual(timers.size, 0, 'zero timeout disables the watchdog');
+  disabled.dispose();
+});
+
+test('mapWithConcurrency bounds parallelism, preserves order, stops on demand, and reports the first error', [
+  'generation.primary'
+], async () => {
+  let inflight = 0;
+  let maxInflight = 0;
+  const progress = [];
+  const results = await RunUtils.mapWithConcurrency(
+    [1, 2, 3, 4, 5],
+    2,
+    async (item) => {
+      inflight += 1;
+      maxInflight = Math.max(maxInflight, inflight);
+      await new Promise((resolve) => setTimeout(resolve, item === 2 ? 30 : 5));
+      inflight -= 1;
+      return item * 10;
+    },
+    {
+      onSettled: (completed, total) => progress.push([completed, total])
+    }
+  );
+
+  assert.deepStrictEqual(results, [10, 20, 30, 40, 50]);
+  assert.strictEqual(maxInflight, 2, 'never exceeds the concurrency limit');
+  assert.strictEqual(progress[0][0], 1);
+  assert.strictEqual(progress[progress.length - 1][0], 5);
+  assert.strictEqual(progress[progress.length - 1][1], 5);
+
+  let started = 0;
+  const stopped = await RunUtils.mapWithConcurrency(
+    [1, 2, 3, 4],
+    1,
+    async (item) => {
+      started += 1;
+      return item;
+    },
+    { shouldStop: () => started >= 2 }
+  );
+  assert.strictEqual(started, 2, 'shouldStop stops scheduling new tasks');
+  assert.strictEqual(stopped[0], 1);
+  assert.strictEqual(stopped[1], 2);
+  assert.strictEqual(stopped[2], undefined);
+
+  const failures = await RunUtils.mapWithConcurrency(
+    [1, 2, 3],
+    3,
+    async (item) => {
+      await new Promise((resolve) => setTimeout(resolve, item === 3 ? 20 : 5));
+      if (item !== 3) throw new Error('fail_' + item);
+      return item;
+    }
+  ).then(() => null, (error) => error);
+  assert.strictEqual(failures.message, 'fail_1', 'the first error in item order wins');
 });
 
 test('run utilities describe cancellation, progress, diagnostics, and terminal patches', [
