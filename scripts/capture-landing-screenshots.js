@@ -334,6 +334,79 @@ async function captureTheme(theme, server) {
       { frameTop: 96, frameLeft: 584, frameWidth: 432, frameHeight: 1030 }
     );
 
+    const videoTitle = '一期讲透 AI 视频笔记：把一小时视频压成三分钟要点';
+    await sidebar.evaluate((title) => {
+      // Inject a YouTube-shaped article through the sidebar's own articleData
+      // channel so the video UI (source badge, subtitle track, export button)
+      // renders with deterministic mock content — no network video needed.
+      const article = window.AISummaryArticle.buildArticleSnapshot({
+        title,
+        text: [
+          '这期视频讲如何把一小时的视频变成三分钟的结构化笔记，让视频学习和文章阅读一样可检索、可回看。',
+          '开头先解释为什么视频学习容易看过就忘：内容缺少结构，也没有可回看的入口，看完只能留下模糊的印象。',
+          '然后讲字幕是现成的底稿：先完整读取字幕，再按主题重组要点，而不是按时间线罗列，最后每条结论都落到一条可执行的动作。',
+          '中间用三个真实案例演示：一期四十分钟的访谈、一段二十五分钟的课程录像和一场技术分享，分别展示抓取字幕、生成要点和导出笔记的过程。',
+          '结尾演示用本地历史沉淀视频笔记：按频道与主题检索，复习时直接跳回对应时间点，引用时一键复制带来源的 Markdown。'
+        ].join('\n'),
+        excerpt: '把一小时的视频压成三分钟要点的完整工作流演示。',
+        sourceUrl: 'https://www.youtube.com/watch?v=yilan_demo_video',
+        sourceType: 'video',
+        extractor: 'youtube_captions',
+        meta: {
+          ogTitle: title,
+          author: 'Yilan 频道',
+          siteName: 'YouTube',
+          description: '把一小时的视频压成三分钟要点的完整工作流演示。'
+        },
+        maxChars: 42000,
+        diagnostics: {
+          videoSource: 'youtube',
+          videoSourceKind: 'captions',
+          youtube: {
+            debug: {
+              captions: {
+                text: [
+                  '00:00 为什么视频学习容易看过就忘',
+                  '00:18 字幕是现成的笔记底稿',
+                  '06:24 按主题重组要点，而不是按时间线',
+                  '21:40 每条结论落到一条可执行动作',
+                  '38:12 用本地历史沉淀视频笔记'
+                ].join('\n'),
+                selectedLanguageCode: 'zh',
+                selectedLanguageName: '中文（自动生成）',
+                isAutomatic: true
+              }
+            }
+          }
+        }
+      });
+      window.postMessage({ type: 'articleData', article }, '*');
+    }, videoTitle);
+    await sidebar.waitForFunction(() => {
+      const text = document.getElementById('summaryRoot')?.textContent || '';
+      return text.includes('视频核心结论');
+    });
+    await sidebar.waitForSelector('#copyBtn:not([disabled])');
+    await sidebar.waitForFunction(() => {
+      const button = document.getElementById('subtitleExportBtn');
+      return button && !button.hidden && !button.disabled;
+    });
+    // Streaming leaves the summary scrolled to the bottom; reset to the top
+    // so the shot starts with the summary heading.
+    await sidebar.evaluate(() => {
+      const root = document.getElementById('summaryRoot');
+      if (root) root.scrollTop = 0;
+    });
+    await waitForFonts(sidebar);
+    const videoBuffer = await sidebar.locator('body').screenshot({ animations: 'disabled' });
+    await composeSidebarShot(
+      harness.context,
+      videoBuffer,
+      theme,
+      path.join(outputDir, `video-summary-${theme}.png`),
+      { frameTop: 96, frameLeft: 584, frameWidth: 432, frameHeight: 1030 }
+    );
+
     await sidebar.evaluate(async (records) => {
       for (const record of records) {
         await window.db.saveRecord(record);

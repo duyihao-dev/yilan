@@ -103,12 +103,17 @@ For long reads, video learning, research, and knowledge management.
 
 ## 截图顺序（CWS 后台可改）
 
-素材在 `store-assets/chrome-web-store/`（`scripts/generate-store-assets.js` 生成）：
+素材在 `store-assets/chrome-web-store/`（`scripts/generate-store-assets.js` 生成，基础图来自 `npm run screenshots:landing`）。2026-09-13 已按搜索意图重排并新增视频场景首图：
 
-1. [ ] 第一张放「视频摘要」场景（YouTube 或 B 站侧栏摘要图）——视频总结是最高频搜索意图，若现成 5 张里没有，用生成脚本补一张
-2. [ ] 第二张放网页摘要工作台（现 screenshot-01）
-3. [ ] 后续依次：二次生成模式 → 历史收藏 → 厂商配置 → 主题
-4. [ ] 宣传图（marquee 440x280）确认含"AI 摘要 / YouTube / B站"字样
+1. [x] `screenshot-01-video-summary.jpg`——视频摘要场景（YouTube 侧栏 + 字幕导出），视频总结是最高频搜索意图
+2. [x] `screenshot-02-summary-workspace.jpg`——网页摘要工作台
+3. [x] `screenshot-03-follow-up-modes.jpg`——二次生成模式
+4. [x] `screenshot-04-history-favorites.jpg`——历史收藏
+5. [x] `screenshot-05-provider-setup.jpg`——厂商配置
+6. [x] `screenshot-06-theme-modes.jpg`——主题模式（若 CWS 后台限制 5 张，此张作为备选）
+7. [x] 宣传图 `promo-small.jpg`（440x280）/ `promo-marquee.jpg`（1400x560），标语已对齐「AI 摘要插件」定位
+
+截图里的界面为真实扩展（mock 模型）产出，版本徽标为 v1.5.0；上传前在真实浏览器里打开检查清晰度即可。
 
 ## 分类与语言
 

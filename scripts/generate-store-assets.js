@@ -23,7 +23,19 @@ const BRAND = {
 
 const SCREEN_ASSETS = [
   {
-    output: 'screenshot-01-summary-workspace.jpg',
+    output: 'screenshot-01-video-summary.jpg',
+    width: 1280,
+    height: 800,
+    titleSize: 48,
+    title: 'YouTube、B 站视频：先看要点再看片',
+    subtitle: '自动读取字幕与官方 AI 总结，生成带时间戳的视频笔记，还支持字幕导出。',
+    chips: ['YouTube', 'B 站', '字幕导出'],
+    image: 'video-summary-light.png',
+    imageMode: 'wide',
+    imagePosition: '59% 50%'
+  },
+  {
+    output: 'screenshot-02-summary-workspace.jpg',
     width: 1280,
     height: 800,
     titleSize: 54,
@@ -35,7 +47,7 @@ const SCREEN_ASSETS = [
     imagePosition: '59% 50%'
   },
   {
-    output: 'screenshot-02-follow-up-modes.jpg',
+    output: 'screenshot-03-follow-up-modes.jpg',
     width: 1280,
     height: 800,
     titleSize: 48,
@@ -47,7 +59,7 @@ const SCREEN_ASSETS = [
     imagePosition: '59% 50%'
   },
   {
-    output: 'screenshot-03-history-favorites.jpg',
+    output: 'screenshot-04-history-favorites.jpg',
     width: 1280,
     height: 800,
     titleSize: 52,
@@ -59,7 +71,7 @@ const SCREEN_ASSETS = [
     imagePosition: '50% 0%'
   },
   {
-    output: 'screenshot-04-provider-setup.jpg',
+    output: 'screenshot-05-provider-setup.jpg',
     width: 1280,
     height: 800,
     titleSize: 50,
@@ -71,7 +83,7 @@ const SCREEN_ASSETS = [
     imagePosition: '50% 0%'
   },
   {
-    output: 'screenshot-05-theme-modes.jpg',
+    output: 'screenshot-06-theme-modes.jpg',
     width: 1280,
     height: 800,
     titleSize: 48,
@@ -303,7 +315,7 @@ function buildScreenHtml(asset, imageUri, iconUri) {
         <div class="brand-mark"><img alt="" src="${iconUri}"></div>
         <div class="brand-text">
           <strong>一览</strong>
-          <span>Yilan · AI Reading Workspace</span>
+          <span>Yilan · AI 摘要插件</span>
         </div>
       </div>
       <h1>${escapeHtml(asset.title)}</h1>
@@ -462,7 +474,7 @@ function buildPromoHtml(asset, heroUri, workflowUri, iconUri) {
     <div class="mark"><img alt="" src="${iconUri}"></div>
     <div class="brand">
       <strong>Yilan</strong>
-      ${isSmall ? '' : '<span>AI Reading Workspace</span>'}
+      ${isSmall ? '' : '<span>AI 摘要插件</span>'}
     </div>
   </div>
   <div class="card card-sub">
@@ -499,7 +511,8 @@ async function main() {
     'hero-main-dark.png',
     'workflow-summary-light.png',
     'history-reader-light.png',
-    'settings-panel-light.png'
+    'settings-panel-light.png',
+    'video-summary-light.png'
   ]) {
     sources[fileName] = await readDataUri(path.join(screenDir, fileName));
   }

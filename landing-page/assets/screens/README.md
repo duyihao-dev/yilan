@@ -16,6 +16,9 @@
 - `settings-panel-light.png` / `settings-panel-dark.png`
   设置页里的连接配置、厂商预设、入口检查等界面
 
+- `video-summary-light.png` / `video-summary-dark.png`
+  视频摘要场景（YouTube 文章注入 + 字幕导出按钮），供商店截图首图使用，落地页暂未引用
+
 ## 最推荐的方式
 
 1. 每个截图位准备一张浅色截图和一张深色截图。
