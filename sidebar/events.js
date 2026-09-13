@@ -90,7 +90,7 @@
         if (event.data?.type === 'articleData' && event.data.article) {
           handleArticleDataPayload(event.data).catch((error) => {
             consoleRef.error(error);
-            setStatus('\u5904\u7406\u5165\u53e3\u89e6\u53d1\u5931\u8d25', 'error');
+            setStatus(global.YilanI18n.get('sidebar_entry_trigger_failed'), 'error');
           });
         }
       });

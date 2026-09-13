@@ -2,22 +2,15 @@ const recordStore = window.db;
 const UiFormat = window.AISummaryUiFormat;
 const UiLabels = window.AISummaryUiLabels;
 const ReaderView = window.AISummaryReaderView;
+const Constants = window.AISummaryConstants;
+const ChromeApi = window.YilanChromeApi;
+const I18n = window.YilanI18n;
 
-const READER_SESSION_PREFIX = 'readerSession:';
+const READER_SESSION_PREFIX = Constants.READER_SESSION_PREFIX;
 
 const $ = (id) => document.getElementById(id);
 
-function storageLocalGet(key) {
-  return new Promise((resolve, reject) => {
-    chrome.storage.local.get(key, (items) => {
-      if (chrome.runtime.lastError) {
-        reject(new Error(chrome.runtime.lastError.message));
-        return;
-      }
-      resolve(items || {});
-    });
-  });
-}
+const storageLocalGet = ChromeApi.storageLocalGet;
 
 function setStatus(text, tone) {
   const node = $('statusLine');
@@ -31,16 +24,18 @@ const mergeSnapshotWithRecord = ReaderView.mergeSnapshotWithRecord;
 
 let readerTocScrollHandler = null;
 let readerTocFrame = 0;
+let readerTocLinks = [];
+let readerHeaderHeight = null;
 
 function getStatusLabel(status) {
-  return UiLabels.getRecordStatusLabel(status, { variant: 'reader', fallback: '已完成' });
+  return UiLabels.getRecordStatusLabel(status, { variant: 'reader', fallback: I18n.get('label_status_completed') });
 }
 
 function estimateReadMinutes(text) {
   const plain = String(text || '').trim();
-  if (!plain) return '约 1 分钟';
+  if (!plain) return I18n.get('reader_read_minutes_short');
   const minutes = Math.max(1, Math.round(plain.length / 500));
-  return `约 ${minutes} 分钟阅读`;
+  return I18n.get('reader_read_minutes', [minutes]);
 }
 
 function buildBadge(label, tone) {
@@ -59,14 +54,14 @@ function parseSessionId() {
 async function loadReaderSnapshot() {
   const sessionId = parseSessionId();
   if (!sessionId) {
-    throw new Error('没有找到阅读会话。');
+    throw new Error(I18n.get('reader_error_no_session'));
   }
 
   const storageKey = READER_SESSION_PREFIX + sessionId;
   const items = await storageLocalGet(storageKey);
   const snapshot = items?.[storageKey]?.snapshot || null;
   if (!snapshot) {
-    throw new Error('阅读会话已失效，请回到侧栏重新打开。');
+    throw new Error(I18n.get('reader_error_expired_session'));
   }
 
   if (snapshot.recordId && snapshot.allowHistory !== false) {
@@ -95,19 +90,19 @@ function renderEmpty(title, detail) {
 }
 
 function renderReader(snapshot) {
-  document.title = `${snapshot.title || '一览阅读'} - 一览`;
+  document.title = `${snapshot.title || I18n.get('reader_default_title')} - 一览`;
 
   $('emptyState').classList.add('hidden');
   $('readerLayout').classList.remove('hidden');
   $('readerHero').classList.remove('hidden');
   $('readerContent').classList.remove('hidden');
 
-  $('readerTitle').textContent = snapshot.title || '未命名页面';
+  $('readerTitle').textContent = snapshot.title || I18n.get('sidebar_unnamed_page');
 
   const sourceUrl = normalizeExternalUrl(snapshot.sourceUrl);
   const sourceLink = $('readerSourceLink');
   sourceLink.href = sourceUrl || '#';
-  sourceLink.textContent = sourceUrl || '没有可用原文链接';
+  sourceLink.textContent = sourceUrl || I18n.get('reader_no_source_link');
   sourceLink.setAttribute('aria-disabled', sourceUrl ? 'false' : 'true');
   sourceLink.tabIndex = sourceUrl ? 0 : -1;
   sourceLink.classList.toggle('is-disabled', !sourceUrl);
@@ -123,17 +118,17 @@ function renderReader(snapshot) {
     snapshot.sourceTypeLabel ? buildBadge(snapshot.sourceTypeLabel) : '',
     snapshot.strategyLabel ? buildBadge(snapshot.strategyLabel) : '',
     snapshot.summaryModeLabel ? buildBadge(snapshot.summaryModeLabel, 'accent') : '',
-    snapshot.privacyMode ? buildBadge('无痕模式') : '',
-    snapshot.favorite ? buildBadge('已收藏') : ''
+    snapshot.privacyMode ? buildBadge(I18n.get('reader_badge_private')) : '',
+    snapshot.favorite ? buildBadge(I18n.get('reader_badge_favorited')) : ''
   ].filter(Boolean).join('');
 
   $('detailRow').innerHTML = [
-    buildDetail('状态', getStatusLabel(snapshot.status)),
-    buildDetail('阅读', estimateReadMinutes(snapshot.summaryPlainText || snapshot.summaryMarkdown || '')),
-    snapshot.author ? buildDetail('作者', snapshot.author) : '',
-    snapshot.completedAtLabel && snapshot.completedAtLabel !== '未记录' ? buildDetail('生成时间', snapshot.completedAtLabel) : '',
+    buildDetail(I18n.get('reader_detail_status'), getStatusLabel(snapshot.status)),
+    buildDetail(I18n.get('reader_detail_reading'), estimateReadMinutes(snapshot.summaryPlainText || snapshot.summaryMarkdown || '')),
+    snapshot.author ? buildDetail(I18n.get('sidebar_meta_author'), snapshot.author) : '',
+    snapshot.completedAtLabel && snapshot.completedAtLabel !== I18n.get('popup_not_recorded') ? buildDetail(I18n.get('reader_detail_generated_at'), snapshot.completedAtLabel) : '',
     // snapshot.providerLabel ? buildDetail('模型供应商', snapshot.providerLabel) : '',
-    snapshot.model ? buildDetail('模型', snapshot.model) : ''
+    snapshot.model ? buildDetail(I18n.get('reader_detail_model'), snapshot.model) : ''
   ].filter(Boolean).join('');
 
   $('summaryArticle').dataset.markdown = snapshot.summaryMarkdown || '';
@@ -149,7 +144,7 @@ function renderReader(snapshot) {
     diagnosticsBlock.classList.add('hidden');
   }
 
-  setStatus(snapshot.allowHistory === false ? '这是一次未写入历史的临时阅读视图。' : '阅读页已准备好。');
+  setStatus(snapshot.allowHistory === false ? I18n.get('reader_temp_view_status') : I18n.get('reader_ready_status'));
 }
 
 async function copyMarkdown() {
@@ -157,7 +152,7 @@ async function copyMarkdown() {
   if (!content) return;
 
   await navigator.clipboard.writeText(content);
-  setStatus('Markdown 已复制到剪贴板。', 'success');
+  setStatus(I18n.get('reader_copied'), 'success');
 }
 
 const MARKDOWN_SANITIZE_OPTIONS = {
@@ -176,6 +171,7 @@ function renderSanitizedMarkdownFragment(container, markdown) {
 function clearReaderToc() {
   const toc = $('readerToc');
   const tocList = $('readerTocList');
+  readerTocLinks = [];
 
   if (readerTocScrollHandler) {
     window.removeEventListener('scroll', readerTocScrollHandler);
@@ -237,8 +233,9 @@ function collectReaderHeadings(container) {
 }
 
 function setActiveTocLink(id) {
-  const links = Array.from($('readerTocList').querySelectorAll('.reader-toc-link'));
-  links.forEach((link) => {
+  // Uses the cached link list captured when the TOC was built, so scroll
+  // frames do not re-query the DOM.
+  readerTocLinks.forEach((link) => {
     const active = link.dataset.targetId === id;
     link.classList.toggle('active', active);
     if (active) {
@@ -250,9 +247,13 @@ function setActiveTocLink(id) {
 }
 
 function getReaderActivationLine() {
-  const rawValue = getComputedStyle(document.querySelector(':root')).getPropertyValue('--reader-header-height');
-  const headerHeight = Number.parseFloat(rawValue) || 64;
-  return headerHeight + Math.min(360, Math.max(180, window.innerHeight * 0.28));
+  // The header height comes from a static CSS var; read it once instead of
+  // forcing getComputedStyle on every scroll frame.
+  if (readerHeaderHeight === null) {
+    const rawValue = getComputedStyle(/** @type {any} */ (document.documentElement)).getPropertyValue('--reader-header-height');
+    readerHeaderHeight = Number.parseFloat(rawValue) || 64;
+  }
+  return readerHeaderHeight + Math.min(360, Math.max(180, window.innerHeight * 0.28));
 }
 
 function syncActiveTocLink(headings) {
@@ -298,6 +299,7 @@ function initializeReaderToc(container) {
     item.append(link);
     tocList.appendChild(/** @type {any} */ (item));
   });
+  readerTocLinks = Array.from(tocList.querySelectorAll('.reader-toc-link'));
 
   toc.classList.remove('hidden');
   readerTocScrollHandler = () => {
@@ -336,12 +338,12 @@ window.addEventListener('DOMContentLoaded', async () => {
     const snapshot = await loadReaderSnapshot();
     renderReader(snapshot);
   } catch (error) {
-    renderEmpty('无法打开阅读页', String(error?.message || error || '发生未知错误。'));
+    renderEmpty(I18n.get('reader_error_title'), String(error?.message || error || I18n.get('reader_unknown_error')));
   }
 
   $('copyBtn').addEventListener('click', () => {
     copyMarkdown().catch((error) => {
-      setStatus(String(error?.message || error || '复制失败。'), 'error');
+      setStatus(String(error?.message || error || I18n.get('reader_copy_failed')), 'error');
     });
   });
 

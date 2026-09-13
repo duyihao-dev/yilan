@@ -13,6 +13,7 @@ module.exports = [
   { id: 'article.chunking', label: 'Long article chunking' },
   { id: 'page.strategy', label: 'Page type strategy selection' },
   { id: 'prompt.primary', label: 'Primary summary prompt builders' },
+  { id: 'prompt.locale', label: 'Prompt locale chain and localized prompt catalogs' },
   { id: 'prompt.secondary', label: 'Secondary generation prompt builders' },
   { id: 'generation.primary', label: 'Primary summary generation flow' },
   { id: 'generation.bilibili_official', label: 'Bilibili official summary fast path' },
@@ -47,6 +48,12 @@ module.exports = [
   { id: 'ui.popup_contract', label: 'Popup DOM contract' },
   { id: 'ui.reader_contract', label: 'Reader DOM contract' },
   { id: 'quality.syntax', label: 'First-party JavaScript syntax' },
+  { id: 'quality.release_version_sync', label: 'Release version consistency across package, manifest, and shared fallback' },
+  { id: 'quality.i18n_catalog', label: 'i18n catalog completeness and YilanI18n runtime helper' },
   { id: 'quality.performance_baseline', label: 'Large history performance baselines' },
+  { id: 'quality.chrome_api', label: 'Centralized Chrome API wrappers' },
+  { id: 'quality.background_caches', label: 'Background endpoint and models cache modules' },
+  { id: 'quality.models_cache_key', label: 'Unified provider cache keys across popup and background' },
+  { id: 'quality.storage_keys', label: 'Centralized storage key registry stability' },
   { id: 'quality.docs_upgrade_design', label: 'Planning and migration documentation' }
 ];

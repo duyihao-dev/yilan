@@ -1,7 +1,8 @@
 (function initYilanSidebarExport(global) {
+  const I18n = () => global.YilanI18n;
   const DEFAULT_SHARE_QUOTE_MAX_CHARS = 140;
 
-  function fallbackNormalizeWhitespace(value) {
+  function normalizeWhitespaceText(value) {
     return String(value || '').replace(/\s+/g, ' ').trim();
   }
 
@@ -13,8 +14,23 @@
       .slice(0, 60) || 'summary';
   }
 
+  function downloadTextFile(text, options) {
+    // Append + click + delayed revoke: the most download-safe order across
+    // browsers; revoking immediately after click can cancel slow downloads.
+    const blob = new Blob([text], { type: options?.mimeType || 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = options?.filename || 'download.txt';
+    document.body?.appendChild?.(link);
+    link.click();
+    link.remove?.();
+    const revokeObjectURL = URL.revokeObjectURL.bind(URL);
+    setTimeout(() => revokeObjectURL(url), 1000);
+  }
+
   function buildShareQuoteSnippet(article, maxChars, options) {
-    const normalizeWhitespace = options?.normalizeWhitespace || fallbackNormalizeWhitespace;
+    const normalizeWhitespace = options?.normalizeWhitespace || normalizeWhitespaceText;
     const safeMaxChars = typeof maxChars === 'number' ? maxChars : DEFAULT_SHARE_QUOTE_MAX_CHARS;
     const preferredExcerpt = normalizeWhitespace(article?.excerpt || article?.subtitle || '');
     const preferredBody = normalizeWhitespace(article?.cleanText || article?.content || article?.rawText || '');
@@ -37,9 +53,9 @@
       diagnostics?.model,
       diagnostics?.finalRun?.model,
       settings?.modelName
-    ].map(fallbackNormalizeWhitespace).find(Boolean);
+    ].map(normalizeWhitespaceText).find(Boolean);
 
-    return '\u6a21\u578b\uff1a' + (model || '-');
+    return I18n().get('sidebar_share_model_label', [model || '-']);
   }
 
   function createExportController(deps) {
@@ -58,7 +74,7 @@
     const wait = deps.wait;
     const html2canvasImpl = deps.html2canvas || (typeof html2canvas !== 'undefined' ? html2canvas : null);
     const strings = deps.strings || {};
-    const normalizeWhitespace = deps.normalizeWhitespace || fallbackNormalizeWhitespace;
+    const normalizeWhitespace = deps.normalizeWhitespace || normalizeWhitespaceText;
     const quoteMaxChars = deps.shareQuoteMaxChars || DEFAULT_SHARE_QUOTE_MAX_CHARS;
 
     function getSummaryMarkdown() {
@@ -196,7 +212,7 @@
         key: provider + '-current',
         type: 'artifact',
         provider,
-        label: ['当前字幕', getProviderLabelForSubtitle(provider), language].filter(Boolean).join(' · '),
+        label: [I18n().get('sidebar_subtitle_current'), getProviderLabelForSubtitle(provider), language].filter(Boolean).join(' · '),
         artifact
       };
     }
@@ -254,21 +270,15 @@
     function downloadSubtitleArtifact(artifact) {
       const text = String(artifact?.text || '');
       if (!text.trim()) {
-        setStatus('\u9009\u4e2d\u7684\u5b57\u5e55\u8f68\u9053\u8fd4\u56de\u4e86\u7a7a\u5185\u5bb9\uff0c\u672a\u5bfc\u51fa\u3002', 'warning');
+        setStatus(I18n().get('sidebar_subtitle_empty_track'), 'warning');
         return false;
       }
 
       const article = resolveArticle();
-      const blob = new Blob([text], { type: artifact.mimeType });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = sanitizeFilename((article?.title || artifact.provider || 'video') + '-' + (artifact.suffix || 'subtitle')) + '.' + artifact.extension;
-      document.body?.appendChild?.(link);
-      link.click();
-      link.remove?.();
-      const revokeObjectURL = URL.revokeObjectURL.bind(URL);
-      setTimeout(() => revokeObjectURL(url), 1000);
+      downloadTextFile(text, {
+        mimeType: artifact.mimeType,
+        filename: sanitizeFilename((article?.title || artifact.provider || 'video') + '-' + (artifact.suffix || 'subtitle')) + '.' + artifact.extension
+      });
       return true;
     }
 
@@ -278,31 +288,28 @@
       const option = options.find((item) => item.key === selectedKey) || options[0] || null;
       const artifact = await buildArtifactFromOption(option);
       if (!artifact) {
-        setStatus('\u5f53\u524d\u89c6\u9891\u8fd8\u6ca1\u6709\u53ef\u5bfc\u51fa\u7684\u5b57\u5e55\u3002', 'warning');
+        setStatus(I18n().get('sidebar_video_no_subtitles'), 'warning');
         return;
       }
 
       if (downloadSubtitleArtifact(artifact)) {
-        setStatus('\u5b57\u5e55\u5df2\u5bfc\u51fa\u3002', 'success');
+        setStatus(I18n().get('sidebar_subtitle_exported'), 'success');
       }
     }
 
     function exportBilibiliSubtitle() {
       const artifact = getBilibiliSubtitleArtifact();
       if (!artifact) {
-        setStatus('当前 B 站视频还没有可导出的字幕。', 'warning');
+        setStatus(I18n().get('sidebar_bilibili_no_subtitles'), 'warning');
         return;
       }
 
       const article = resolveArticle();
-      const blob = new Blob([artifact.text], { type: artifact.mimeType });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = sanitizeFilename((article?.title || 'bilibili-video') + '-字幕') + '.' + artifact.extension;
-      link.click();
-      URL.revokeObjectURL(url);
-      setStatus('字幕已导出。', 'success');
+      downloadTextFile(artifact.text, {
+        mimeType: artifact.mimeType,
+        filename: sanitizeFilename((article?.title || 'bilibili-video') + I18n().get('sidebar_file_subtitles')) + '.' + artifact.extension
+      });
+      setStatus(I18n().get('sidebar_subtitle_exported'), 'success');
     }
 
     function exportMarkdown() {
@@ -313,25 +320,22 @@
       const record = getCurrentRecord();
       const elements = getElements();
       const header = [
-        '# ' + (record?.summaryTitle || article?.title || '\u672a\u547d\u540d\u9875\u9762'),
+        '# ' + (record?.summaryTitle || article?.title || I18n().get('sidebar_unnamed_page')),
         '',
-        '> \u6765\u6e90\uff1a' + (article?.normalizedUrl || article?.sourceUrl || '-'),
-        '> \u7ad9\u70b9\uff1a' + (article?.sourceHost || '-'),
-        '> \u6a21\u5f0f\uff1a' + getModeLabel(record?.summaryMode || elements.summaryModeSelect.value),
-        '> \u751f\u6210\u65f6\u95f4\uff1a' + formatDateTime(record?.completedAt || new Date().toISOString()),
+        '> ' + I18n().get('sidebar_md_source') + (article?.normalizedUrl || article?.sourceUrl || '-'),
+        '> ' + I18n().get('sidebar_md_site') + (article?.sourceHost || '-'),
+        '> ' + I18n().get('sidebar_md_mode') + getModeLabel(record?.summaryMode || elements.summaryModeSelect.value),
+        '> ' + I18n().get('sidebar_md_generated_at') + formatDateTime(record?.completedAt || new Date().toISOString()),
         '',
         '---',
         ''
       ].join('\n');
 
-      const blob = new Blob([header + summaryMarkdown], { type: 'text/markdown;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = sanitizeFilename(article?.title || 'summary') + '.md';
-      link.click();
-      URL.revokeObjectURL(url);
-      setStatus('Markdown \u5df2\u5bfc\u51fa\u3002', 'success');
+      downloadTextFile(header + summaryMarkdown, {
+        mimeType: 'text/markdown;charset=utf-8',
+        filename: sanitizeFilename(article?.title || 'summary') + '.md'
+      });
+      setStatus(I18n().get('sidebar_markdown_exported'), 'success');
     }
 
     function createShareCardElement() {
@@ -396,28 +400,28 @@
         '      <div class="share-mark">\u89c8</div>',
         '      <div>',
         '        <div style="font-size:16px;font-weight:700">\u4e00\u89c8</div>',
-        '        <div class="share-subtitle">\u7a33\u5b9a\u6458\u8981\u5de5\u4f5c\u53f0</div>',
+        '        <div class="share-subtitle">' + I18n().get('sidebar_share_subtitle') + '</div>',
         '      </div>',
         '    </div>',
         '    <div class="share-subtitle">' + escapeHtml(formatDateTime(record?.completedAt || new Date().toISOString())) + '</div>',
         '  </div>',
         '  <div class="share-badges">',
-        '    <span class="share-badge">' + escapeHtml(article?.sourceHost || '\u672a\u77e5\u6765\u6e90') + '</span>',
-        '    <span class="share-badge">' + escapeHtml(strings.SITE_TYPE_LABELS?.[article?.sourceType] || '\u901a\u7528\u7f51\u9875') + '</span>',
+        '    <span class="share-badge">' + escapeHtml(article?.sourceHost || I18n().get('sidebar_share_unknown_source')) + '</span>',
+        '    <span class="share-badge">' + escapeHtml(strings.SITE_TYPE_LABELS?.[article?.sourceType] || I18n().get('sidebar_generic_page')) + '</span>',
         '    <span class="share-badge">' + escapeHtml(getStrategyLabel(article?.sourceStrategy, article?.sourceType)) + '</span>',
         '    <span class="share-badge">' + escapeHtml(getModeLabel(record?.summaryMode || elements.summaryModeSelect.value)) + '</span>',
         '  </div>',
-        '  <h1 class="share-title">' + escapeHtml(article?.title || '\u672a\u547d\u540d\u9875\u9762') + '</h1>',
+        '  <h1 class="share-title">' + escapeHtml(article?.title || I18n().get('sidebar_unnamed_page')) + '</h1>',
         '  <div class="share-source">',
-        '    <div class="share-source-label">\u6765\u6e90\u94fe\u63a5</div>',
+        '    <div class="share-source-label">' + I18n().get('sidebar_share_source_label') + '</div>',
         '    <div class="share-source-url">' + escapeHtml(article?.normalizedUrl || article?.sourceUrl || '-') + '</div>',
         '  </div>',
         quoteText
-          ? '  <div class="share-quote"><div class="share-quote-label">\u539f\u6587\u6458\u5f55 \u00b7 \u6700\u591a ' + quoteMaxChars + ' \u5b57</div><div class="share-quote-text">' + escapeHtml(quoteText) + '</div></div>'
+          ? '  <div class="share-quote"><div class="share-quote-label">' + I18n().get('sidebar_share_quote_label', [quoteMaxChars]) + '</div><div class="share-quote-text">' + escapeHtml(quoteText) + '</div></div>'
           : '',
         '  <div class="share-content">' + sanitizeMarkdownToHtml(summaryMarkdown || '') + '</div>',
         '  <div class="share-footer">',
-        '    <span>\u6765\u6e90\uff1a' + escapeHtml(article?.siteName || article?.sourceHost || '-') + '</span>',
+        '    <span>' + I18n().get('sidebar_share_from') + escapeHtml(article?.siteName || article?.sourceHost || '-') + '</span>',
         '    <span>' + escapeHtml(resolveShareModelLabel(record, state?.lastDiagnostics, state?.settings)) + '</span>',
         '  </div>',
         '</div>'
@@ -430,13 +434,13 @@
       const state = getState();
       if (!String(state?.summaryMarkdown || '').trim()) return;
       if (state?.trustPolicy?.allowShare === false) {
-        setStatus('\u5f53\u524d\u7b56\u7565\u5df2\u5173\u95ed\u5206\u4eab\u5361\u8f93\u51fa\u3002', 'warning');
+        setStatus(I18n().get('sidebar_share_disabled'), 'warning');
         return;
       }
 
       const host = createShareCardElement();
       document.body.appendChild(host);
-      setStatus('\u6b63\u5728\u751f\u6210\u957f\u622a\u56fe\uff0c\u8bf7\u7a0d\u5019...');
+      setStatus(I18n().get('sidebar_share_generating'));
 
       try {
         await wait(120);
@@ -466,12 +470,12 @@
 
         const link = document.createElement('a');
         link.href = canvas.toDataURL('image/png');
-        link.download = sanitizeFilename((getState()?.article?.title || 'summary') + '-\u5206\u4eab\u5361') + '.png';
+        link.download = sanitizeFilename((getState()?.article?.title || 'summary') + I18n().get('sidebar_file_share_card')) + '.png';
         link.click();
-        setStatus('\u957f\u622a\u56fe\u5df2\u751f\u6210', 'success');
+        setStatus(I18n().get('sidebar_share_done'), 'success');
       } catch (error) {
         console.error(error);
-        setStatus('\u957f\u622a\u56fe\u751f\u6210\u5931\u8d25\u3002', 'error');
+        setStatus(I18n().get('sidebar_share_failed'), 'error');
       } finally {
         host.remove();
       }

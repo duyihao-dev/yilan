@@ -102,15 +102,50 @@
   }
 
   function groupRecordsBySite(records) {
-    const buckets = buildSiteBuckets(records);
-    return buckets.map((bucket) => ({
-      host: bucket.host,
-      count: bucket.count,
-      favoriteCount: bucket.favoriteCount,
-      latestUpdatedAt: bucket.latestUpdatedAt,
-      sourceTypes: bucket.sourceTypes,
-      records: filterRecordsBySite(records, bucket.host)
-    }));
+    const groups = new Map();
+
+    // Single-pass grouping: avoids the previous O(n * k) pattern that
+    // re-scanned the full record list once per site bucket.
+    (records || []).forEach((record) => {
+      const host = getRecordSiteHost(record);
+      let bucket = groups.get(host);
+      if (!bucket) {
+        bucket = {
+          host,
+          count: 0,
+          favoriteCount: 0,
+          latestUpdatedAt: '',
+          sourceTypes: new Set(),
+          records: []
+        };
+        groups.set(host, bucket);
+      }
+
+      bucket.count += 1;
+      if (record?.favorite) bucket.favoriteCount += 1;
+      const updatedAt = String(record?.updatedAt || record?.createdAt || '');
+      if (!bucket.latestUpdatedAt || updatedAt > bucket.latestUpdatedAt) {
+        bucket.latestUpdatedAt = updatedAt;
+      }
+      const sourceType = String(record?.articleSnapshot?.sourceType || 'unknown');
+      if (sourceType) bucket.sourceTypes.add(sourceType);
+      bucket.records.push(record);
+    });
+
+    return Array.from(groups.values())
+      .map((bucket) => ({
+        host: bucket.host,
+        count: bucket.count,
+        favoriteCount: bucket.favoriteCount,
+        latestUpdatedAt: bucket.latestUpdatedAt,
+        sourceTypes: Array.from(bucket.sourceTypes),
+        records: bucket.records
+      }))
+      .sort((a, b) => {
+        if (b.count !== a.count) return b.count - a.count;
+        if (b.latestUpdatedAt !== a.latestUpdatedAt) return String(b.latestUpdatedAt).localeCompare(String(a.latestUpdatedAt));
+        return String(a.host).localeCompare(String(b.host));
+      });
   }
 
   function getRecordTimestamp(record) {
@@ -128,39 +163,51 @@
     return promptProfile === 'primary' || promptProfile === 'legacy';
   }
 
-  function getReusableRecordMatch(record, article) {
-    if (!record || !article || !isReusablePrimaryRecord(record)) return null;
+  function prepareArticleMatchTarget(article) {
+    return {
+      articleId: String(article?.articleId || '').trim(),
+      normalizedUrl: Domain.normalizeUrl(article?.normalizedUrl || article?.canonicalUrl || article?.sourceUrl || ''),
+      sourceUrl: Domain.normalizeUrl(article?.sourceUrl || '')
+    };
+  }
 
-    const articleId = String(article?.articleId || '').trim();
-    const normalizedUrl = Domain.normalizeUrl(article?.normalizedUrl || article?.canonicalUrl || article?.sourceUrl || '');
-    const sourceUrl = Domain.normalizeUrl(article?.sourceUrl || '');
+  function matchReusableRecordToTarget(record, target) {
+    if (!record || !target || !isReusablePrimaryRecord(record)) return null;
+
     const recordArticleId = String(record?.articleId || record?.articleSnapshot?.articleId || '').trim();
     const recordNormalizedUrl = Domain.normalizeUrl(
       record?.normalizedUrl || record?.articleSnapshot?.normalizedUrl || record?.sourceUrl || record?.articleSnapshot?.sourceUrl || ''
     );
     const recordSourceUrl = Domain.normalizeUrl(record?.sourceUrl || record?.articleSnapshot?.sourceUrl || '');
 
-    if (articleId && recordArticleId && articleId === recordArticleId) {
+    if (target.articleId && recordArticleId && target.articleId === recordArticleId) {
       return { score: 3, matchType: 'articleId' };
     }
 
-    if (normalizedUrl && recordNormalizedUrl && normalizedUrl === recordNormalizedUrl) {
+    if (target.normalizedUrl && recordNormalizedUrl && target.normalizedUrl === recordNormalizedUrl) {
       return { score: 2, matchType: 'normalizedUrl' };
     }
 
-    if (sourceUrl && recordSourceUrl && sourceUrl === recordSourceUrl) {
+    if (target.sourceUrl && recordSourceUrl && target.sourceUrl === recordSourceUrl) {
       return { score: 1, matchType: 'sourceUrl' };
     }
 
     return null;
   }
 
+  function getReusableRecordMatch(record, article) {
+    if (!record || !article || !isReusablePrimaryRecord(record)) return null;
+    return matchReusableRecordToTarget(record, prepareArticleMatchTarget(article));
+  }
+
   function findBestReusableRecordForArticle(records, article) {
     /** @type {any} */
     let best = null;
+    // Normalize the article side once instead of re-normalizing per record.
+    const target = prepareArticleMatchTarget(article);
 
     (records || []).forEach((record) => {
-      const match = getReusableRecordMatch(record, article);
+      const match = matchReusableRecordToTarget(record, target);
       if (!match) return;
 
       const candidate = {
@@ -379,8 +426,37 @@
     });
   }
 
+  let cachedDatabasePromise = null;
+
+  function getDatabase() {
+    // Reuse a single IndexedDB connection instead of paying the open
+    // handshake on every operation. The handle resets itself when the
+    // connection is closed or a version change is requested elsewhere.
+    if (cachedDatabasePromise) return cachedDatabasePromise;
+
+    cachedDatabasePromise = initDB()
+      .then((database) => {
+        database.onversionchange = () => {
+          try {
+            database.close();
+          } catch {}
+          cachedDatabasePromise = null;
+        };
+        database.onclose = () => {
+          cachedDatabasePromise = null;
+        };
+        return database;
+      })
+      .catch((error) => {
+        cachedDatabasePromise = null;
+        throw error;
+      });
+
+    return cachedDatabasePromise;
+  }
+
   async function getStore(mode) {
-    const database = await initDB();
+    const database = await getDatabase();
     const transaction = database.transaction([RECORD_STORE], mode);
     return {
       database,

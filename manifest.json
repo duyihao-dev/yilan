@@ -1,8 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "一览 - AI 阅读工作台",
-  "description": "一览：稳定的网页、YouTube 与 B 站视频 AI 摘要扩展，支持长文分段、字幕导出、历史记录、分享卡与多接口适配。",
+  "name": "__MSG_extName__",
+  "description": "__MSG_extDescription__",
   "version": "1.4.1",
+  "default_locale": "zh_CN",
   "icons": {
     "16": "icon/icon16.png",
     "32": "icon/icon32.png",
@@ -36,7 +37,7 @@
       "suggested_key": {
         "default": "Alt+S"
       },
-      "description": "用一览总结当前网页"
+      "description": "__MSG_shortcutDescription__"
     }
   },
   "web_accessible_resources": [
@@ -63,6 +64,7 @@
         "sidebar.js",
         "shared/theme.js",
         "shared/version.js",
+        "shared/i18n.js",
         "shared/ui-format.js",
         "shared/ui-labels.js",
         "shared/summary-text.js",
@@ -76,6 +78,8 @@
         "shared/page-strategy.js",
         "shared/errors.js",
         "shared/article-utils.js",
+        "shared/constants.js",
+        "shared/chrome-api.js",
         "shared/bilibili-source.js",
         "shared/youtube-source.js",
         "shared/trust-policy.js",

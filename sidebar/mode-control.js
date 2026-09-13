@@ -62,12 +62,12 @@
     function initialize() {
       const options = getOptions();
       elements.summaryModeSelect.innerHTML = options
-        .map((item) => '<option value="' + escapeHtml(item.value) + '">' + escapeHtml(item.label) + '</option>')
+        .map((item) => '<option value="' + escapeHtml(item.value) + '">' + escapeHtml(getModeLabel(item.value)) + '</option>')
         .join('');
       elements.summaryModeMenu.innerHTML = options
         .map((item) => (
           '<button class="mode-option" type="button" role="option" data-value="' + escapeHtml(item.value) + '">' +
-            escapeHtml(item.label) +
+            escapeHtml(getModeLabel(item.value)) +
           '</button>'
         ))
         .join('');

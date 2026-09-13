@@ -49,6 +49,9 @@ interface Window {
   YilanEntrypoints: any;
   YilanRunState: any;
   YilanReaderSessions: any;
+  YilanAutoEndpointCache: any;
+  YilanModelsCache: any;
+  YilanI18n: any;
   YilanSidebarEvents: any;
   YilanSidebarExport: any;
   YilanSidebarGeneration: any;
@@ -58,6 +61,12 @@ interface Window {
   YilanSidebarReaderSession: any;
   YilanSidebarState: any;
   YilanSidebar: any;
+  YilanChromeApi: any;
+  YilanPopupThemeControls: any;
+  YilanPopupProfiles: any;
+  YilanPopupProviderSelection: any;
+  YilanPopupModels: any;
+  YilanPopupEntrypointsView: any;
   db: any;
   marked: any;
   DOMPurify: any;

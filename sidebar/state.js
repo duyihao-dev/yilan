@@ -1,24 +1,7 @@
 (function initYilanSidebarState(global) {
-  const SETTINGS_KEYS = [
-    'providerPreset',
-    'aiProvider',
-    'endpointMode',
-    'apiKey',
-    'aiBaseURL',
-    'modelName',
-    'systemPrompt',
-    'autoTranslate',
-    'defaultLanguage',
-    'themePreference',
-    'themePalette',
-    'sidebarCompactMode',
-    'privacyMode',
-    'defaultAllowHistory',
-    'defaultAllowShare',
-    'entrypointAutoStart',
-    'entrypointSimpleMode',
-    'entrypointReuseHistory'
-  ];
+  const Constants = global.AISummaryConstants || (typeof require === 'function' ? require('../shared/constants.js') : null);
+
+  const SETTINGS_KEYS = Constants.SETTINGS_KEYS;
 
   const NAVIGATION_DURING_GENERATION = {
     DEFER: 'defer',
@@ -73,7 +56,6 @@
     diagnosticsToggle: 'diagnosticsToggle',
     diagnosticsPre: 'diagnosticsPre',
     statusText: 'statusText',
-    statsText: 'statsText',
     historyPanel: 'historyPanel',
     readerBtn: 'readerBtn',
     historyBtn: 'historyBtn',

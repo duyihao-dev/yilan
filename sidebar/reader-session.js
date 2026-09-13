@@ -1,24 +1,7 @@
 (function initYilanSidebarReaderSession(global) {
-  const Errors = global.AISummaryErrors;
+  const ChromeApi = global.YilanChromeApi || (typeof require === 'function' ? require('../shared/chrome-api.js') : null);
 
-  function getRuntimeErrorMessage(errorLike) {
-    if (!errorLike) {
-      return typeof Errors?.getUserMessage === 'function' ? Errors.getUserMessage(null) : 'Unknown error.';
-    }
-    if (typeof errorLike === 'string') {
-      return errorLike || (typeof Errors?.getUserMessage === 'function' ? Errors.getUserMessage(null) : 'Unknown error.');
-    }
-
-    const hasMessage = typeof errorLike?.message === 'string' && errorLike.message.trim();
-    const hasCode = typeof errorLike?.code === 'string' && errorLike.code.trim();
-    if (hasMessage && !hasCode) return errorLike.message.trim();
-
-    if (typeof Errors?.getUserMessage === 'function') {
-      return Errors.getUserMessage(errorLike);
-    }
-    if (hasMessage) return errorLike.message.trim();
-    return String(errorLike);
-  }
+  const getRuntimeErrorMessage = ChromeApi.getRuntimeErrorMessage;
 
   function createReaderSessionController(deps) {
     const getState = deps.getState;
@@ -48,7 +31,7 @@
     async function openReaderTab() {
       const snapshot = createReaderSnapshot();
       if (!snapshot) {
-        setStatus('\u5f53\u524d\u8fd8\u6ca1\u6709\u53ef\u9605\u8bfb\u7684\u6458\u8981\u5185\u5bb9\u3002', 'warning');
+        setStatus(global.YilanI18n.get('sidebar_reader_no_content'), 'warning');
         return;
       }
 
@@ -58,11 +41,11 @@
       });
 
       if (response.success) {
-        setStatus('\u5df2\u5728\u65b0\u6807\u7b7e\u9875\u6253\u5f00\u4e13\u6ce8\u9605\u8bfb\u3002', 'success');
+        setStatus(global.YilanI18n.get('sidebar_reader_opened'), 'success');
         return;
       }
 
-      setStatus(getRuntimeErrorMessage(response.error) || '\u6253\u5f00\u9605\u8bfb\u9875\u5931\u8d25\u3002', 'error');
+      setStatus(getRuntimeErrorMessage(response.error) || global.YilanI18n.get('sidebar_reader_open_failed'), 'error');
     }
 
     return {

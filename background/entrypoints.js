@@ -1,4 +1,6 @@
 (function initYilanEntrypoints(global) {
+  const ChromeApi = global.YilanChromeApi || (typeof require === 'function' ? require('../shared/chrome-api.js') : null);
+
   const SUMMARY_CONTEXT_MENU_ID = 'summarizeArticle';
   const SUMMARY_COMMAND_ID = 'trigger-summary';
   const ENTRYPOINT_STATUS_KEY = 'entrypointStatus';
@@ -9,35 +11,17 @@
 
   let bound = false;
 
-  function readRuntimeLastErrorMessage() {
-    return chrome.runtime.lastError?.message || '';
+  function readContextMenuTitle() {
+    try {
+      return chrome.i18n?.getMessage?.('context_menu_title') || '用一览总结此页';
+    } catch (error) {
+      return '用一览总结此页';
+    }
   }
 
-  function storageLocalGet(key) {
-    return new Promise((resolve, reject) => {
-      chrome.storage.local.get(key, (items) => {
-        const error = readRuntimeLastErrorMessage();
-        if (error) {
-          reject(new Error(error));
-          return;
-        }
-        resolve(items || {});
-      });
-    });
-  }
-
-  function storageLocalSet(payload) {
-    return new Promise((resolve, reject) => {
-      chrome.storage.local.set(payload, () => {
-        const error = readRuntimeLastErrorMessage();
-        if (error) {
-          reject(new Error(error));
-          return;
-        }
-        resolve();
-      });
-    });
-  }
+  const readRuntimeLastErrorMessage = ChromeApi.readRuntimeLastErrorMessage;
+  const storageLocalGet = ChromeApi.storageLocalGet;
+  const storageLocalSet = ChromeApi.storageLocalSet;
 
   function contextMenusRemoveAll() {
     return new Promise((resolve) => {
@@ -68,18 +52,7 @@
     });
   }
 
-  function createTab(url) {
-    return new Promise((resolve) => {
-      chrome.tabs.create({ url }, (tab) => {
-        const error = chrome.runtime.lastError?.message || '';
-        resolve({
-          success: !error,
-          error,
-          tab: tab || null
-        });
-      });
-    });
-  }
+  const createTab = ChromeApi.createTab;
 
   function createDefaultEntrypointStatus() {
     return {
@@ -131,7 +104,7 @@
     const removeError = await contextMenusRemoveAll();
     const createError = await contextMenuCreate({
       id: SUMMARY_CONTEXT_MENU_ID,
-      title: '用一览总结此页',
+      title: readContextMenuTitle(),
       contexts: ['page', 'selection', 'link']
     });
 
@@ -171,7 +144,20 @@
     });
   }
 
-  async function getEntrypointStatus() {
+  async function getEntrypointStatus(options) {
+    // Read-only path for passive status views (e.g. popup open): skip the
+    // context menu remove/create cycle and the extra storage write. Menus
+    // are still ensured on install/startup and on explicit manual checks.
+    if (options?.ensure === false) {
+      const stored = await readEntrypointStatus();
+      const refreshed = await refreshShortcutStatus();
+      return {
+        browserShortcutSettingsUrl: SHORTCUT_SETTINGS_URL,
+        contextMenu: stored.contextMenu,
+        shortcut: refreshed.shortcut
+      };
+    }
+
     await ensureContextMenuRegistered('status_check');
     return refreshShortcutStatus();
   }

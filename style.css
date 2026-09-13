@@ -780,8 +780,7 @@ body {
 }
 
 .markdown-body code,
-.diagnostics-pre,
-.stats-text {
+.diagnostics-pre {
   font-family: 'IBM Plex Mono', 'Cascadia Code', monospace;
 }
 
@@ -1381,12 +1380,6 @@ body {
   color: var(--danger);
 }
 
-.stats-text {
-  display: none;
-  color: var(--text-muted);
-  text-align: right;
-}
-
 .summary-root,
 .history-list,
 .diagnostics-pre {
@@ -1844,10 +1837,6 @@ body {
 :root[data-theme='light'] .history-site-group {
   border-color: rgba(103, 126, 147, 0.1);
   background: rgba(255, 255, 255, 0.5);
-}
-
-:root[data-theme='light'] .stats-text {
-  color: #6e8191;
 }
 
 :root[data-theme='light'] .summary-root,

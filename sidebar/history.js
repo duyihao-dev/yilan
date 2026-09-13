@@ -1,4 +1,8 @@
 (function (global) {
+  const I18n = () => global.YilanI18n;
+
+  const SEARCH_DEBOUNCE_MS = 250;
+
   function createHistoryController(deps) {
     const elements = deps.elements;
     const state = deps.state;
@@ -13,8 +17,11 @@
     const buildHistoryItemView = deps.buildHistoryItemView;
     const buildHistoryGroupView = deps.buildHistoryGroupView;
 
+    let searchTimer = null;
+    let refreshSeq = 0;
+
     function reportHistoryError(error, fallbackMessage) {
-      const message = String(error?.message || error || fallbackMessage || '操作失败');
+      const message = String(error?.message || error || fallbackMessage || I18n().get('sidebar_action_failed'));
       console.error('[Yilan] History action failed.', error);
       if (typeof setStatus === 'function') {
         setStatus(message, 'error');
@@ -46,10 +53,10 @@
     }
 
     function renderSiteFilters(buckets, totalCount) {
-      elements.historySiteFilters.innerHTML = '';
+      const fragment = document.createDocumentFragment();
 
       const allChip = createSiteChip(
-        '\u5168\u90e8\u7ad9\u70b9',
+        I18n().get('sidebar_all_sites'),
         totalCount,
         !state.selectedSiteHost,
         () => {
@@ -57,17 +64,17 @@
           state.selectedSiteHost = '';
           refresh().catch(console.error);
         },
-        '\u67e5\u770b\u5168\u90e8\u7ad9\u70b9\u7684\u603b\u7ed3\u8bb0\u5f55'
+        I18n().get('sidebar_all_sites_title')
       );
-      elements.historySiteFilters.appendChild(allChip);
+      fragment.appendChild(allChip);
 
       buckets.forEach((bucket) => {
         const tip = [
           bucket.host,
-          bucket.count + ' \u6761\u8bb0\u5f55',
-          bucket.favoriteCount ? bucket.favoriteCount + ' \u6761\u6536\u85cf' : '',
-          bucket.latestUpdatedAt ? '\u6700\u8fd1\u66f4\u65b0\uff1a' + formatDateTime(bucket.latestUpdatedAt) : ''
-        ].filter(Boolean).join(' \u00b7 ');
+          I18n().get('sidebar_site_record_count', [bucket.count]),
+          bucket.favoriteCount ? I18n().get('sidebar_site_favorite_count', [bucket.favoriteCount]) : '',
+          bucket.latestUpdatedAt ? I18n().get('sidebar_site_last_updated', [formatDateTime(bucket.latestUpdatedAt)]) : ''
+        ].filter(Boolean).join(' · ');
 
         const chip = createSiteChip(
           bucket.host,
@@ -81,8 +88,10 @@
           tip
         );
 
-        elements.historySiteFilters.appendChild(chip);
+        fragment.appendChild(chip);
       });
+
+      elements.historySiteFilters.replaceChildren(fragment);
     }
 
     function createItemElement(item) {
@@ -122,7 +131,7 @@
 
       const favoriteBtn = document.createElement('button');
       favoriteBtn.className = 'history-mini-btn';
-      favoriteBtn.textContent = item.favorite ? '\u53d6\u6d88\u6536\u85cf' : '\u6536\u85cf';
+      favoriteBtn.textContent = item.favorite ? I18n().get('sidebar_remove_favorite') : I18n().get('sidebar_favorite');
       favoriteBtn.addEventListener('click', async (event) => {
         event.stopPropagation();
         try {
@@ -132,13 +141,13 @@
           }
           await refresh();
         } catch (error) {
-          reportHistoryError(error, '\u66f4\u65b0\u6536\u85cf\u72b6\u6001\u5931\u8d25');
+          reportHistoryError(error, I18n().get('sidebar_favorite_update_failed'));
         }
       });
 
       const deleteBtn = document.createElement('button');
       deleteBtn.className = 'history-mini-btn';
-      deleteBtn.textContent = '\u5220\u9664';
+      deleteBtn.textContent = I18n().get('sidebar_delete');
       deleteBtn.addEventListener('click', async (event) => {
         event.stopPropagation();
         try {
@@ -147,12 +156,12 @@
             state.visibleRecord = null;
             state.visibleRecordUsesCurrentArticle = false;
             state.summaryMarkdown = '';
-            renderPlaceholder('\u8bb0\u5f55\u5df2\u5220\u9664', '\u53ef\u4ee5\u91cd\u65b0\u751f\u6210\u5f53\u524d\u9875\u9762\u6458\u8981\u3002');
+            renderPlaceholder(I18n().get('sidebar_record_deleted_title'), I18n().get('sidebar_record_deleted_body'));
           }
           await refresh();
           refreshActionStates();
         } catch (error) {
-          reportHistoryError(error, '\u5220\u9664\u5386\u53f2\u8bb0\u5f55\u5931\u8d25');
+          reportHistoryError(error, I18n().get('sidebar_record_delete_failed'));
         }
       });
 
@@ -176,11 +185,14 @@
     }
 
     async function refresh() {
+      const seq = ++refreshSeq;
       const items = await recordStore.searchRecords(state.historyQuery, { favoritesOnly: state.favoritesOnly });
-      elements.historyList.innerHTML = '';
+
+      // Drop stale responses: only the latest refresh may paint the panel.
+      if (seq !== refreshSeq) return;
 
       if (!items.length) {
-        renderEmpty('\u6ca1\u6709\u627e\u5230\u5339\u914d\u7684\u603b\u7ed3\u8bb0\u5f55\u3002');
+        renderEmpty(I18n().get('sidebar_history_empty'));
         return;
       }
 
@@ -193,6 +205,9 @@
 
       const filteredItems = recordStore.filterRecordsBySite(items, state.selectedSiteHost);
       const siteGroups = recordStore.groupRecordsBySite(filteredItems);
+
+      // Build the whole list off-DOM and paint once to avoid layout thrash.
+      const fragment = document.createDocumentFragment();
 
       siteGroups.forEach((group) => {
         const groupView = buildHistoryGroupView(group, { selected: !!state.selectedSiteHost });
@@ -229,8 +244,10 @@
 
         section.appendChild(header);
         section.appendChild(list);
-        elements.historyList.appendChild(section);
+        fragment.appendChild(section);
       });
+
+      elements.historyList.replaceChildren(fragment);
     }
 
     function open() {
@@ -240,11 +257,15 @@
       elements.historyPanel.classList.remove('hidden');
       refresh().catch((error) => {
         elements.historySiteFilters.innerHTML = '';
-        elements.historyList.innerHTML = '<div class="history-empty">\u5386\u53f2\u8bb0\u5f55\u52a0\u8f7d\u5931\u8d25\uff1a' + escapeHtml(String(error?.message || error || 'unknown')) + '</div>';
+        elements.historyList.innerHTML = '<div class="history-empty">' + escapeHtml(I18n().get('sidebar_history_load_failed') + String(error?.message || error || 'unknown')) + '</div>';
       });
     }
 
     function close() {
+      if (searchTimer) {
+        clearTimeout(searchTimer);
+        searchTimer = null;
+      }
       elements.historyPanel.classList.add('hidden');
     }
 
@@ -255,14 +276,19 @@
     elements.historyCloseBtn.addEventListener('click', close);
     elements.historySearch.addEventListener('input', () => {
       state.historyQuery = elements.historySearch.value || '';
-      refresh().catch((error) => {
-        reportHistoryError(error, '\u5237\u65b0\u5386\u53f2\u8bb0\u5f55\u5931\u8d25');
-      });
+      // Debounce keystrokes so each key does not trigger a full IndexedDB scan.
+      if (searchTimer) clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => {
+        searchTimer = null;
+        refresh().catch((error) => {
+          reportHistoryError(error, I18n().get('sidebar_history_refresh_failed'));
+        });
+      }, SEARCH_DEBOUNCE_MS);
     });
     elements.favoritesOnly.addEventListener('change', () => {
       state.favoritesOnly = !!elements.favoritesOnly.checked;
       refresh().catch((error) => {
-        reportHistoryError(error, '\u5237\u65b0\u5386\u53f2\u8bb0\u5f55\u5931\u8d25');
+        reportHistoryError(error, I18n().get('sidebar_history_refresh_failed'));
       });
     });
 
@@ -274,7 +300,12 @@
     };
   }
 
-  global.YilanSidebarHistory = {
+  const api = {
     createHistoryController
   };
+
+  global.YilanSidebarHistory = api;
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = api;
+  }
 })(typeof globalThis !== 'undefined' ? globalThis : window);

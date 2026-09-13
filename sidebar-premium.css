@@ -1045,10 +1045,6 @@ body.sidebar-compact .footer-meta {
   min-width: 0;
 }
 
-body.sidebar-compact .stats-text {
-  display: none;
-}
-
 body.sidebar-compact .diagnostics-card summary {
   font-size: 11px;
   padding: 6px 9px;

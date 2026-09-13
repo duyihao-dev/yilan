@@ -124,6 +124,68 @@
     return normalized + '/v1';
   }
 
+  function looksLikeOpenAiEndpointUrl(value) {
+    return detectOpenAiEndpointModeFromUrl(value) !== '';
+  }
+
+  function normalizeOpenAiBaseRoot(value) {
+    const raw = String(value || '').trim();
+    if (!raw) return '';
+
+    // Normalize by stripping common endpoint suffixes and removing hash/search.
+    try {
+      const parsed = new URL(raw);
+      parsed.hash = '';
+      parsed.search = '';
+      let path = String(parsed.pathname || '').replace(/\/+$/g, '');
+      path = path
+        .replace(/\/chat\/completions$/i, '')
+        .replace(/\/responses$/i, '')
+        .replace(/\/completions$/i, '');
+      parsed.pathname = path || '/';
+      return parsed.toString().replace(/\/$/g, '');
+    } catch {
+      return raw
+        .replace(/\/+$/g, '')
+        .replace(/\/chat\/completions$/i, '')
+        .replace(/\/responses$/i, '')
+        .replace(/\/completions$/i, '')
+        .toLowerCase();
+    }
+  }
+
+  function normalizeAnthropicBaseRoot(value) {
+    const normalized = normalizeBaseURLInput(value) || String(value || '').trim();
+    return stripAnthropicMessagesSuffix(normalized);
+  }
+
+  const DEFAULT_OPENAI_BASE_URL = 'https://api.openai.com/v1';
+
+  function buildProviderCacheKey(provider, baseUrl) {
+    const normalizedProvider = String(provider || '').trim().toLowerCase();
+    if (!normalizedProvider) return '';
+
+    const effectiveBase = String(baseUrl || '').trim()
+      || (normalizedProvider === 'openai' ? DEFAULT_OPENAI_BASE_URL : '');
+    if (!effectiveBase) return normalizedProvider;
+
+    let root;
+    if (normalizedProvider === 'openai') {
+      root = normalizeOpenAiBaseRoot(effectiveBase);
+    } else if (normalizedProvider === 'anthropic') {
+      root = normalizeAnthropicBaseRoot(effectiveBase);
+    } else {
+      root = normalizeBaseURLInput(effectiveBase) || normalizeUrlNoTrailingSlash(effectiveBase);
+    }
+
+    root = String(root || '').trim().toLowerCase();
+    return root ? normalizedProvider + '|' + root : normalizedProvider;
+  }
+
+  function buildModelsCacheKey(settings, runtime) {
+    return buildProviderCacheKey(settings?.aiProvider, runtime?.baseUrl || settings?.aiBaseURL);
+  }
+
   const UrlUtils = {
     isAllowedModelEndpointUrl,
     normalizeBaseURLInput,
@@ -132,7 +194,13 @@
     detectAnthropicEndpointModeFromUrl,
     stripOpenAiEndpointSuffix,
     stripAnthropicMessagesSuffix,
-    toggleTrailingV1
+    toggleTrailingV1,
+    looksLikeOpenAiEndpointUrl,
+    normalizeOpenAiBaseRoot,
+    normalizeAnthropicBaseRoot,
+    DEFAULT_OPENAI_BASE_URL,
+    buildProviderCacheKey,
+    buildModelsCacheKey
   };
 
   if (typeof module !== 'undefined' && module.exports) {

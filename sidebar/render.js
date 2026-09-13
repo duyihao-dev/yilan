@@ -59,20 +59,12 @@
     }
 
     function setStatus(text, tone) {
-      elements.statusText.textContent = text || '\u5c31\u7eea';
+      elements.statusText.textContent = text || global.YilanI18n.get('sidebar_ready');
       elements.statusText.className = 'status-text';
       if (tone === 'success') elements.statusText.classList.add('status-success');
       if (tone === 'warning') elements.statusText.classList.add('status-warning');
       if (tone === 'error') elements.statusText.classList.add('status-error');
       elements.statusText.classList.toggle('status-active', state.generating);
-    }
-
-    function setStats() {
-      elements.statsText.textContent = '';
-    }
-
-    function updateStatsFromMarkdown() {
-      setStats();
     }
 
     function highlightBlocks(root) {
@@ -121,7 +113,6 @@
           renderScheduled = false;
           lastMarkdownRenderAt = getNowMs();
           renderMarkdown(state.summaryMarkdown, { highlight: false, clearPending: false });
-          updateStatsFromMarkdown();
           if (state.autoScroll) {
             elements.summaryRoot.scrollTop = elements.summaryRoot.scrollHeight;
           }
@@ -156,7 +147,7 @@
         ? [
             '<span class="inline-note-badge" aria-hidden="true">',
             '<span class="inline-note-badge-dots"><span></span><span></span><span></span></span>',
-            '<span>\u5904\u7406\u4e2d</span>',
+            '<span>' + global.YilanI18n.get('sidebar_processing') + '</span>',
             '</span>'
           ].join('')
         : '';
@@ -183,7 +174,7 @@
       elements.summaryRoot.className = 'summary-root';
       elements.summaryRoot.innerHTML = [
         '<div class="error-box">',
-        '<strong>' + escapeHtml(error.message || '\u751f\u6210\u5931\u8d25') + '</strong>',
+        '<strong>' + escapeHtml(error.message || global.YilanI18n.get('sidebar_run_failed_short')) + '</strong>',
         detail,
         '</div>'
       ].join('');
@@ -202,7 +193,7 @@
       const partialHtml = partial.hasPartialContent
         ? [
             '<div class="cancelled-content-card">',
-            '<div class="cancelled-content-head">\u53d6\u6d88\u524d\u5df2\u751f\u6210\u5185\u5bb9</div>',
+            '<div class="cancelled-content-head">' + global.YilanI18n.get('sidebar_cancelled_partial_head') + '</div>',
             '<div class="markdown-body cancelled-content-body">' + sanitizeMarkdownToHtml(partial.markdown || '') + '</div>',
             '</div>'
           ].join('')
@@ -224,12 +215,12 @@
 
     function renderChunkProgress(completed, total, partialSummaries) {
       const recent = partialSummaries.slice(-2).map((item) => {
-        return '<li>' + escapeHtml(stripMarkdownPreview(item, 140) || '\u5206\u6bb5\u5904\u7406\u5b8c\u6210') + '</li>';
+        return '<li>' + escapeHtml(stripMarkdownPreview(item, 140) || global.YilanI18n.get('sidebar_chunk_done')) + '</li>';
       }).join('');
 
       renderInlineNote(
-        '\u6b63\u5728\u5206\u6bb5\u603b\u7ed3\u957f\u6587',
-        '\u5df2\u5b8c\u6210 ' + completed + '/' + total + ' \u4e2a\u5206\u6bb5\uff0c\u6b63\u5728\u6574\u7406\u4e2d\u3002',
+        global.YilanI18n.get('sidebar_chunk_progress_title'),
+        global.YilanI18n.get('sidebar_chunk_progress_body', [completed, total]),
         recent ? '<ul style="margin-top:10px">' + recent + '</ul>' : ''
       );
     }
@@ -307,7 +298,7 @@
       }
 
       elements.diagnosticsPre.textContent = state.lastDiagnostics
-        ? diagnosticsView.summaryText + '\n\n--- \u539f\u59cb\u8bca\u65ad JSON ---\n' + JSON.stringify(state.lastDiagnostics, null, 2)
+        ? diagnosticsView.summaryText + '\n\n' + global.YilanI18n.get('sidebar_raw_diagnostics_json') + '\n' + JSON.stringify(state.lastDiagnostics, null, 2)
         : diagnosticsView.summaryText;
     }
 
@@ -324,9 +315,7 @@
       renderTrustCard,
       sanitizeMarkdownToHtml,
       scheduleMarkdownRender,
-      setStats,
-      setStatus,
-      updateStatsFromMarkdown
+      setStatus
     };
   }
 

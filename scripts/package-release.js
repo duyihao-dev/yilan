@@ -27,11 +27,13 @@ const runtimeFiles = [
 ];
 
 const runtimeDirs = [
+  '_locales',
   'adapters',
   'background',
   'icon',
   'libs',
   'shared',
+  'popup',
   'sidebar'
 ];
 

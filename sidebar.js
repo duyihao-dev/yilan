@@ -21,6 +21,8 @@ const SidebarModeControl = window.YilanSidebarModeControl;
 const SidebarRender = window.YilanSidebarRender;
 const SidebarEvents = window.YilanSidebarEvents;
 const SidebarState = window.YilanSidebarState;
+const ChromeApi = window.YilanChromeApi;
+const I18n = window.YilanI18n;
 const recordStore = window.db;
 
 const SETTINGS_KEYS = SidebarState.SETTINGS_KEYS;
@@ -42,17 +44,8 @@ let historyController = null;
 const state = SidebarState.createInitialState({ trust: Trust });
 const elements = SidebarState.resolveElements(document);
 
-function storageGet(keys) {
-  return new Promise((resolve) => {
-    chrome.storage.sync.get(keys, (items) => resolve(items || {}));
-  });
-}
-
-function storageSet(payload) {
-  return new Promise((resolve) => {
-    chrome.storage.sync.set(payload, resolve);
-  });
-}
+const storageGet = ChromeApi.storageGetLenient;
+const storageSet = ChromeApi.storageSetLenient;
 
 function applySidebarCompactMode(enabled) {
   const compact = enabled === true;
@@ -60,17 +53,8 @@ function applySidebarCompactMode(enabled) {
   document.body.dataset.sidebarLayout = compact ? 'compact' : 'standard';
 }
 
-function runtimeSendMessage(message) {
-  return new Promise((resolve) => {
-    chrome.runtime.sendMessage(message, (response) => {
-      if (chrome.runtime.lastError) {
-        resolve({ success: false, error: { message: chrome.runtime.lastError.message } });
-        return;
-      }
-      resolve(response || {});
-    });
-  });
-}
+const runtimeSendMessage = ChromeApi.runtimeSendMessage;
+const wait = ChromeApi.wait;
 
 async function loadRuntimeSettings() {
   const rawSettings = await storageGet(SETTINGS_KEYS);
@@ -85,15 +69,11 @@ async function loadRuntimeSettings() {
   return state.settings;
 }
 
-function wait(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
 const escapeHtml = UiFormat.escapeHtml;
 const formatDateTime = (value) => UiFormat.formatDateTime(value, { emptyText: '-' });
 
 function getModeLabel(mode) {
-  return UiLabels.getSummaryModeLabel(mode, { fallback: '\u6807\u51c6\u603b\u7ed3' });
+  return UiLabels.getSummaryModeLabel(mode);
 }
 
 const summaryModeController = SidebarModeControl.createModeControlController({
@@ -137,15 +117,13 @@ const renderArticleMeta = renderController.renderArticleMeta;
 const renderTrustCard = renderController.renderTrustCard;
 const renderDiagnostics = renderController.renderDiagnostics;
 const setStatus = renderController.setStatus;
-const setStats = renderController.setStats;
-const updateStatsFromMarkdown = renderController.updateStatsFromMarkdown;
 
 function getProviderLabel(provider) {
-  return UiLabels.getProviderLabel(provider, { fallback: '\u672a\u77e5' });
+  return UiLabels.getProviderLabel(provider, { fallback: I18n.get('label_unknown') });
 }
 
 function getRecordStatusLabel(status) {
-  return UiLabels.getRecordStatusLabel(status, { fallback: '\u5df2\u5b8c\u6210' });
+  return UiLabels.getRecordStatusLabel(status, { fallback: I18n.get('label_status_completed') });
 }
 
 function getStrategyLabel(sourceStrategy, sourceType) {
@@ -165,7 +143,7 @@ function withCustomPrompt(prompt, settings) {
     custom,
     '---',
     prompt
-  ].join('\\n\\n');
+  ].join('\n\n');
 }
 
 function getShareCardThemePalette() {
@@ -223,7 +201,7 @@ function getRecordUiError(record) {
 
   return normalizeUiError({
     code: record?.errorCode || (record?.status === 'cancelled' ? Errors.ERROR_CODES.RUN_CANCELLED : Errors.ERROR_CODES.UNKNOWN_ERROR),
-    message: record?.errorMessage || (record?.status === 'cancelled' ? '\u672c\u6b21\u751f\u6210\u5df2\u53d6\u6d88\u3002' : '\u751f\u6210\u5931\u8d25\u3002')
+    message: record?.errorMessage || (record?.status === 'cancelled' ? I18n.get('sidebar_run_cancelled') : I18n.get('sidebar_run_failed'))
   });
 }
 
@@ -236,7 +214,7 @@ function createArticleFromRecord(record) {
     sourceUrl: record?.sourceUrl || snapshot.sourceUrl || '',
     sourceHost: record?.sourceHost || snapshot.sourceHost || Domain.getSourceHost(record?.normalizedUrl || record?.sourceUrl || ''),
     sourceType: snapshot.sourceType || 'unknown',
-    title: record?.titleSnapshot || snapshot.title || '\u672a\u547d\u540d\u9875\u9762',
+    title: record?.titleSnapshot || snapshot.title || I18n.get('sidebar_unnamed_page'),
     subtitle: snapshot.subtitle || '',
     excerpt: snapshot.excerpt || '',
     author: snapshot.author || '',
@@ -424,6 +402,17 @@ function ensureArticleReady(article) {
   }
 }
 
+let cachedSecondaryButtons = null;
+let lastSubtitleOptionsSignature = null;
+
+function getSecondaryButtons() {
+  // The secondary action buttons are static sidebar markup; query once.
+  if (!cachedSecondaryButtons) {
+    cachedSecondaryButtons = Array.from(document.querySelectorAll('.secondary-btn'));
+  }
+  return cachedSecondaryButtons;
+}
+
 function refreshActionStates() {
   const hasArticle = !!state.article;
   const hasSummary = !!state.summaryMarkdown.trim();
@@ -452,32 +441,38 @@ function refreshActionStates() {
       : !!exportController?.hasBilibiliSubtitleArtifact?.();
     const subtitleOptions = getVideoSubtitleOptions();
     if (elements.subtitleTrackSelect) {
-      const previousValue = elements.subtitleTrackSelect.value;
-      elements.subtitleTrackSelect.innerHTML = '';
-      subtitleOptions.forEach((option) => {
-        const item = document.createElement('option');
-        item.value = option.key;
-        item.textContent = option.label || option.key;
-        elements.subtitleTrackSelect.appendChild(item);
-      });
-      if (subtitleOptions.some((option) => option.key === previousValue)) {
-        elements.subtitleTrackSelect.value = previousValue;
+      // Rebuild the <option> list only when the option set actually changes;
+      // refreshActionStates runs on every streaming tick during generation.
+      const optionsSignature = subtitleOptions.map((option) => option.key + '|' + (option.label || '')).join(';;');
+      if (optionsSignature !== lastSubtitleOptionsSignature) {
+        const previousValue = elements.subtitleTrackSelect.value;
+        elements.subtitleTrackSelect.innerHTML = '';
+        subtitleOptions.forEach((option) => {
+          const item = document.createElement('option');
+          item.value = option.key;
+          item.textContent = option.label || option.key;
+          elements.subtitleTrackSelect.appendChild(item);
+        });
+        if (subtitleOptions.some((option) => option.key === previousValue)) {
+          elements.subtitleTrackSelect.value = previousValue;
+        }
+        lastSubtitleOptionsSignature = optionsSignature;
       }
       elements.subtitleTrackSelect.hidden = !isVideoPage || subtitleOptions.length <= 1;
       elements.subtitleTrackSelect.disabled = processing || subtitleOptions.length <= 1;
-      elements.subtitleTrackSelect.title = subtitleOptions.length > 1 ? '选择要导出的字幕轨道' : '';
+      elements.subtitleTrackSelect.title = subtitleOptions.length > 1 ? I18n.get('sidebar_subtitle_track_title') : '';
     }
     elements.subtitleExportBtn.hidden = !isVideoPage;
     elements.subtitleExportBtn.disabled = processing || !hasSubtitleExport;
-    elements.subtitleExportBtn.textContent = hasSubtitleExport ? '导出字幕' : '无字幕';
-    elements.subtitleExportBtn.title = hasSubtitleExport ? '导出选中的视频字幕' : '当前视频未发现可导出的字幕';
+    elements.subtitleExportBtn.textContent = hasSubtitleExport ? I18n.get('sidebar_export_subtitles') : I18n.get('sidebar_no_subtitles');
+    elements.subtitleExportBtn.title = hasSubtitleExport ? I18n.get('sidebar_export_subtitles_title') : I18n.get('sidebar_no_subtitles_title');
   }
   elements.privacyToggleBtn.disabled = processing;
   elements.statusText.classList.toggle('status-active', processing);
   elements.contentPanel.classList.toggle('content-panel-processing', processing);
   elements.cancelBtn.classList.toggle('action-btn-live', processing && !state.cancelRequested);
 
-  document.querySelectorAll('.secondary-btn').forEach((button) => {
+  getSecondaryButtons().forEach((button) => {
     button.disabled = processing || !hasSummary || !hasArticle;
   });
 
@@ -498,28 +493,20 @@ function bindVisibleRecord(record, options) {
 
   if (record?.status === 'cancelled') {
     renderCancelledState(record, getRecordUiError(record), state.lastDiagnostics);
-    if (state.summaryMarkdown.trim()) {
-      updateStatsFromMarkdown(state.summaryMarkdown, displayArticle);
-    } else {
-      setStats('');
-    }
   } else if (record?.status === 'failed') {
     renderErrorBox(getRecordUiError(record));
-    setStats('');
   } else if (state.summaryMarkdown) {
     renderMarkdown(state.summaryMarkdown);
-    updateStatsFromMarkdown(state.summaryMarkdown, displayArticle);
   } else {
-    renderPlaceholder('\u6682\u65e0\u6458\u8981\u5185\u5bb9', '\u53ef\u4ee5\u91cd\u65b0\u751f\u6210\uff0c\u6216\u8005\u4ece\u5386\u53f2\u8bb0\u5f55\u91cc\u5207\u6362\u5176\u5b83\u6458\u8981\u3002');
-    setStats('');
+    renderPlaceholder(I18n.get('sidebar_no_summary_title'), I18n.get('sidebar_no_summary_body'));
   }
 
   setStatus(
     record?.status === 'failed'
-      ? (getRecordUiError(record).message || '\u751f\u6210\u5931\u8d25')
+      ? (getRecordUiError(record).message || I18n.get('sidebar_run_failed_short'))
       : record?.status === 'cancelled'
         ? buildCancelledStateModel(record, state.lastDiagnostics, state.summaryMarkdown).statusText
-        : '\u5df2\u52a0\u8f7d\u8bb0\u5f55',
+        : I18n.get('sidebar_record_loaded'),
     record?.status === 'failed' ? 'error' : record?.status === 'cancelled' ? 'warning' : ''
   );
 
@@ -532,8 +519,8 @@ function buildReusableRecordStatus(match) {
   const updatedAtLabel = formatDateTime(
     match?.record?.updatedAt || match?.record?.completedAt || match?.record?.createdAt || ''
   );
-  const suffix = updatedAtLabel !== '-' ? '\uff08' + updatedAtLabel + '\uff09' : '';
-  return '\u5df2\u52a0\u8f7d\u5f53\u524d\u9875\u9762\u7684\u5386\u53f2\u6458\u8981' + suffix + '\uff0c\u53ef\u70b9\u51fb\u201c\u91cd\u65b0\u751f\u6210\u201d\u66f4\u65b0\u5f53\u524d\u5185\u5bb9\u3002';
+  const suffix = updatedAtLabel !== '-' ? I18n.get('sidebar_time_suffix', [updatedAtLabel]) : '';
+  return I18n.get('sidebar_reused_history_status', [suffix]);
 }
 
 async function restoreReusableRecordForCurrentArticle(article) {
@@ -570,13 +557,12 @@ function createPendingNavigationPayload(message, navigationPolicy) {
 
 function renderManualSummaryReadyState(triggeredByNavigation) {
   renderPlaceholder(
-    '\u9875\u9762\u5df2\u5c31\u7eea',
+    I18n.get('sidebar_page_ready_title'),
     triggeredByNavigation
-      ? '\u5df2\u5207\u6362\u5230\u65b0\u9875\u9762\uff0c\u4e0d\u4f1a\u81ea\u52a8\u5f00\u59cb\u603b\u7ed3\u3002\u70b9\u51fb\u201c\u91cd\u65b0\u751f\u6210\u201d\u540e\u624d\u4f1a\u8bf7\u6c42\u6a21\u578b\u3002'
-      : '\u70b9\u51fb\u201c\u91cd\u65b0\u751f\u6210\u201d\u5f00\u59cb\u751f\u6210\u6458\u8981\uff0c\u6216\u5148\u5207\u6362\u6458\u8981\u6a21\u5f0f\u3002'
+      ? I18n.get('sidebar_page_ready_nav_body')
+      : I18n.get('sidebar_page_ready_body')
   );
-  setStatus(triggeredByNavigation ? '\u7b49\u5f85\u624b\u52a8\u5f00\u59cb' : '\u5c31\u7eea');
-  setStats('');
+  setStatus(triggeredByNavigation ? I18n.get('sidebar_waiting_manual_start') : I18n.get('sidebar_ready'));
 }
 
 async function applyArticleDataPayload(message) {
@@ -606,9 +592,8 @@ async function applyArticleDataPayload(message) {
   refreshActionStates();
 
   if (reuseHistory) {
-    renderInlineNote('\u6b63\u5728\u68c0\u67e5\u5386\u53f2\u6458\u8981', '\u5982\u679c\u5f53\u524d\u9875\u9762\u5df2\u6709\u5df2\u5b8c\u6210\u6458\u8981\uff0c\u4f1a\u76f4\u63a5\u52a0\u8f7d\u6700\u8fd1\u4e00\u6b21\u8bb0\u5f55\u3002');
-    setStatus('\u6b63\u5728\u68c0\u67e5\u5f53\u524d\u9875\u9762\u7684\u5386\u53f2\u6458\u8981...');
-    setStats('');
+    renderInlineNote(I18n.get('sidebar_checking_history_note_title'), I18n.get('sidebar_checking_history_note_body'));
+    setStatus(I18n.get('sidebar_checking_history_status'));
 
     const restored = await restoreReusableRecordForCurrentArticle(state.article);
     if (restored) {
@@ -622,10 +607,10 @@ async function applyArticleDataPayload(message) {
   }
 
   renderPlaceholder(
-    '\u6b63\u5728\u8bfb\u53d6\u9875\u9762\u5185\u5bb9',
+    I18n.get('sidebar_reading_page_title'),
     simpleMode
-      ? '\u5df2\u542f\u7528\u7b80\u5355\u603b\u7ed3\uff0c\u9a6c\u4e0a\u5f00\u59cb\u751f\u6210\u3002'
-      : '\u9a6c\u4e0a\u5f00\u59cb\u751f\u6210\u5f53\u524d\u9875\u9762\u7684\u6458\u8981\u3002'
+      ? I18n.get('sidebar_reading_page_simple_body')
+      : I18n.get('sidebar_reading_page_body')
   );
   startPrimarySummary(suggestedMode).catch((error) => {
     const normalized = normalizeUiError(error);
@@ -670,7 +655,7 @@ async function applyPendingNavigationPayload() {
     await applyArticleDataPayload(pending);
   } catch (error) {
     console.error(error);
-    setStatus('\u5904\u7406\u9875\u9762\u5bfc\u822a\u66f4\u65b0\u5931\u8d25', 'error');
+    setStatus(I18n.get('sidebar_navigation_update_failed'), 'error');
   }
 }
 
@@ -699,7 +684,6 @@ const generationController = SidebarGeneration.createGenerationController({
   renderArticleMeta,
   renderInlineNote,
   setStatus,
-  setStats,
   refreshActionStates,
   renderChunkProgress,
   scheduleMarkdownRender,
@@ -718,7 +702,7 @@ const startSecondarySummary = generationController.startSecondarySummary;
 async function toggleFavoriteFromMain() {
   if (!state.visibleRecord) return;
   if (state.visibleRecord.allowHistory === false) {
-    setStatus('\u672c\u6b21\u7ed3\u679c\u672a\u5199\u5165\u5386\u53f2\uff0c\u4e0d\u80fd\u6536\u85cf\u3002', 'warning');
+    setStatus(I18n.get('sidebar_favorite_blocked_no_history'), 'warning');
     return;
   }
 
@@ -739,7 +723,7 @@ async function copySummary() {
 
   try {
     await navigator.clipboard.writeText(state.summaryMarkdown);
-    setStatus('\u6458\u8981\u5df2\u590d\u5236\u5230\u526a\u8d34\u677f\u3002', 'success');
+    setStatus(I18n.get('sidebar_copied'), 'success');
     return;
   } catch {}
 
@@ -761,7 +745,7 @@ async function copySummary() {
   }
 
   textarea.remove();
-  setStatus(copied ? '\u6458\u8981\u5df2\u590d\u5236\u5230\u526a\u8d34\u677f\u3002' : '\u590d\u5236\u5931\u8d25\uff0c\u8bf7\u7a0d\u540e\u91cd\u8bd5', copied ? 'success' : 'error');
+  setStatus(copied ? I18n.get('sidebar_copied') : I18n.get('sidebar_copy_failed'), copied ? 'success' : 'error');
 }
 
 const exportController = SidebarExport.createExportController({
@@ -798,7 +782,7 @@ async function togglePrivacyMode() {
   );
   renderTrustCard(state.article);
   refreshActionStates();
-  setStatus(nextPrivacyMode ? '\u65e0\u75d5\u6a21\u5f0f\u5df2\u5f00\u542f\uff0c\u4e0b\u6b21\u751f\u6210\u4e0d\u4f1a\u5199\u5165\u5386\u53f2\u3002' : '\u65e0\u75d5\u6a21\u5f0f\u5df2\u5173\u95ed\uff0c\u4e0b\u6b21\u751f\u6210\u4f1a\u6062\u590d\u9ed8\u8ba4\u5386\u53f2\u7b56\u7565\u3002', nextPrivacyMode ? 'warning' : 'success');
+  setStatus(nextPrivacyMode ? I18n.get('sidebar_privacy_on') : I18n.get('sidebar_privacy_off'), nextPrivacyMode ? 'warning' : 'success');
 }
 
 function closeSidebar() {
@@ -806,13 +790,13 @@ function closeSidebar() {
 }
 
 function getThemePreferenceDisplayLabel(preference) {
-  if (preference === 'dark') return '\u6df1\u8272';
-  if (preference === 'light') return '\u6d45\u8272';
-  return '\u8ddf\u968f\u7cfb\u7edf';
+  if (preference === 'dark') return I18n.get('sidebar_theme_dark');
+  if (preference === 'light') return I18n.get('sidebar_theme_light');
+  return I18n.get('sidebar_theme_system');
 }
 
 function getThemeModeDisplayLabel(theme) {
-  return theme === 'dark' ? '\u6df1\u8272' : '\u6d45\u8272';
+  return theme === 'dark' ? I18n.get('sidebar_theme_dark') : I18n.get('sidebar_theme_light');
 }
 
 function renderThemeToggleState() {
@@ -820,15 +804,15 @@ function renderThemeToggleState() {
   const theme = Theme.getCurrentTheme();
   const nextPreference = Theme.getNextPreference(preference);
   const currentLabel = preference === 'system'
-    ? '\u8ddf\u968f\u7cfb\u7edf\uff08\u5f53\u524d' + getThemeModeDisplayLabel(theme) + '\uff09'
+    ? I18n.get('sidebar_theme_system_current', [getThemeModeDisplayLabel(theme)])
     : getThemePreferenceDisplayLabel(preference);
   const nextLabel = getThemePreferenceDisplayLabel(nextPreference);
 
-  elements.themeBtn.textContent = '\u660e\u6697\uff1a' + getThemePreferenceDisplayLabel(preference);
+  elements.themeBtn.textContent = I18n.get('sidebar_theme_btn_label', [getThemePreferenceDisplayLabel(preference)]);
   elements.themeBtn.dataset.preference = preference;
   elements.themeBtn.dataset.theme = theme;
 
-  const title = '\u5f53\u524d\u660e\u6697\u6a21\u5f0f\u4e3a' + currentLabel + '\uff1b\u70b9\u51fb\u5207\u6362\u5230' + nextLabel;
+  const title = I18n.get('sidebar_theme_btn_title', [currentLabel, nextLabel]);
   elements.themeBtn.title = title;
   elements.themeBtn.setAttribute('aria-label', title);
 }
@@ -841,8 +825,8 @@ async function cycleThemePreference() {
 
   setStatus(
     result.preference === 'system'
-      ? '\u660e\u6697\u6a21\u5f0f\u5df2\u6539\u4e3a\u8ddf\u968f\u7cfb\u7edf\uff0c\u5f53\u524d\u751f\u6548\uff1a' + themeLabel + '\u3002'
-      : '\u660e\u6697\u6a21\u5f0f\u5df2\u5207\u6362\u4e3a\u56fa\u5b9a' + themeLabel + '\u3002',
+      ? I18n.get('sidebar_theme_switched_system', [themeLabel])
+      : I18n.get('sidebar_theme_switched_fixed', [themeLabel]),
     'success'
   );
 }
@@ -850,16 +834,16 @@ async function cycleThemePreference() {
 function updateFavoriteButton() {
   if (!elements.favoriteBtn) return;
 
-  let text = '\u52a0\u5165\u6536\u85cf';
-  let title = '\u628a\u8fd9\u6761\u603b\u7ed3\u52a0\u5165\u6536\u85cf';
+  let text = I18n.get('sidebar_add_favorite');
+  let title = I18n.get('sidebar_add_favorite_title');
   let active = false;
 
   if (state.visibleRecord?.allowHistory === false) {
-    text = '\u672a\u5199\u5165\u5386\u53f2';
-    title = '\u672c\u6b21\u7ed3\u679c\u6ca1\u6709\u5199\u5165\u5386\u53f2\uff0c\u56e0\u6b64\u4e0d\u80fd\u6536\u85cf';
+    text = I18n.get('sidebar_not_in_history');
+    title = I18n.get('sidebar_not_in_history_title');
   } else if (state.visibleRecord?.favorite) {
-    text = '\u53d6\u6d88\u6536\u85cf';
-    title = '\u628a\u8fd9\u6761\u603b\u7ed3\u4ece\u6536\u85cf\u4e2d\u79fb\u9664';
+    text = I18n.get('sidebar_remove_favorite');
+    title = I18n.get('sidebar_remove_favorite_title');
     active = true;
   }
 
@@ -925,9 +909,8 @@ const eventsController = SidebarEvents.createEventsController({
 function init() {
   summaryModeController.initialize();
   getHistoryController();
-  renderPlaceholder('\u51c6\u5907\u5f00\u59cb\u603b\u7ed3', '\u53f3\u952e\u5f53\u524d\u9875\u9762\u9009\u62e9\u201c\u7528\u4e00\u89c8\u603b\u7ed3\u6b64\u9875\u201d\uff0c\u6216\u4f7f\u7528\u5feb\u6377\u952e Alt + S\u3002');
-  setStatus('\u5c31\u7eea');
-  setStats('');
+  renderPlaceholder(I18n.get('sidebar_placeholder_title'), I18n.get('sidebar_init_placeholder_body'));
+  setStatus(I18n.get('sidebar_ready'));
   renderThemeToggleState();
   renderDiagnostics();
   renderTrustCard(null);
@@ -939,13 +922,20 @@ function init() {
     renderThemeToggleState();
   });
 
+  // Repaint the idle status when the uiLanguage override resolves or changes;
+  // other copy re-renders on demand and static text is covered by data-i18n.
+  document.addEventListener('yilan-locale-changed', () => {
+    if (state.generating) return;
+    setStatus(I18n.get('sidebar_ready'));
+  });
+
   loadRuntimeSettings()
     .then(() => {
       renderTrustCard(state.article);
       refreshActionStates();
     })
     .catch((error) => {
-      setStatus(String(error?.message || error || '\u8bbe\u7f6e\u52a0\u8f7d\u5931\u8d25\u3002'), 'error');
+      setStatus(String(error?.message || error || I18n.get('sidebar_settings_load_failed')), 'error');
     });
 }
 
