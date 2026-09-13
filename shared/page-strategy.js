@@ -97,9 +97,76 @@
     return Object.assign({ sourceType: sourceType || 'unknown' }, config || SITE_STRATEGIES.unknown);
   }
 
+  // English strategy copy for prompt localization. Structural config
+  // (modes, chunking limits) always comes from the zh table.
+  const SITE_STRATEGIES_EN = {
+    unknown: {
+      label: 'General reading',
+      description: 'Balanced extraction of structure, key facts, conclusions, and future value.',
+      promptFocus: "Prioritize the page's structure, key facts, core conclusions, and reusable information.",
+      chunkPromptFocus: 'Keep only the core information, facts, and conclusions of this chunk; do not speculate across chunks.',
+      synthesisPromptFocus: 'Consolidate the chunk results into a clearly structured summary suitable for quick review.',
+      secondaryPromptFocus: 'When reworking, stay strictly based on the existing summary; do not add facts absent from it.'
+    },
+    news: {
+      label: 'News brief',
+      description: 'Prioritizes the timeline, actors, key facts, direct impact, and open questions.',
+      promptFocus: 'Organize the event background, key timeline, involved parties, important facts, direct impact, and follow-up watchpoints; avoid unsupported speculation.',
+      chunkPromptFocus: 'Summarize only the facts, quotes, timestamps, and impacts in this chunk; do not extrapolate.',
+      synthesisPromptFocus: 'Consolidate into a briefing for quickly understanding the event, organized by background, facts, impact, and open questions.',
+      secondaryPromptFocus: 'When reworking, convert facts into forms that are easier to review or act on without changing factual boundaries.'
+    },
+    blog: {
+      label: 'Blog insight',
+      description: 'Prioritizes the author’s viewpoints, reasoning, examples, and transferable lessons.',
+      promptFocus: 'Extract the author’s core arguments, reasoning, supporting examples, lessons, and applicability boundaries.',
+      chunkPromptFocus: 'Capture the viewpoints, evidence, examples, and author judgments in this chunk.',
+      synthesisPromptFocus: 'Consolidate into a logically layered summary of viewpoints, preserving the main argument chain and insights.',
+      secondaryPromptFocus: 'When reworking, prioritize methods, lessons, and applicability conditions.'
+    },
+    doc: {
+      label: 'Doc deep-read',
+      description: 'Prioritizes goals, prerequisites, steps, APIs, limitations, and examples.',
+      promptFocus: 'Organize goals, prerequisites, key steps, APIs or parameters, limitations, examples, and caveats; keep terminology accurate.',
+      chunkPromptFocus: 'Summarize only the steps, APIs, parameters, limitations, or examples appearing in this chunk; do not drop technical details.',
+      synthesisPromptFocus: 'Organize into a structured result by goals, prerequisites, steps, APIs or parameters, limitations, and examples.',
+      secondaryPromptFocus: 'When reworking, preserve parameter names, API names, step order, and caveats.'
+    },
+    forum: {
+      label: 'Q&A roundup',
+      description: 'Prioritizes the question background, constraints, candidate answers, and disagreements.',
+      promptFocus: 'Organize the question background, key constraints, main answers, recommended solutions, points of contention, and applicability conditions.',
+      chunkPromptFocus: 'Keep only the questions, answers, advice, or counterexamples in this chunk; make clear who is saying what.',
+      synthesisPromptFocus: 'Consolidate into a question-oriented summary organized by the problem, candidate solutions, recommendation, and risks or controversies.',
+      secondaryPromptFocus: 'When reworking, convert conclusions into Q&A cards, risk lists, or execution advice.'
+    },
+    repo: {
+      label: 'README guide',
+      description: 'Prioritizes the project goal, installation, core capabilities, usage path, and limitations.',
+      promptFocus: 'Organize the project goal, installation, core capabilities, usage path, key modules, constraints, and applicable scenarios.',
+      chunkPromptFocus: 'Summarize only the installation, configuration, usage, architecture, or limitation information in this chunk.',
+      synthesisPromptFocus: 'Consolidate into a quick-start guide organized by goal, installation, usage, structure, and limitations.',
+      secondaryPromptFocus: 'When reworking, prioritize getting-started steps, key concepts, and risk reminders.'
+    },
+    video: {
+      label: 'Video digest',
+      description: 'Prioritizes the video topic, official AI summary, subtitle points, timeline, and rewatchable moments.',
+      promptFocus: 'Organize the video topic, core viewpoints, key facts, chapter timeline, and rewatchable moments; if the content comes from Bilibili’s official AI summary, Bilibili subtitles, or YouTube captions, state that boundary and do not add information absent from the video.',
+      chunkPromptFocus: 'Summarize only the viewpoints, facts, examples, and timestamps in this subtitle or video segment; keep important timestamps.',
+      synthesisPromptFocus: 'Consolidate the chunk results into a video digest organized by core takeaway, timeline, key moments, and rewatch points.',
+      secondaryPromptFocus: 'When reworking, convert video content into action items, Q&A cards, or review checklists, keeping necessary timestamps.'
+    }
+  };
+
   function resolveStrategy(input) {
     const sourceType = String(input?.sourceType || 'unknown');
-    return cloneStrategy(sourceType, SITE_STRATEGIES[sourceType] || SITE_STRATEGIES.unknown);
+    const table = input?.locale === 'en' ? SITE_STRATEGIES_EN : SITE_STRATEGIES;
+    const fallback = input?.locale === 'en' ? SITE_STRATEGIES_EN.unknown : SITE_STRATEGIES.unknown;
+    const base = cloneStrategy(sourceType, SITE_STRATEGIES[sourceType] || SITE_STRATEGIES.unknown);
+    if (input?.locale === 'en') {
+      return Object.assign(base, table[sourceType] || fallback);
+    }
+    return base;
   }
 
   const api = {

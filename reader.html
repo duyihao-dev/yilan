@@ -579,21 +579,21 @@
       <aside id="readerHero" class="reader-hero hidden">
         <div class="hero-top">
           <div>
-            <div class="eyebrow">专注阅读</div>
-            <h1 id="readerTitle">正在加载摘要...</h1>
+            <div class="eyebrow" data-i18n="reader_eyebrow">专注阅读</div>
+            <h1 id="readerTitle" data-i18n="reader_loading_title">正在加载摘要...</h1>
             <a id="readerSourceLink" class="source-link" href="#" target="_blank" rel="noreferrer noopener"></a>
           </div>
           <div class="hero-actions">
-            <a id="openSourceBtn" class="hero-btn primary" href="#" target="_blank" rel="noreferrer noopener">打开原文</a>
+            <a id="openSourceBtn" class="hero-btn primary" href="#" target="_blank" rel="noreferrer noopener" data-i18n="reader_open_source">打开原文</a>
             <span class="reader-version version-pill" data-yilan-version>v1.4.1</span>
-            <button id="copyBtn" class="hero-btn" type="button">复制 Markdown</button>
+            <button id="copyBtn" class="hero-btn" type="button" data-i18n="reader_copy_markdown">复制 Markdown</button>
           </div>
         </div>
         <div id="badgeRow" class="meta-row"></div>
         <div id="detailRow" class="detail-row"></div>
         <div id="statusLine" class="status-line"></div>
         <details id="readerDiagnostics" class="reader-diagnostics hidden">
-          <summary>运行诊断</summary>
+          <summary data-i18n="sidebar_diagnostics_toggle">运行诊断</summary>
           <pre id="diagnosticsPre" class="diagnostics-pre"></pre>
         </details>
       </aside>
@@ -602,23 +602,26 @@
         <article id="summaryArticle" class="markdown-body"></article>
       </main>
 
-      <nav id="readerToc" class="reader-toc hidden" aria-label="文档结构">
-        <div class="reader-toc-kicker">结构</div>
-        <div class="reader-toc-title">文档导航</div>
+      <nav id="readerToc" class="reader-toc hidden" aria-label="文档结构" data-i18n-aria-label="reader_toc_aria">
+        <div class="reader-toc-kicker" data-i18n="reader_toc_kicker">结构</div>
+        <div class="reader-toc-title" data-i18n="reader_toc_title">文档导航</div>
         <ol id="readerTocList" class="reader-toc-list"></ol>
       </nav>
     </div>
 
     <section id="emptyState" class="reader-empty hidden">
-      <h2 id="emptyTitle">没有可读取的摘要</h2>
-      <p id="emptyDetail">请回到扩展侧栏，先生成一份摘要，再从“阅读”按钮打开新标签页。</p>
+      <h2 id="emptyTitle" data-i18n="reader_empty_title">没有可读取的摘要</h2>
+      <p id="emptyDetail" data-i18n="reader_empty_detail">请回到扩展侧栏，先生成一份摘要，再从“阅读”按钮打开新标签页。</p>
     </section>
   </div>
 
   <script src="shared/ui-format.js"></script>
+  <script src="shared/i18n.js"></script>
   <script src="shared/ui-labels.js"></script>
   <script src="shared/summary-text.js"></script>
   <script src="shared/reader-view.js"></script>
+  <script src="shared/constants.js"></script>
+  <script src="shared/chrome-api.js"></script>
   <script src="db.js"></script>
   <script src="libs/purify.min.js"></script>
   <script src="libs/marked.min.js"></script>

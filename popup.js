@@ -6,74 +6,34 @@ const UiFormat = window.AISummaryUiFormat;
 const UiLabels = window.AISummaryUiLabels;
 const Constants = window.AISummaryConstants;
 const UrlUtils = window.AISummaryUrlUtils;
+const ChromeApi = window.YilanChromeApi;
+const I18n = window.YilanI18n;
+const YilanPopupThemeControls = window.YilanPopupThemeControls;
+const YilanPopupProfiles = window.YilanPopupProfiles;
+const YilanPopupProviderSelection = window.YilanPopupProviderSelection;
+const YilanPopupModels = window.YilanPopupModels;
+const YilanPopupEntrypointsView = window.YilanPopupEntrypointsView;
 
-const SETTINGS_KEYS = [
-  'providerPreset',
-  'aiProvider',
-  'endpointMode',
-  'apiKey',
-  'aiBaseURL',
-  'modelName',
-  'systemPrompt',
-  'autoTranslate',
-  'defaultLanguage',
-  'themePreference',
-  'themePalette',
-  'sidebarCompactMode',
-  'privacyMode',
-  'defaultAllowHistory',
-  'defaultAllowShare',
-  'entrypointAutoStart',
-  'entrypointSimpleMode',
-  'entrypointReuseHistory'
-];
+const $ = (id) => document.getElementById(id);
 
-const PROFILES_INDEX_KEY = 'yilanProfilesIndexV1';
-const ACTIVE_PROFILE_ID_KEY = 'yilanActiveProfileIdV1';
-const PROFILE_KEY_PREFIX = 'yilanProfileV1:';
+const SETTINGS_KEYS = Constants.SETTINGS_KEYS;
 
-const MODELS_CACHE_STORAGE_KEY = 'yilanModelsCacheV1';
+const MODELS_CACHE_STORAGE_KEY = Constants.MODELS_CACHE_STORAGE_KEY;
 
 const ACTIVE_TAB_STORAGE_KEY = 'popupActiveTab';
-const IDLE_STATUS_TEXT = '设置修改后会自动保存。';
-const WAITING_AUTOSAVE_TEXT = '检测到变更，输入停顿后会自动保存。';
-const BASE_URL_SECURITY_HINT = '远程接口必须使用 HTTPS；HTTP 仅允许本机或局域网地址。';
-const BASE_URL_INVALID_MESSAGE = 'Base URL 仅支持 HTTPS；HTTP 仅允许本机或局域网地址。';
+// Resolved at call time so a runtime uiLanguage switch updates copy without reloading.
+const idleStatusText = () => I18n.get('popup_idle_status');
+const waitingAutosaveText = () => I18n.get('popup_waiting_autosave');
+const baseUrlInvalidMessage = () => I18n.get('popup_base_url_invalid');
 
-const PROVIDER_FALLBACK_HINTS = {
-  openai: '留空时使用 OpenAI 默认根地址，也可以直接填写完整 endpoint。',
-  anthropic: '留空时使用 Anthropic 默认根地址，也可以填写兼容根地址。'
-};
+function normalizeUiLanguage(value) {
+  return value === 'zh' || value === 'en' ? value : 'auto';
+}
 
-const THEME_PREFERENCE_LABELS = {
-  system: '自动跟随系统',
-  light: '固定浅色',
-  dark: '固定深色'
-};
-
-const THEME_EFFECTIVE_LABELS = {
-  light: '浅色',
-  dark: '深色'
-};
-
-const THEME_PALETTE_LABELS = {
-  jade: '松石绿',
-  slate: '雾蓝',
-  copper: '岩茶棕',
-  plum: '檀紫'
-};
-
-const THEME_PALETTE_HINTS = {
-  jade: '默认方案，清爽、稳定，适合长期阅读',
-  slate: '蓝灰倾向更克制，适合弱化品牌色干扰',
-  copper: '偏茶棕的暖调方案，保留温度但不偏黄',
-  plum: '更有识别度的深檀色调，适合强调品牌感'
-};
-
-const autoFillState = {
-  baseURL: '',
-  modelName: ''
-};
+function normalizeChunkConcurrency(value) {
+  const parsed = Math.round(Number(value));
+  return parsed >= 1 && parsed <= 4 ? parsed : 2;
+}
 
 const saveState = {
   timer: null,
@@ -81,34 +41,7 @@ const saveState = {
   requestId: 0
 };
 
-const profileState = {
-  activeId: '',
-  index: []
-};
-
-const $ = (id) => document.getElementById(id);
-
-function getRuntimeErrorMessage(errorLike) {
-  if (!errorLike) {
-    return typeof Errors?.getUserMessage === 'function' ? Errors.getUserMessage(null) : 'Unknown error.';
-  }
-  if (typeof errorLike === 'string') {
-    return errorLike || (typeof Errors?.getUserMessage === 'function' ? Errors.getUserMessage(null) : 'Unknown error.');
-  }
-
-  const hasMessage = typeof errorLike?.message === 'string' && errorLike.message.trim();
-  const hasCode = typeof errorLike?.code === 'string' && errorLike.code.trim();
-
-  // Prefer raw messages for plain `{ message: string }` objects (e.g. chrome.runtime.lastError),
-  // otherwise Errors.getUserMessage() will fall back to a generic "Unknown error" catalog message.
-  if (hasMessage && !hasCode) return errorLike.message.trim();
-
-  if (typeof Errors?.getUserMessage === 'function') {
-    return Errors.getUserMessage(errorLike);
-  }
-  if (hasMessage) return errorLike.message.trim();
-  return String(errorLike);
-}
+const getRuntimeErrorMessage = ChromeApi.getRuntimeErrorMessage;
 
 function buildErrorDetailsText(errorLike, diagnostics) {
   if (!errorLike && !diagnostics) return '';
@@ -140,77 +73,12 @@ function buildErrorDetailsText(errorLike, diagnostics) {
   return lines.join('\n').trim();
 }
 
-function storageGet(keys) {
-  return new Promise((resolve, reject) => {
-    chrome.storage.sync.get(keys, (items) => {
-      if (chrome.runtime.lastError) {
-        reject(new Error(chrome.runtime.lastError.message));
-        return;
-      }
-      resolve(items || {});
-    });
-  });
-}
-
-function storageSet(payload) {
-  return new Promise((resolve, reject) => {
-    chrome.storage.sync.set(payload, () => {
-      if (chrome.runtime.lastError) {
-        reject(new Error(chrome.runtime.lastError.message));
-        return;
-      }
-      resolve();
-    });
-  });
-}
-
-function storageRemove(keys) {
-  return new Promise((resolve, reject) => {
-    chrome.storage.sync.remove(keys, () => {
-      if (chrome.runtime.lastError) {
-        reject(new Error(chrome.runtime.lastError.message));
-        return;
-      }
-      resolve();
-    });
-  });
-}
-
-function storageLocalGet(keys) {
-  return new Promise((resolve, reject) => {
-    chrome.storage.local.get(keys, (items) => {
-      if (chrome.runtime.lastError) {
-        reject(new Error(chrome.runtime.lastError.message));
-        return;
-      }
-      resolve(items || {});
-    });
-  });
-}
-
-function storageLocalSet(payload) {
-  return new Promise((resolve, reject) => {
-    chrome.storage.local.set(payload, () => {
-      if (chrome.runtime.lastError) {
-        reject(new Error(chrome.runtime.lastError.message));
-        return;
-      }
-      resolve();
-    });
-  });
-}
-
-function runtimeSendMessage(message) {
-  return new Promise((resolve) => {
-    chrome.runtime.sendMessage(message, (response) => {
-      if (chrome.runtime.lastError) {
-        resolve({ success: false, error: { message: chrome.runtime.lastError.message } });
-        return;
-      }
-      resolve(response || {});
-    });
-  });
-}
+const storageGet = ChromeApi.storageGet;
+const storageSet = ChromeApi.storageSet;
+const storageRemove = ChromeApi.storageRemove;
+const storageLocalGet = ChromeApi.storageLocalGet;
+const storageLocalSet = ChromeApi.storageLocalSet;
+const runtimeSendMessage = ChromeApi.runtimeSendMessage;
 
 function setStatus(text, tone) {
   const node = $('status');
@@ -236,7 +104,7 @@ function setStatusDetails(text) {
   detailsNode.hidden = false;
 }
 
-const formatDateTime = (value) => UiFormat.formatDateTime(value, { emptyText: '未记录', includeYear: false });
+const formatDateTime = (value) => UiFormat.formatDateTime(value, { emptyText: I18n.get('popup_not_recorded'), includeYear: false });
 
 function setBadge(id, text, tone) {
   const node = $(id);
@@ -246,408 +114,15 @@ function setBadge(id, text, tone) {
 }
 
 function getSaveSuccessText(settings) {
-  return settings.privacyMode ? '已自动保存，当前处于无痕模式。' : '已自动保存。';
-}
-
-function renderThemeHint(preference, theme) {
-  const normalizedPreference = Theme.normalizePreference(preference);
-  const effectiveTheme = Theme.resolveTheme(normalizedPreference || theme);
-  const preferenceLabel = THEME_PREFERENCE_LABELS[normalizedPreference] || THEME_PREFERENCE_LABELS.system;
-  const effectiveLabel = THEME_EFFECTIVE_LABELS[effectiveTheme] || THEME_EFFECTIVE_LABELS.light;
-
-  $('themeHint').textContent = normalizedPreference === 'system'
-    ? `${preferenceLabel}。当前生效：${effectiveLabel}；系统主题变化时会自动切换。`
-    : `${preferenceLabel}。当前 popup 和侧栏会保持 ${effectiveLabel} 模式。`;
-}
-
-function syncThemePreferenceControl(preference, options = {}) {
-  const result = Theme.applyPreference(preference, { force: options.force !== false });
-  const field = $('themePreference');
-  if (field) {
-    field.value = result.preference;
-  }
-  renderThemeHint(result.preference, result.theme);
-  return result;
-}
-
-function renderPaletteHint(palette) {
-  const normalizedPalette = Theme.normalizePalette(palette);
-  const label = THEME_PALETTE_LABELS[normalizedPalette] || THEME_PALETTE_LABELS.jade;
-  const hint = THEME_PALETTE_HINTS[normalizedPalette] || THEME_PALETTE_HINTS.jade;
-  const hintNode = $('paletteHint');
-  if (!hintNode) return;
-
-  hintNode.textContent = `${label}：${hint}。会同步到 popup、侧栏和阅读页。`;
-}
-
-function setPaletteControlState(palette) {
-  const normalizedPalette = Theme.normalizePalette(palette);
-  const field = $('themePalette');
-  if (field) {
-    field.value = normalizedPalette;
-  }
-
-  document.querySelectorAll('[data-palette-option]').forEach((button) => {
-    const isSelected = button.dataset.paletteOption === normalizedPalette;
-    button.classList.toggle('active', isSelected);
-    button.setAttribute('aria-checked', isSelected ? 'true' : 'false');
-  });
-
-  renderPaletteHint(normalizedPalette);
-}
-
-function syncThemePaletteControl(palette, options = {}) {
-  const result = Theme.applyPalette(palette, { force: options.force !== false });
-  setPaletteControlState(result.palette);
-  return result;
-}
-
-function renderEntrypointStatus(entrypoints) {
-  const contextMenu = entrypoints?.contextMenu || {};
-  const shortcut = entrypoints?.shortcut || {};
-
-  const contextMenuReady = contextMenu.status === 'ready';
-  $('contextMenuDesc').textContent = contextMenuReady
-    ? '右键菜单已注册，可以在网页空白区域直接启动摘要。'
-    : (contextMenu.lastError || '右键菜单还没准备好，建议点击“检查入口”尝试修复。');
-  setBadge(
-    'contextMenuBadge',
-    contextMenuReady ? '已就绪' : '待修复',
-    contextMenuReady ? 'success' : 'warning'
-  );
-
-  const shortcutAssigned = shortcut.status === 'assigned' && shortcut.shortcut;
-  $('shortcutDesc').textContent = shortcutAssigned
-    ? `当前绑定：${shortcut.shortcut}`
-    : '没有检测到生效中的快捷键，请前往快捷键设置页确认 Alt + S。';
-  setBadge(
-    'shortcutBadge',
-    shortcutAssigned ? '已绑定' : shortcut.status === 'missing' ? '缺失' : '未绑定',
-    shortcutAssigned ? 'success' : shortcut.status === 'missing' ? 'error' : 'warning'
-  );
-
-  $('entrypointMeta').textContent = [
-    `菜单最近校验：${formatDateTime(contextMenu.lastEnsuredAt)}`,
-    `菜单最近触发：${formatDateTime(contextMenu.lastTriggeredAt)}`,
-    `快捷键最近触发：${formatDateTime(shortcut.lastTriggeredAt)}`
-  ].join(' · ');
-}
-
-function buildEndpointPreview(provider, endpointMode) {
-  if (provider === 'anthropic') return '/v1/messages';
-  if (endpointMode === 'responses') return '/responses';
-  if (endpointMode === 'chat_completions') return '/chat/completions';
-  if (endpointMode === 'legacy_completions') return '/completions';
-  return '自动试探';
-}
-
-function getEndpointModeLabel(mode) {
-  return ProviderPresets?.ENDPOINT_MODE_META?.[mode]?.label || mode || '自动判断';
-}
-
-function pickEffectiveBaseURLInput(rawInput, fallbackBaseUrl) {
-  const normalized = normalizeBaseURLInput(rawInput);
-  if (normalized) return normalized;
-  return String(fallbackBaseUrl || '').trim();
-}
-
-function getConnectionFieldSettings() {
-  return {
-    providerPreset: $('providerPreset')?.value || 'custom',
-    aiProvider: $('aiProvider')?.value || '',
-    endpointMode: $('endpointMode')?.value || '',
-    aiBaseURL: normalizeBaseURLInput($('baseURL')?.value || ''),
-    modelName: $('modelName')?.value || ''
-  };
-}
-
-function renderEndpointPreview() {
-  const previewNode = $('endpointPreview');
-  if (!previewNode) return;
-
-  const { provider, endpointMode, route, profile } = getCurrentSelection();
-  const rawInput = $('baseURL')?.value || '';
-  const defaultBaseUrl = provider === 'anthropic' ? 'https://api.anthropic.com' : 'https://api.openai.com/v1';
-  const baseRoot = pickEffectiveBaseURLInput(rawInput, route?.baseUrl || profile?.baseUrl || defaultBaseUrl);
-  if (!baseRoot) {
-    previewNode.textContent = '';
-    return;
-  }
-
-  const openaiDetected = UrlUtils?.detectOpenAiEndpointModeFromUrl?.(baseRoot) || '';
-  const anthropicDetected = UrlUtils?.detectAnthropicEndpointModeFromUrl?.(baseRoot) || '';
-  const isFullEndpoint = !!(openaiDetected || anthropicDetected);
-  const lines = [];
-
-  if (isFullEndpoint) {
-    const detectedMode = openaiDetected || anthropicDetected;
-    lines.push(`实际请求地址：${baseRoot}`);
-    lines.push(`接口模式：${getEndpointModeLabel(detectedMode)}（已识别完整 endpoint）`);
-    lines.push('说明：完整 endpoint 会优先于 Endpoint Mode 拼接。');
-    previewNode.textContent = lines.join('\n');
-    return;
-  }
-
-  if (provider === 'anthropic') {
-    const root = UrlUtils?.stripAnthropicMessagesSuffix?.(baseRoot) || baseRoot;
-    lines.push(`实际请求地址：${root}/v1/messages`);
-    lines.push(`接口模式：${getEndpointModeLabel('messages')}`);
-    previewNode.textContent = lines.join('\n');
-    return;
-  }
-
-  const root = UrlUtils?.stripOpenAiEndpointSuffix?.(baseRoot) || baseRoot;
-  const hasV1 = /\/v1$/i.test(root);
-
-  if (endpointMode === 'auto') {
-    lines.push(`实际请求地址：${root}/responses -> ${root}/chat/completions -> ${root}/completions`);
-    lines.push('接口模式：自动判断');
-    lines.push(hasV1 ? 'Base URL 已包含 /v1。' : 'Base URL 未包含 /v1，连接测试可在明确报错时自动修正。');
-    previewNode.textContent = lines.join('\n');
-    return;
-  }
-
-  const path = buildEndpointPreview(provider, endpointMode);
-  if (path && path.startsWith('/')) {
-    lines.push(`实际请求地址：${root}${path}`);
-    lines.push(`接口模式：${getEndpointModeLabel(endpointMode)}`);
-    lines.push(hasV1 ? 'Base URL 已包含 /v1。' : 'Base URL 未包含 /v1，连接测试可在明确报错时自动修正。');
-    previewNode.textContent = lines.join('\n');
-    return;
-  }
-
-  previewNode.textContent = '';
-}
-
-function inferPresetId(settings) {
-  const stored = String(settings?.providerPreset || '').trim();
-  if (stored) return stored;
-  return ProviderPresets.inferPresetFromSettings(settings);
-}
-
-function inferEndpointMode(settings, presetId, provider) {
-  const stored = String(settings?.endpointMode || '').trim();
-  if (stored) {
-    return ProviderPresets.normalizeEndpointMode(stored, provider, presetId);
-  }
-
-  const baseUrl = String(settings?.aiBaseURL || '').toLowerCase();
-  if (baseUrl.includes('/chat/completions')) {
-    return ProviderPresets.normalizeEndpointMode('chat_completions', provider, presetId);
-  }
-  if (baseUrl.includes('/responses')) {
-    return ProviderPresets.normalizeEndpointMode('responses', provider, presetId);
-  }
-  if (/\/completions(?:$|[?#])/i.test(baseUrl)) {
-    return ProviderPresets.normalizeEndpointMode('legacy_completions', provider, presetId);
-  }
-  if (provider === 'anthropic') {
-    return ProviderPresets.normalizeEndpointMode('messages', provider, presetId);
-  }
-  return ProviderPresets.normalizeEndpointMode('', provider, presetId);
-}
-
-function renderPresetOptions() {
-  const select = $('providerPreset');
-  select.innerHTML = '';
-
-  ProviderPresets.listPresets().forEach((preset) => {
-    const option = document.createElement('option');
-    option.value = preset.id;
-    option.textContent = preset.label;
-    select.appendChild(option);
-  });
-}
-
-function syncRouteOptions(presetId, preferredRouteId, preferredProvider) {
-  const select = $('providerRoute');
-  const routes = ProviderPresets.getProviderRoutes(presetId);
-  select.innerHTML = '';
-
-  routes.forEach((route) => {
-    const option = document.createElement('option');
-    option.value = route.routeId;
-    option.textContent = route.label;
-    select.appendChild(option);
-  });
-
-  let route = preferredRouteId ? ProviderPresets.getProviderRoute(presetId, preferredRouteId) : null;
-  if (route && preferredProvider && route.aiProvider !== preferredProvider) {
-    route = null;
-  }
-  if (!route) {
-    route = ProviderPresets.inferRouteFromSettings(getConnectionFieldSettings(), presetId);
-  }
-  if (route && preferredProvider && route.aiProvider !== preferredProvider) {
-    route = ProviderPresets.getDefaultRoute(presetId, preferredProvider);
-  }
-  if (!route) {
-    route = ProviderPresets.getDefaultRoute(presetId);
-  }
-
-  if (route?.routeId) {
-    select.value = route.routeId;
-  }
-  return route;
-}
-
-function syncProviderOptions(presetId, preferredProvider) {
-  const allowed = new Set(ProviderPresets.getProviderOptions(presetId));
-  const providerSelect = $('aiProvider');
-  const candidate = preferredProvider || providerSelect.value;
-
-  Array.from(providerSelect.options).forEach((option) => {
-    const supported = allowed.has(option.value);
-    option.disabled = !supported;
-    option.textContent = UiLabels.getProviderLabel(option.value, { variant: 'settings', fallback: option.value });
-  });
-
-  providerSelect.value = ProviderPresets.normalizeProvider(candidate, presetId);
-  return providerSelect.value;
-}
-
-function syncEndpointModeOptions(presetId, provider, preferredMode, route) {
-  const select = $('endpointMode');
-  const routeModes = Array.isArray(route?.endpointModes) ? route.endpointModes : [];
-  const modes = routeModes.length ? routeModes : ProviderPresets.getEndpointModes(presetId, provider);
-  const fallbackMode = route?.defaultEndpointMode || '';
-  const requestedMode = preferredMode || fallbackMode;
-  const nextMode = modes.includes(requestedMode)
-    ? requestedMode
-    : ProviderPresets.normalizeEndpointMode(fallbackMode || requestedMode, provider, presetId);
-  select.innerHTML = '';
-
-  modes.forEach((mode) => {
-    const meta = ProviderPresets.ENDPOINT_MODE_META[mode] || { label: mode };
-    const option = document.createElement('option');
-    option.value = mode;
-    option.textContent = meta.label;
-    select.appendChild(option);
-  });
-
-  select.value = modes.includes(nextMode) ? nextMode : (modes[0] || nextMode);
-  return select.value;
-}
-
-function getCurrentSelection() {
-  const presetId = $('providerPreset').value || 'custom';
-  const selectedRouteId = $('providerRoute')?.value || '';
-  const route = ProviderPresets.getProviderRoute(presetId, selectedRouteId)
-    || ProviderPresets.inferRouteFromSettings(getConnectionFieldSettings(), presetId);
-  const provider = ProviderPresets.normalizeProvider($('aiProvider').value || route?.aiProvider || '', presetId);
-  const endpointMode = ProviderPresets.normalizeEndpointMode($('endpointMode').value || route?.defaultEndpointMode || '', provider, presetId);
-  const preset = ProviderPresets.getPreset(presetId);
-  const profile = ProviderPresets.getProviderProfile(presetId, provider);
-  return { presetId, provider, endpointMode, preset, profile, route };
-}
-
-function maybeApplySuggestedValue(fieldId, suggestedValue, options = {}) {
-  if (typeof suggestedValue === 'undefined') return;
-  const field = $(fieldId);
-  const currentValue = String(field.value || '').trim();
-  const autoKey = fieldId === 'baseURL' ? 'baseURL' : 'modelName';
-  const previousAutoValue = autoFillState[autoKey] || '';
-  const shouldApply = options.force || !currentValue || currentValue === previousAutoValue;
-
-  if (shouldApply) {
-    field.value = String(suggestedValue || '');
-  }
-}
-
-function updateHints() {
-  const selection = getCurrentSelection();
-  const { provider, endpointMode, preset, profile, route } = selection;
-  const endpointMeta = ProviderPresets.ENDPOINT_MODE_META[endpointMode] || { description: '' };
-  const endpointPreview = buildEndpointPreview(provider, endpointMode);
-  const sourceText = preset?.sourceUrl
-    ? `来源：${preset.sourceUrl}${preset.verifiedAt ? `（${preset.verifiedAt}）` : ''}`
-    : '';
-
-  $('presetHint').textContent = preset?.hint || '选择服务商后会自动填入推荐接口地址。';
-  $('routeHint').textContent = route?.hint || '';
-  $('apiKeyHint').textContent = route?.keyHint || '填写所选服务商的 API Key。';
-  $('endpointModeHint').textContent = [
-    endpointMeta.description || '',
-    endpointPreview ? `当前会按这个模式补最终路径：${endpointPreview}。` : ''
-  ].filter(Boolean).join(' ');
-
-  const baseUrlHint = route?.baseUrl
-    ? `推荐根地址：${route.baseUrl}。需要代理或私有网关时可直接覆盖。`
-    : (PROVIDER_FALLBACK_HINTS[provider] || '');
-  $('baseURLHint').textContent = [baseUrlHint, BASE_URL_SECURITY_HINT].filter(Boolean).join(' ');
-
-  $('providerCatalogMeta').textContent = sourceText;
-  $('baseURL').placeholder = route?.baseUrl || profile?.baseUrl || '留空使用默认地址';
-  $('modelName').placeholder = route?.defaultModel || profile?.defaultModel || (provider === 'anthropic' ? 'claude-sonnet-4-20250514' : 'gpt-4o-mini');
-  renderEndpointPreview();
-}
-
-function syncSelectionState(options = {}) {
-  const presetId = $('providerPreset').value || 'custom';
-  let route = syncRouteOptions(presetId, options.preferredRouteId, options.preferredProvider);
-  const provider = syncProviderOptions(presetId, route?.aiProvider || options.preferredProvider);
-
-  if (!route || route.aiProvider !== provider) {
-    route = syncRouteOptions(presetId, '', provider);
-  }
-
-  const endpointMode = syncEndpointModeOptions(
-    presetId,
-    provider,
-    options.preferredEndpointMode || route?.defaultEndpointMode || $('endpointMode').value,
-    route
-  );
-
-  $('aiProvider').value = provider;
-  $('endpointMode').value = endpointMode;
-  if (route?.routeId) $('providerRoute').value = route.routeId;
-
-  if (options.syncSuggestedValues) {
-    const shouldForce = !!options.forceSuggestedValues;
-    maybeApplySuggestedValue('baseURL', route?.baseUrl || '', { force: shouldForce });
-    maybeApplySuggestedValue('modelName', route?.defaultModel || '', { force: shouldForce });
-  }
-
-  autoFillState.baseURL = route?.baseUrl || '';
-  autoFillState.modelName = route?.defaultModel || '';
-  updateHints();
+  return settings.privacyMode ? I18n.get('popup_saved_private') : I18n.get('popup_saved');
 }
 
 function validateBaseURL(url) {
   if (!url) return true;
-  if (UrlUtils?.isAllowedModelEndpointUrl) return UrlUtils.isAllowedModelEndpointUrl(url);
-  try {
-    const parsed = new URL(url);
-    return parsed.protocol === 'https:';
-  } catch {
-    return false;
-  }
+  return UrlUtils.isAllowedModelEndpointUrl(url);
 }
 
-function normalizeBaseURLInput(value) {
-  if (UrlUtils?.normalizeBaseURLInput) return UrlUtils.normalizeBaseURLInput(value);
-
-  const raw = String(value || '').trim();
-  if (!raw) return '';
-
-  let normalized = raw;
-  if (!/^https?:\/\//i.test(normalized)) {
-    // Treat bare domains/hosts as HTTPS by default for convenience.
-    if (/^[a-z0-9.-]+(?::\d+)?(?:\/|$)/i.test(normalized)) {
-      normalized = 'https://' + normalized;
-    }
-  }
-
-  try {
-    const parsed = new URL(normalized);
-    parsed.hash = '';
-    parsed.search = '';
-    parsed.pathname = String(parsed.pathname || '').replace(/\/+$/, '') || '/';
-    return parsed.toString().replace(/\/$/, '');
-  } catch {
-    return String(normalized).replace(/\/+$/, '');
-  }
-}
+const normalizeBaseURLInput = UrlUtils.normalizeBaseURLInput;
 
 function getProviderCredentialValidation(settings) {
   const presetId = String(settings?.providerPreset || '').trim();
@@ -679,6 +154,8 @@ function collectSettings() {
     systemPrompt: $('systemPrompt').value.trim(),
     autoTranslate: $('autoTranslate').checked,
     defaultLanguage: $('defaultLanguage').value,
+    uiLanguage: normalizeUiLanguage($('uiLanguage')?.value),
+    chunkConcurrency: normalizeChunkConcurrency($('chunkConcurrency')?.value),
     themePreference: Theme.normalizePreference($('themePreference').value),
     themePalette: Theme.normalizePalette($('themePalette')?.value),
     sidebarCompactMode: !!$('sidebarCompactMode')?.checked,
@@ -693,318 +170,6 @@ function collectSettings() {
 
 function createSettingsSignature(settings) {
   return JSON.stringify(settings);
-}
-
-function createProfileId() {
-  try {
-    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
-      return 'prof_' + crypto.randomUUID();
-    }
-  } catch {}
-
-  return 'prof_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
-}
-
-function getProfileStorageKey(id) {
-  const safeId = String(id || '').trim();
-  return safeId ? PROFILE_KEY_PREFIX + safeId : '';
-}
-
-function normalizeProfilesIndex(value) {
-  if (!Array.isArray(value)) return [];
-
-  const output = [];
-  const seen = new Set();
-  value.forEach((item) => {
-    if (!item || typeof item !== 'object') return;
-    const id = String(item.id || '').trim();
-    if (!id || seen.has(id)) return;
-    seen.add(id);
-
-    const name = String(item.name || '').trim() || '未命名';
-    output.push({
-      id,
-      name,
-      updatedAt: String(item.updatedAt || ''),
-      lastUsedAt: String(item.lastUsedAt || ''),
-      providerPreset: String(item.providerPreset || ''),
-      aiProvider: String(item.aiProvider || '')
-    });
-  });
-
-  return output;
-}
-
-function upsertProfilesIndexEntry(index, entry, options = {}) {
-  const next = [];
-  const id = String(entry?.id || '').trim();
-  if (!id) return normalizeProfilesIndex(index);
-
-  const allowReorder = options.prepend === true;
-  let replaced = false;
-
-  (index || []).forEach((item) => {
-    if (!item || typeof item !== 'object') return;
-    const itemId = String(item.id || '').trim();
-    if (!itemId) return;
-    if (itemId === id) {
-      next.push(Object.assign({}, item, entry));
-      replaced = true;
-    } else {
-      next.push(item);
-    }
-  });
-
-  if (!replaced) {
-    if (allowReorder) next.unshift(entry);
-    else next.push(entry);
-  }
-
-  return normalizeProfilesIndex(next);
-}
-
-function removeProfilesIndexEntry(index, id) {
-  const targetId = String(id || '').trim();
-  if (!targetId) return normalizeProfilesIndex(index);
-  return normalizeProfilesIndex((index || []).filter((item) => String(item?.id || '').trim() !== targetId));
-}
-
-function findProfileIndexEntry(id) {
-  const safeId = String(id || '').trim();
-  if (!safeId) return null;
-  return (profileState.index || []).find((entry) => entry && entry.id === safeId) || null;
-}
-
-function renderProfileSelector() {
-  const select = $('profileSelect');
-  if (!select) return;
-
-  const activeId = profileState.activeId || '';
-  select.innerHTML = '';
-
-  const unboundOption = document.createElement('option');
-  unboundOption.value = '';
-  unboundOption.textContent = '当前配置（未绑定）';
-  select.appendChild(unboundOption);
-
-  (profileState.index || []).forEach((entry) => {
-    const option = document.createElement('option');
-    option.value = entry.id;
-
-    const presetLabel = ProviderPresets?.getPreset?.(entry.providerPreset)?.label || entry.providerPreset || 'custom';
-    option.textContent = entry.name + ' · ' + presetLabel;
-
-    select.appendChild(option);
-  });
-
-  select.value = activeId;
-  renderProfileHint();
-}
-
-function renderProfileHint() {
-  const hint = $('profileHint');
-  if (!hint) return;
-
-  const activeId = profileState.activeId || '';
-  const activeEntry = findProfileIndexEntry(activeId);
-
-  hint.textContent = activeId && activeEntry
-    ? `已绑定「${activeEntry.name}」，修改会自动保存到该方案。`
-    : '可保存多套连接配置，方便快速切换。';
-
-  const renameBtn = $('profileRenameBtn');
-  const deleteBtn = $('profileDeleteBtn');
-  if (renameBtn) renameBtn.disabled = !activeId;
-  if (deleteBtn) deleteBtn.disabled = !activeId;
-}
-
-async function updateProfilesStorage(index, activeId) {
-  const payload = {
-    [PROFILES_INDEX_KEY]: normalizeProfilesIndex(index)
-  };
-  if (typeof activeId !== 'undefined') {
-    payload[ACTIVE_PROFILE_ID_KEY] = String(activeId || '').trim();
-  }
-  await storageSet(payload);
-}
-
-async function activateProfile(profileId) {
-  const id = String(profileId || '').trim();
-  const select = $('profileSelect');
-
-  if (!id) {
-    profileState.activeId = '';
-    await updateProfilesStorage(profileState.index, '');
-    renderProfileSelector();
-    setStatus('已切换到当前配置（未绑定）。', 'success');
-    setStatusDetails('');
-    return;
-  }
-
-  const key = getProfileStorageKey(id);
-  if (!key) return;
-
-  const items = await storageGet([key]);
-  const profileSettings = items?.[key] && typeof items[key] === 'object' ? items[key] : null;
-  if (!profileSettings) {
-    if (select) select.value = profileState.activeId || '';
-    setStatus('未找到该配置方案的数据，可能已被删除。', 'error');
-    return;
-  }
-
-  applySettingsToForm(profileSettings);
-  await persistSettings({ force: true, silentStatus: true, skipSuccessStatus: true });
-
-  profileState.activeId = id;
-  const now = new Date().toISOString();
-  profileState.index = upsertProfilesIndexEntry(profileState.index, Object.assign({}, findProfileIndexEntry(id) || { id, name: '未命名' }, {
-    id,
-    lastUsedAt: now,
-    providerPreset: profileSettings.providerPreset || '',
-    aiProvider: profileSettings.aiProvider || ''
-  }));
-
-  await updateProfilesStorage(profileState.index, id);
-  renderProfileSelector();
-  setStatus('已切换配置方案。', 'success');
-  setStatusDetails('');
-}
-
-async function createOrCloneProfile(name, settings, options = {}) {
-  const safeName = String(name || '').trim();
-  if (!safeName) return null;
-
-  const payloadSettings = Object.assign({}, settings || {});
-  const id = createProfileId();
-  const now = new Date().toISOString();
-  const key = getProfileStorageKey(id);
-  if (!key) return null;
-
-  const entry = {
-    id,
-    name: safeName,
-    updatedAt: now,
-    lastUsedAt: now,
-    providerPreset: payloadSettings.providerPreset || '',
-    aiProvider: payloadSettings.aiProvider || ''
-  };
-
-  const nextIndex = upsertProfilesIndexEntry(profileState.index, entry, { prepend: true });
-  const nextActiveId = options.activate === false ? (profileState.activeId || '') : id;
-
-  await storageSet(Object.assign({
-    [key]: payloadSettings,
-    [PROFILES_INDEX_KEY]: nextIndex,
-    [ACTIVE_PROFILE_ID_KEY]: nextActiveId
-  }, options.writeSettings !== false ? payloadSettings : {}));
-
-  profileState.index = nextIndex;
-  profileState.activeId = nextActiveId;
-  renderProfileSelector();
-  return id;
-}
-
-function getModelsCacheKeyFromSettings(settings) {
-  const provider = String(settings?.aiProvider || '').trim().toLowerCase();
-  if (!provider) return '';
-
-  const baseUrl = normalizeBaseURLInput(settings?.aiBaseURL || '');
-  if (!baseUrl) return provider;
-
-  if (provider === 'openai') {
-    const root = UrlUtils?.stripOpenAiEndpointSuffix?.(baseUrl) || baseUrl;
-    return provider + '|' + String(root || '').toLowerCase();
-  }
-
-  if (provider === 'anthropic') {
-    const root = UrlUtils?.stripAnthropicMessagesSuffix?.(baseUrl) || baseUrl;
-    return provider + '|' + String(root || '').toLowerCase();
-  }
-
-  return provider + '|' + String(baseUrl || '').toLowerCase();
-}
-
-function renderModelOptions(models, meta = {}) {
-  const datalist = $('modelNameOptions');
-  if (!datalist) return;
-
-  datalist.innerHTML = '';
-  const ids = Array.isArray(models) ? models.map((item) => (typeof item === 'string' ? item : item?.id)).filter(Boolean) : [];
-  ids.forEach((id) => {
-    const option = document.createElement('option');
-    option.value = String(id);
-    datalist.appendChild(option);
-  });
-
-  const hint = $('modelListHint');
-  if (!hint) return;
-
-  if (!ids.length) {
-    hint.textContent = meta.message || '';
-    return;
-  }
-
-  const fetchedAt = meta.fetchedAt ? formatDateTime(meta.fetchedAt) : '';
-  hint.textContent = fetchedAt ? `已加载 ${ids.length} 个模型（${fetchedAt}）。` : `已加载 ${ids.length} 个模型。`;
-}
-
-async function loadCachedModelOptions(settings) {
-  try {
-    const cacheKey = getModelsCacheKeyFromSettings(settings);
-    if (!cacheKey) return;
-
-    const items = await storageLocalGet([MODELS_CACHE_STORAGE_KEY]);
-    const cache = items?.[MODELS_CACHE_STORAGE_KEY];
-    const entry = cache && typeof cache === 'object' ? cache?.[cacheKey] : null;
-    const models = Array.isArray(entry?.models) ? entry.models : [];
-    if (!models.length) return;
-
-    renderModelOptions(models, { fetchedAt: entry?.fetchedAt || '' });
-  } catch {
-    // Ignore local cache failures.
-  }
-}
-
-async function refreshModelOptions(options = {}) {
-  const button = $('refreshModelsBtn');
-  if (button) {
-    button.disabled = true;
-    button.textContent = '刷新中...';
-  }
-
-  try {
-    await persistSettings({ skipSuccessStatus: true, silentStatus: true });
-    const settings = collectSettings();
-
-    if (!settings.apiKey) {
-      renderModelOptions([], { message: '请先填写 API Key 后再刷新模型列表。' });
-      return;
-    }
-
-    if (settings.aiBaseURL && !validateBaseURL(settings.aiBaseURL)) {
-      renderModelOptions([], { message: BASE_URL_INVALID_MESSAGE });
-      return;
-    }
-
-    const credentialValidation = getProviderCredentialValidation(settings);
-    if (!credentialValidation.valid) {
-      renderModelOptions([], { message: credentialValidation.message });
-      return;
-    }
-
-    const response = await runtimeSendMessage({ action: 'listModels', settings });
-    if (!response.success) {
-      renderModelOptions([], { message: '模型列表获取失败：' + getRuntimeErrorMessage(response.error) });
-      return;
-    }
-
-    renderModelOptions(response.models || [], { fetchedAt: response.fetchedAt || '' });
-  } finally {
-    if (button) {
-      button.disabled = false;
-      button.textContent = '刷新';
-    }
-  }
 }
 
 function clearAutoSaveTimer() {
@@ -1027,7 +192,7 @@ async function persistSettings(options = {}) {
   syncThemePaletteControl(settings.themePalette);
 
   if (!options.silentStatus) {
-    setStatus(options.statusText || '正在自动保存...');
+    setStatus(options.statusText || I18n.get('popup_autosaving'));
   }
 
   try {
@@ -1041,7 +206,7 @@ async function persistSettings(options = {}) {
       }
 
       const now = new Date().toISOString();
-      const existingEntry = findProfileIndexEntry(activeProfileId) || { id: activeProfileId, name: '未命名' };
+      const existingEntry = findProfileIndexEntry(activeProfileId) || { id: activeProfileId, name: I18n.get('popup_unnamed_profile') };
       profileState.index = upsertProfilesIndexEntry(profileState.index, Object.assign({}, existingEntry, {
         updatedAt: now,
         providerPreset: settings.providerPreset || '',
@@ -1058,7 +223,7 @@ async function persistSettings(options = {}) {
     if (requestId === saveState.requestId && !options.skipSuccessStatus) {
       const credentialValidation = getProviderCredentialValidation(settings);
       if (settings.aiBaseURL && !validateBaseURL(settings.aiBaseURL)) {
-        setStatus(BASE_URL_INVALID_MESSAGE, 'warning');
+        setStatus(baseUrlInvalidMessage(), 'warning');
       } else if (!credentialValidation.valid) {
         setStatus(credentialValidation.message, 'warning');
       } else {
@@ -1069,7 +234,7 @@ async function persistSettings(options = {}) {
     return true;
   } catch (error) {
     if (requestId === saveState.requestId) {
-      setStatus(`保存失败：${String(error?.message || error || '未知错误')}`, 'error');
+      setStatus(I18n.get('popup_save_failed', [String(error?.message || error || I18n.get('popup_unknown_error'))]), 'error');
       setStatusDetails('');
     }
     return false;
@@ -1078,7 +243,7 @@ async function persistSettings(options = {}) {
 
 function scheduleAutoSave() {
   clearAutoSaveTimer();
-  setStatus(WAITING_AUTOSAVE_TEXT);
+  setStatus(waitingAutosaveText());
   saveState.timer = window.setTimeout(() => {
     persistSettings();
   }, Constants.AUTOSAVE_DEBOUNCE_MS);
@@ -1185,6 +350,8 @@ function applySettingsToForm(settings) {
   $('systemPrompt').value = safeSettings.systemPrompt || '';
   $('autoTranslate').checked = !!safeSettings.autoTranslate;
   $('defaultLanguage').value = safeSettings.defaultLanguage || 'zh';
+  $('uiLanguage').value = normalizeUiLanguage(safeSettings.uiLanguage);
+  $('chunkConcurrency').value = String(normalizeChunkConcurrency(safeSettings.chunkConcurrency));
   $('themePreference').value = themePreference;
   $('themePalette').value = themePalette;
   $('sidebarCompactMode').checked = !!safeSettings.sidebarCompactMode;
@@ -1217,7 +384,7 @@ async function loadSettings() {
 
   renderProfileSelector();
   applySettingsToForm(items);
-  setStatus(IDLE_STATUS_TEXT);
+  setStatus(idleStatusText());
   setStatusDetails('');
 
   await loadCachedModelOptions(collectSettings());
@@ -1227,7 +394,7 @@ function handleSave(event) {
   event.preventDefault();
   persistSettings({
     force: true,
-    statusText: '正在保存设置...'
+    statusText: I18n.get('popup_saving_settings')
   });
 }
 
@@ -1239,12 +406,12 @@ async function handleTestConnection() {
 
   const settings = collectSettings();
   if (!settings.apiKey) {
-    setStatus('请先填写 API Key。', 'error');
+    setStatus(I18n.get('popup_need_api_key'), 'error');
     return;
   }
 
   if (settings.aiBaseURL && !validateBaseURL(settings.aiBaseURL)) {
-    setStatus(BASE_URL_INVALID_MESSAGE, 'error');
+    setStatus(baseUrlInvalidMessage(), 'error');
     return;
   }
 
@@ -1256,26 +423,26 @@ async function handleTestConnection() {
 
   const button = $('testBtn');
   button.disabled = true;
-  button.textContent = '测试中...';
-  setStatus('正在测试连接...');
+  button.textContent = I18n.get('popup_testing');
+  setStatus(I18n.get('popup_testing_connection'));
 
   const response = await runtimeSendMessage({ action: 'testConnection', settings });
   button.disabled = false;
-  button.textContent = '测试连接';
+  button.textContent = I18n.get('popup_test_btn');
 
   if (response.success) {
     const diag = response.diagnostics || {};
-    const model = diag?.model || settings.modelName || '默认模型';
+    const model = diag?.model || settings.modelName || I18n.get('popup_default_model');
     const extras = [];
 
     if (diag?.requestedEndpointMode === 'auto' && diag?.autoEndpointSelected) {
       extras.push(`endpoint=${diag.autoEndpointSelected}`);
     }
     if (diag?.autoBaseUrlSaved && typeof diag?.autoBaseUrlAppliedV1 === 'boolean') {
-      extras.push(diag.autoBaseUrlAppliedV1 ? '已自动补齐 /v1' : '已自动去除 /v1');
+      extras.push(diag.autoBaseUrlAppliedV1 ? I18n.get('popup_auto_v1_added') : I18n.get('popup_auto_v1_removed'));
     }
 
-    setStatus(`连接成功，当前模型：${model}${extras.length ? `（${extras.join('，')}）` : ''}`, 'success');
+    setStatus(I18n.get('popup_connected', [model, extras.length ? I18n.get('popup_extras_joined', [extras.join('，')]) : '']), 'success');
     setStatusDetails('');
 
     // Best-effort: refresh model list after a successful connection test.
@@ -1288,279 +455,123 @@ async function handleTestConnection() {
 }
 
 async function openHistory() {
-  setStatus('正在打开当前页面的历史记录...');
+  setStatus(I18n.get('popup_opening_history'));
   const response = await runtimeSendMessage({ action: 'triggerHistory' });
   if (response.success) {
-    setStatus('已在当前页面打开历史记录。', 'success');
+    setStatus(I18n.get('popup_history_opened'), 'success');
     return;
   }
-  setStatus(getRuntimeErrorMessage(response.error) || '打开历史记录失败。', 'error');
+  setStatus(getRuntimeErrorMessage(response.error) || I18n.get('popup_history_open_failed'), 'error');
   setStatusDetails('');
 }
 
-async function loadEntrypointStatus(options = {}) {
-  const silent = !!options.silent;
-  if (!silent) {
-    setStatus('正在检查右键菜单和快捷键状态...');
-  }
+// ---- Controller wiring (popup/* modules) ---------------------------------
+// Controllers are created once at startup; destructured names keep every
+// call site below unchanged. Cross-controller deps use lazy wrappers to
+// avoid initialization-order cycles.
+const themeControlsController = YilanPopupThemeControls.createThemeControlsController({
+  $,
+  theme: Theme,
+  i18n: I18n
+});
+const {
+  renderThemeHint,
+  syncThemePreferenceControl,
+  renderPaletteHint,
+  setPaletteControlState,
+  syncThemePaletteControl
+} = themeControlsController;
 
-  const response = await runtimeSendMessage({ action: 'getEntrypointStatus' });
-  if (!response.success) {
-    if (!silent) {
-      setStatus(getRuntimeErrorMessage(response.error) || '入口状态检查失败。', 'error');
-      setStatusDetails('');
-    }
-    $('contextMenuDesc').textContent = '右键菜单状态获取失败。';
-    $('shortcutDesc').textContent = '快捷键状态获取失败。';
-    $('entrypointMeta').textContent = '请刷新扩展后重试。';
-    setBadge('contextMenuBadge', '失败', 'error');
-    setBadge('shortcutBadge', '失败', 'error');
-    return;
-  }
+const profilesController = YilanPopupProfiles.createProfilesController({
+  $,
+  i18n: I18n,
+  providerPresets: ProviderPresets,
+  storageGet,
+  storageSet,
+  storageRemove,
+  collectSettings,
+  applySettingsToForm,
+  persistSettings,
+  setStatus,
+  setStatusDetails
+});
+const {
+  PROFILES_INDEX_KEY,
+  ACTIVE_PROFILE_ID_KEY,
+  PROFILE_KEY_PREFIX,
+  profileState,
+  getProfileStorageKey,
+  normalizeProfilesIndex,
+  upsertProfilesIndexEntry,
+  removeProfilesIndexEntry,
+  findProfileIndexEntry,
+  renderProfileSelector,
+  renderProfileHint,
+  updateProfilesStorage,
+  activateProfile,
+  createOrCloneProfile
+} = profilesController;
+const bindProfileControls = profilesController.bindProfileControls;
 
-  renderEntrypointStatus(response.entrypoints);
-  if (!silent) {
-    setStatus('入口状态已刷新。', 'success');
-  }
-}
+const providerSelectionController = YilanPopupProviderSelection.createProviderSelectionController({
+  $,
+  i18n: I18n,
+  providerPresets: ProviderPresets,
+  normalizeBaseURLInput,
+  persistSettings,
+  collectSettings,
+  loadCachedModelOptions: (...args) => modelsController.loadCachedModelOptions(...args),
+  syncThemePreferenceControl,
+  syncThemePaletteControl
+});
+const {
+  inferPresetId,
+  inferEndpointMode,
+  renderPresetOptions,
+  syncSelectionState,
+  renderEndpointPreview,
+  updateHints
+} = providerSelectionController;
+const bindSelectionListeners = providerSelectionController.bindSelectionListeners;
 
-async function openShortcutSettings() {
-  setStatus('正在打开浏览器快捷键设置页...');
-  const response = await runtimeSendMessage({ action: 'openShortcutSettings' });
-  if (response.success) {
-    setStatus('已打开快捷键设置页。', 'success');
-    return;
-  }
-  setStatus(getRuntimeErrorMessage(response.error) || '打开快捷键设置页失败。', 'error');
-  setStatusDetails('');
-}
+const modelsController = YilanPopupModels.createModelsController({
+  $,
+  i18n: I18n,
+  urlUtils: UrlUtils,
+  storageLocalGet,
+  runtimeSendMessage,
+  collectSettings,
+  persistSettings,
+  validateBaseURL,
+  getProviderCredentialValidation,
+  getRuntimeErrorMessage,
+  formatDateTime,
+  updateHints: (...args) => providerSelectionController.updateHints(...args),
+  baseUrlInvalidMessage,
+  modelsCacheStorageKey: MODELS_CACHE_STORAGE_KEY
+});
+const {
+  renderModelOptions,
+  loadCachedModelOptions,
+  refreshModelOptions
+} = modelsController;
+const bindModelControls = modelsController.bindModelControls;
 
-function bindSelectionListeners() {
-  $('providerPreset').addEventListener('change', () => {
-    const presetId = $('providerPreset').value || 'custom';
-    const route = ProviderPresets.getDefaultRoute(presetId);
-    syncSelectionState({
-      preferredRouteId: route?.routeId || '',
-      preferredProvider: route?.aiProvider || '',
-      preferredEndpointMode: route?.defaultEndpointMode || '',
-      syncSuggestedValues: true,
-      forceSuggestedValues: true
-    });
-    persistSettings();
-    loadCachedModelOptions(collectSettings());
-  });
-
-  $('providerRoute').addEventListener('change', () => {
-    const presetId = $('providerPreset').value || 'custom';
-    const route = ProviderPresets.getProviderRoute(presetId, $('providerRoute').value);
-    syncSelectionState({
-      preferredRouteId: route?.routeId || '',
-      preferredProvider: route?.aiProvider || '',
-      preferredEndpointMode: route?.defaultEndpointMode || '',
-      syncSuggestedValues: true,
-      forceSuggestedValues: true
-    });
-    persistSettings();
-    loadCachedModelOptions(collectSettings());
-  });
-
-  $('aiProvider').addEventListener('change', () => {
-    const presetId = $('providerPreset').value || 'custom';
-    const provider = $('aiProvider').value;
-    const route = ProviderPresets.getDefaultRoute(presetId, provider);
-    syncSelectionState({
-      preferredRouteId: route?.routeId || '',
-      preferredProvider: provider,
-      preferredEndpointMode: route?.defaultEndpointMode || $('endpointMode').value,
-      syncSuggestedValues: true,
-      forceSuggestedValues: true
-    });
-    persistSettings();
-    loadCachedModelOptions(collectSettings());
-  });
-
-  $('endpointMode').addEventListener('change', () => {
-    syncSelectionState({ preferredEndpointMode: $('endpointMode').value });
-    persistSettings();
-    loadCachedModelOptions(collectSettings());
-  });
-
-  $('themePreference').addEventListener('change', () => {
-    syncThemePreferenceControl($('themePreference').value);
-    persistSettings();
-  });
-
-  document.querySelectorAll('[data-palette-option]').forEach((button) => {
-    button.addEventListener('click', () => {
-      syncThemePaletteControl(button.dataset.paletteOption);
-      persistSettings();
-    });
-  });
-}
-
-function bindProfileControls() {
-  const select = $('profileSelect');
-  const actionsBtn = $('profileActionsBtn');
-  const actionsMenu = $('profileActionsMenu');
-  let actionsMenuOpen = false;
-
-  function setActionsMenuOpen(nextOpen) {
-    if (!actionsBtn || !actionsMenu) return;
-    actionsMenuOpen = !!nextOpen;
-    actionsMenu.hidden = !actionsMenuOpen;
-    actionsBtn.setAttribute('aria-expanded', actionsMenuOpen ? 'true' : 'false');
-  }
-
-  if (actionsBtn && actionsMenu) {
-    setActionsMenuOpen(false);
-
-    actionsBtn.addEventListener('click', (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      setActionsMenuOpen(!actionsMenuOpen);
-    });
-
-    actionsMenu.addEventListener('click', (event) => {
-      const target = event.target;
-      if (!(target instanceof Element)) return;
-      if (!target.closest('button')) return;
-      setActionsMenuOpen(false);
-    });
-
-    document.addEventListener('click', (event) => {
-      if (!actionsMenuOpen) return;
-      const target = event.target;
-      if (!(target instanceof Element)) return;
-      if (actionsBtn.contains(target) || actionsMenu.contains(target)) return;
-      setActionsMenuOpen(false);
-    });
-
-    document.addEventListener('keydown', (event) => {
-      if (event.key !== 'Escape') return;
-      if (!actionsMenuOpen) return;
-      setActionsMenuOpen(false);
-      actionsBtn.focus();
-    });
-  }
-
-  if (select) {
-    select.addEventListener('change', () => {
-      setActionsMenuOpen(false);
-      activateProfile(select.value).catch((error) => {
-        setStatus(`切换配置失败：${String(error?.message || error || '未知错误')}`, 'error');
-        setStatusDetails('');
-      });
-    });
-  }
-
-  const newBtn = $('profileNewBtn');
-  if (newBtn) {
-    newBtn.addEventListener('click', () => {
-      setActionsMenuOpen(false);
-      const name = String(window.prompt('新建配置方案名称', '') || '').trim();
-      if (!name) return;
-      createOrCloneProfile(name, collectSettings(), { activate: true, writeSettings: true })
-        .then(() => {
-          setStatus(`已创建并切换到配置方案：${name}`, 'success');
-          setStatusDetails('');
-        })
-        .catch((error) => {
-          setStatus(`新建配置失败：${String(error?.message || error || '未知错误')}`, 'error');
-          setStatusDetails('');
-        });
-    });
-  }
-
-  const saveAsBtn = $('profileSaveAsBtn');
-  if (saveAsBtn) {
-    saveAsBtn.addEventListener('click', () => {
-      setActionsMenuOpen(false);
-      const baseName = findProfileIndexEntry(profileState.activeId)?.name || '配置方案';
-      const name = String(window.prompt('另存为配置方案名称', baseName + ' 副本') || '').trim();
-      if (!name) return;
-      createOrCloneProfile(name, collectSettings(), { activate: true, writeSettings: true })
-        .then(() => {
-          setStatus(`已另存为并切换到配置方案：${name}`, 'success');
-          setStatusDetails('');
-        })
-        .catch((error) => {
-          setStatus(`另存为失败：${String(error?.message || error || '未知错误')}`, 'error');
-          setStatusDetails('');
-        });
-    });
-  }
-
-  const renameBtn = $('profileRenameBtn');
-  if (renameBtn) {
-    renameBtn.addEventListener('click', () => {
-      setActionsMenuOpen(false);
-      const activeId = profileState.activeId || '';
-      const entry = findProfileIndexEntry(activeId);
-      if (!activeId || !entry) return;
-
-      const nextName = String(window.prompt('重命名配置方案', entry.name) || '').trim();
-      if (!nextName || nextName === entry.name) return;
-
-      const nextIndex = upsertProfilesIndexEntry(profileState.index, Object.assign({}, entry, { name: nextName }));
-      updateProfilesStorage(nextIndex, activeId)
-        .then(() => {
-          profileState.index = nextIndex;
-          renderProfileSelector();
-          setStatus('已重命名配置方案。', 'success');
-          setStatusDetails('');
-        })
-        .catch((error) => {
-          setStatus(`重命名失败：${String(error?.message || error || '未知错误')}`, 'error');
-          setStatusDetails('');
-        });
-    });
-  }
-
-  const deleteBtn = $('profileDeleteBtn');
-  if (deleteBtn) {
-    deleteBtn.addEventListener('click', () => {
-      setActionsMenuOpen(false);
-      const activeId = profileState.activeId || '';
-      const entry = findProfileIndexEntry(activeId);
-      if (!activeId || !entry) return;
-      if (!window.confirm(`确定删除配置方案「${entry.name}」吗？`)) return;
-
-      const key = getProfileStorageKey(activeId);
-      const nextIndex = removeProfilesIndexEntry(profileState.index, activeId);
-
-      Promise.resolve()
-        .then(() => (key ? storageRemove([key]) : null))
-        .then(() => updateProfilesStorage(nextIndex, ''))
-        .then(() => {
-          profileState.index = nextIndex;
-          profileState.activeId = '';
-          renderProfileSelector();
-          setStatus('已删除配置方案，当前配置已解除绑定。', 'success');
-          setStatusDetails('');
-        })
-        .catch((error) => {
-          setStatus(`删除失败：${String(error?.message || error || '未知错误')}`, 'error');
-          setStatusDetails('');
-        });
-    });
-  }
-}
-
-function bindModelControls() {
-  const refreshBtn = $('refreshModelsBtn');
-  if (refreshBtn) {
-    refreshBtn.addEventListener('click', () => {
-      refreshModelOptions().catch((error) => {
-        renderModelOptions([], { message: '模型列表获取失败：' + String(error?.message || error || '未知错误') });
-      });
-    });
-  }
-
-  const modelField = $('modelName');
-  if (modelField) {
-    modelField.addEventListener('input', updateHints);
-  }
-}
+const entrypointsViewController = YilanPopupEntrypointsView.createEntrypointsViewController({
+  $,
+  i18n: I18n,
+  runtimeSendMessage,
+  setStatus,
+  setStatusDetails,
+  setBadge,
+  getRuntimeErrorMessage,
+  formatDateTime
+});
+const {
+  renderEntrypointStatus,
+  loadEntrypointStatus,
+  openShortcutSettings
+} = entrypointsViewController;
 
 window.addEventListener('DOMContentLoaded', () => {
   renderPresetOptions();
@@ -1597,10 +608,10 @@ window.addEventListener('DOMContentLoaded', () => {
   });
 
   loadSettings().catch((error) => {
-    setStatus(String(error?.message || error || '设置加载失败。'), 'error');
+    setStatus(String(error?.message || error || I18n.get('popup_settings_load_failed')), 'error');
   });
   loadEntrypointStatus({ silent: true }).catch((error) => {
-    setStatus(String(error?.message || error || '入口状态检查失败。'), 'error');
+    setStatus(String(error?.message || error || I18n.get('popup_entrypoint_check_failed')), 'error');
   });
 
   $('settingsForm').addEventListener('submit', handleSave);
@@ -1608,10 +619,20 @@ window.addEventListener('DOMContentLoaded', () => {
   $('historyBtn').addEventListener('click', openHistory);
   $('refreshEntrypointsBtn').addEventListener('click', () => {
     loadEntrypointStatus().catch((error) => {
-      setStatus(String(error?.message || error || '入口状态检查失败。'), 'error');
+      setStatus(String(error?.message || error || I18n.get('popup_entrypoint_check_failed')), 'error');
     });
   });
   $('shortcutSettingsBtn').addEventListener('click', openShortcutSettings);
+
+  // YilanI18n dispatches this after the uiLanguage override resolves or the
+  // setting changes; repaint live copy that is not covered by data-i18n.
+  document.addEventListener('yilan-locale-changed', () => {
+    renderEndpointPreview();
+    const testButton = $('testBtn');
+    if (testButton && testButton.disabled) return;
+    setStatus(idleStatusText());
+    setStatusDetails('');
+  });
 });
 
 document.addEventListener('visibilitychange', () => {

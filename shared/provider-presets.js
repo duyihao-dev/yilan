@@ -1,5 +1,13 @@
 (function (global) {
   const Catalog = global.AISummaryProviderCatalog || (typeof require === 'function' ? require('./provider-catalog.generated.js') : null);
+  // Resolved lazily so key-rule messages follow the runtime uiLanguage override.
+  const I18n = () => global.YilanI18n || (typeof require === 'function' ? require('./i18n.js') : null);
+
+  function catalogMessage(key, fallback) {
+    const i18n = I18n();
+    const message = i18n ? i18n.get(key) : '';
+    return message || fallback;
+  }
 
   const FALLBACK_ENDPOINT_MODE_META = {
     auto: { label: '自动判断', description: '按 Base URL 试探最终接口。' },
@@ -199,9 +207,13 @@ function getProviderProfile(presetId, provider) {
     const rule = route?.keyRule;
 
     if (rule?.prefix && !key.startsWith(rule.prefix)) {
+      const ruleKey = route?.routeId
+        ? 'provider_route_' + String(route.routeId).replace(/-/g, '_') + '_key_rule'
+        : '';
+      const message = ruleKey ? catalogMessage(ruleKey, rule.message) : rule.message;
       return {
         valid: false,
-        message: rule.message || `当前地址需要 ${rule.prefix} 开头的 API Key。`
+        message: message || `当前地址需要 ${rule.prefix} 开头的 API Key。`
       };
     }
 

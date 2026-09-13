@@ -3,10 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>一览设置</title>
+  <title data-i18n="popup_title">一览设置</title>
   <script src="shared/theme.js"></script>
   <script src="shared/version.js"></script>
   <script src="shared/ui-format.js"></script>
+  <script src="shared/i18n.js"></script>
   <script src="shared/ui-labels.js"></script>
   <style>
     :root {
@@ -575,7 +576,7 @@
   </div>
 
   <form id="settingsForm" novalidate>
-    <div class="tabs" role="tablist" aria-label="设置分组">
+    <div class="tabs" role="tablist" aria-label="设置分组" data-i18n-aria-label="popup_tab_groups_aria">
       <button
         type="button"
         class="tab active"
@@ -584,6 +585,7 @@
         role="tab"
         aria-selected="true"
         aria-controls="panel-connection"
+        data-i18n="popup_tab_connection"
       >连接</button>
       <button
         type="button"
@@ -593,6 +595,7 @@
         role="tab"
         aria-selected="false"
         aria-controls="panel-preferences"
+        data-i18n="popup_tab_preferences"
       >偏好</button>
       <button
         type="button"
@@ -602,10 +605,11 @@
         role="tab"
         aria-selected="false"
         aria-controls="panel-entrypoints"
+        data-i18n="popup_tab_entrypoints"
       >入口</button>
     </div>
 
-    <div class="autosave-note">设置变更后会自动保存。文本输入会在停顿后保存，离开输入框时也会立即保存。</div>
+    <div class="autosave-note" data-i18n="popup_autosave_note">设置变更后会自动保存。文本输入会在停顿后保存，离开输入框时也会立即保存。</div>
 
     <section
       class="tab-panel active"
@@ -615,10 +619,10 @@
       aria-labelledby="tab-connection"
     >
       <div class="card connection-card">
-        <div class="card-title">模型连接</div>
+        <div class="card-title" data-i18n="popup_card_model_connection">模型连接</div>
 
         <div class="field">
-          <label for="providerPreset">服务商</label>
+          <label for="providerPreset" data-i18n="popup_label_provider">服务商</label>
           <select id="providerPreset"></select>
           <div id="presetHint" class="hint"></div>
         </div>
@@ -626,45 +630,45 @@
         <div class="field">
           <label for="apiKey">API Key</label>
           <input id="apiKey" type="password" placeholder="sk-..." autocomplete="off" data-autosave="debounced">
-          <div id="apiKeyHint" class="hint">填写所选服务商的 API Key。</div>
+          <div id="apiKeyHint" class="hint" data-i18n="popup_api_key_hint_default">填写所选服务商的 API Key。</div>
           <details class="inline-help">
-            <summary>密钥存储说明</summary>
-            <div>API Key 会通过 Chrome 同步存储，可能同步到你的 Google 账号。如有顾虑，请在 Chrome 设置中关闭同步，或仅在不开启同步的浏览器配置中使用。</div>
+            <summary data-i18n="popup_key_storage_summary">密钥存储说明</summary>
+            <div data-i18n="popup_key_storage_detail">API Key 会通过 Chrome 同步存储，可能同步到你的 Google 账号。如有顾虑，请在 Chrome 设置中关闭同步，或仅在不开启同步的浏览器配置中使用。</div>
           </details>
         </div>
 
         <div class="field">
-          <label for="modelName">模型</label>
+          <label for="modelName" data-i18n="popup_label_model">模型</label>
           <div class="inline-row">
             <input id="modelName" type="text" placeholder="gpt-4o-mini" data-autosave="debounced" list="modelNameOptions">
-            <button type="button" id="refreshModelsBtn">刷新</button>
+            <button type="button" id="refreshModelsBtn" data-i18n="popup_refresh_models_btn">刷新</button>
           </div>
           <datalist id="modelNameOptions"></datalist>
           <div id="modelListHint" class="hint"></div>
         </div>
 
         <details id="advancedConnectionSettings" class="advanced-settings">
-          <summary>高级设置</summary>
+          <summary data-i18n="popup_advanced_settings">高级设置</summary>
           <div class="field">
-            <label for="providerRoute">接口地址</label>
+            <label for="providerRoute" data-i18n="popup_label_provider_route">接口地址</label>
             <select id="providerRoute"></select>
             <div id="routeHint" class="hint"></div>
           </div>
           <div class="field">
-            <label for="baseURL">自定义 Base URL</label>
-            <input id="baseURL" type="text" placeholder="留空使用推荐地址" data-autosave="debounced">
+            <label for="baseURL" data-i18n="popup_label_base_url">自定义 Base URL</label>
+            <input id="baseURL" type="text" placeholder="留空使用推荐地址" data-autosave="debounced" data-i18n-placeholder="popup_base_url_placeholder_route">
             <div id="baseURLHint" class="hint"></div>
             <div id="endpointPreview" class="endpoint-preview"></div>
           </div>
           <div class="field">
-            <label for="aiProvider">协议类型</label>
+            <label for="aiProvider" data-i18n="popup_label_ai_provider">协议类型</label>
             <select id="aiProvider">
-              <option value="openai">OpenAI / OpenAI 兼容接口</option>
-              <option value="anthropic">Anthropic / Claude 兼容接口</option>
+              <option value="openai" data-i18n="popup_provider_openai">OpenAI / OpenAI 兼容接口</option>
+              <option value="anthropic" data-i18n="popup_provider_anthropic">Anthropic / Claude 兼容接口</option>
             </select>
           </div>
           <div class="field">
-            <label for="endpointMode">接口模式</label>
+            <label for="endpointMode" data-i18n="popup_label_endpoint_mode">接口模式</label>
             <select id="endpointMode"></select>
             <div id="endpointModeHint" class="hint"></div>
           </div>
@@ -672,12 +676,12 @@
         </details>
 
         <div class="btn-row single connection-actions">
-          <button type="button" id="testBtn" class="primary">测试连接</button>
+          <button type="button" id="testBtn" class="primary" data-i18n="popup_test_btn">测试连接</button>
         </div>
 
         <div class="connection-profiles">
           <div class="field">
-            <label for="profileSelect">配置方案</label>
+            <label for="profileSelect" data-i18n="popup_label_profiles">配置方案</label>
             <div class="inline-row">
               <select id="profileSelect"></select>
               <button
@@ -688,6 +692,8 @@
                 aria-label="管理配置方案"
                 aria-expanded="false"
                 aria-controls="profileActionsMenu"
+                data-i18n-title="popup_manage_profiles"
+                data-i18n-aria-label="popup_manage_profiles"
               >
                 <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                   <circle cx="12" cy="5" r="1.8"></circle>
@@ -697,10 +703,10 @@
               </button>
             </div>
             <div id="profileActionsMenu" class="profile-actions-menu" hidden>
-              <button type="button" id="profileNewBtn">新建配置方案</button>
-              <button type="button" id="profileSaveAsBtn">另存为…</button>
-              <button type="button" id="profileRenameBtn">重命名…</button>
-              <button type="button" id="profileDeleteBtn" class="danger">删除</button>
+              <button type="button" id="profileNewBtn" data-i18n="popup_profile_new_btn">新建配置方案</button>
+              <button type="button" id="profileSaveAsBtn" data-i18n="popup_profile_save_as_btn">另存为…</button>
+              <button type="button" id="profileRenameBtn" data-i18n="popup_profile_rename_btn">重命名…</button>
+              <button type="button" id="profileDeleteBtn" class="danger" data-i18n="popup_profile_delete_btn">删除</button>
             </div>
             <div id="profileHint" class="hint"></div>
           </div>
@@ -717,24 +723,25 @@
       hidden
     >
       <div class="card">
-        <div class="card-title">产品行为</div>
+        <div class="card-title" data-i18n="popup_card_behaviors">产品行为</div>
         <div class="field">
-          <label for="systemPrompt">额外系统要求</label>
+          <label for="systemPrompt" data-i18n="popup_label_system_prompt">额外系统要求</label>
           <textarea
             id="systemPrompt"
             placeholder="可选，这里的内容会追加到摘要提示词之前。"
             data-autosave="debounced"
+            data-i18n-placeholder="popup_system_prompt_placeholder"
           ></textarea>
         </div>
         <div class="toggle-row">
           <div>
-            <span class="toggle-title">自动翻译输出</span>
-            <span class="toggle-desc">根据默认语言自动切换摘要输出语言。</span>
+            <span class="toggle-title" data-i18n="popup_toggle_auto_translate_title">自动翻译输出</span>
+            <span class="toggle-desc" data-i18n="popup_toggle_auto_translate_desc">根据默认语言自动切换摘要输出语言。</span>
           </div>
           <input id="autoTranslate" type="checkbox" data-autosave="immediate">
         </div>
         <div class="field">
-          <label for="defaultLanguage">默认输出语言</label>
+          <label for="defaultLanguage" data-i18n="popup_label_default_language">默认输出语言</label>
           <select id="defaultLanguage" data-autosave="immediate">
             <option value="zh">中文</option>
             <option value="en">English</option>
@@ -743,21 +750,39 @@
             <option value="fr">Français</option>
           </select>
         </div>
+        <div class="field">
+          <label for="chunkConcurrency" data-i18n="popup_label_chunk_concurrency">分段并发数</label>
+          <select id="chunkConcurrency" data-autosave="immediate">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+          </select>
+          <div class="hint" data-i18n="popup_chunk_concurrency_hint">长文分段摘要的并行请求数；1 为逐段串行，默认 2，网关限流严格时可调低。</div>
+        </div>
       </div>
 
       <div class="card">
-        <div class="card-title">界面外观</div>
+        <div class="card-title" data-i18n="popup_card_appearance">界面外观</div>
         <div class="field">
-          <label for="themePreference">明暗模式</label>
-          <select id="themePreference">
-            <option value="system">自动跟随系统</option>
-            <option value="light">固定浅色</option>
-            <option value="dark">固定深色</option>
+          <label for="uiLanguage" data-i18n="popup_label_ui_language">界面语言</label>
+          <select id="uiLanguage" data-autosave="immediate">
+            <option value="auto" data-i18n="popup_ui_language_auto">跟随浏览器</option>
+            <option value="zh" data-i18n="popup_ui_language_zh">中文</option>
+            <option value="en" data-i18n="popup_ui_language_en">English</option>
           </select>
-          <div id="themeHint" class="hint">会根据系统明暗模式自动切换 popup 和侧栏主题。</div>
         </div>
         <div class="field">
-          <div id="themePaletteLabel" class="field-label">色彩方案</div>
+          <label for="themePreference" data-i18n="popup_label_theme_preference">明暗模式</label>
+          <select id="themePreference">
+            <option value="system" data-i18n="popup_theme_system">自动跟随系统</option>
+            <option value="light" data-i18n="popup_theme_light">固定浅色</option>
+            <option value="dark" data-i18n="popup_theme_dark">固定深色</option>
+          </select>
+          <div id="themeHint" class="hint" data-i18n="popup_theme_hint_default">会根据系统明暗模式自动切换 popup 和侧栏主题。</div>
+        </div>
+        <div class="field">
+          <div id="themePaletteLabel" class="field-label" data-i18n="popup_label_palette">色彩方案</div>
           <input id="themePalette" type="hidden" value="jade">
           <div id="themePaletteGroup" class="palette-grid" role="radiogroup" aria-labelledby="themePaletteLabel">
             <button type="button" class="palette-option palette-option--jade" data-palette-option="jade" role="radio" aria-checked="true">
@@ -765,8 +790,8 @@
                 <span></span><span></span><span></span>
               </span>
               <span class="palette-copy">
-                <span class="palette-name">松石绿</span>
-                <span class="palette-desc">默认，清爽稳定</span>
+                <span class="palette-name" data-i18n="popup_palette_jade_name">松石绿</span>
+                <span class="palette-desc" data-i18n="popup_palette_jade_desc">默认，清爽稳定</span>
               </span>
             </button>
             <button type="button" class="palette-option palette-option--slate" data-palette-option="slate" role="radio" aria-checked="false">
@@ -774,8 +799,8 @@
                 <span></span><span></span><span></span>
               </span>
               <span class="palette-copy">
-                <span class="palette-name">雾蓝</span>
-                <span class="palette-desc">冷静，阅读感强</span>
+                <span class="palette-name" data-i18n="popup_palette_slate_name">雾蓝</span>
+                <span class="palette-desc" data-i18n="popup_palette_slate_desc">冷静，阅读感强</span>
               </span>
             </button>
             <button type="button" class="palette-option palette-option--copper" data-palette-option="copper" role="radio" aria-checked="false">
@@ -783,8 +808,8 @@
                 <span></span><span></span><span></span>
               </span>
               <span class="palette-copy">
-                <span class="palette-name">岩茶棕</span>
-                <span class="palette-desc">温润，不偏黄</span>
+                <span class="palette-name" data-i18n="popup_palette_copper_name">岩茶棕</span>
+                <span class="palette-desc" data-i18n="popup_palette_copper_desc">温润，不偏黄</span>
               </span>
             </button>
             <button type="button" class="palette-option palette-option--plum" data-palette-option="plum" role="radio" aria-checked="false">
@@ -792,42 +817,42 @@
                 <span></span><span></span><span></span>
               </span>
               <span class="palette-copy">
-                <span class="palette-name">檀紫</span>
-                <span class="palette-desc">克制，有品牌感</span>
+                <span class="palette-name" data-i18n="popup_palette_plum_name">檀紫</span>
+                <span class="palette-desc" data-i18n="popup_palette_plum_desc">克制，有品牌感</span>
               </span>
             </button>
           </div>
-          <div id="paletteHint" class="hint">色彩方案会同步到 popup、侧栏和阅读页。</div>
+          <div id="paletteHint" class="hint" data-i18n="popup_palette_hint_default">色彩方案会同步到 popup、侧栏和阅读页。</div>
         </div>
         <div class="toggle-row">
           <div>
-            <span class="toggle-title">侧栏默认精简模式</span>
-            <span class="toggle-desc">开启后，每次打开侧栏都会自动进入精简布局，优先把空间留给总结内容。</span>
+            <span class="toggle-title" data-i18n="popup_toggle_compact_title">侧栏默认精简模式</span>
+            <span class="toggle-desc" data-i18n="popup_toggle_compact_desc">开启后，每次打开侧栏都会自动进入精简布局，优先把空间留给总结内容。</span>
           </div>
           <input id="sidebarCompactMode" type="checkbox" data-autosave="immediate">
         </div>
       </div>
 
       <div class="card">
-        <div class="card-title">隐私与控制</div>
+        <div class="card-title" data-i18n="popup_card_privacy">隐私与控制</div>
         <div class="toggle-row">
           <div>
-            <span class="toggle-title">无痕模式</span>
-            <span class="toggle-desc">仍会把当前页面内容发送给模型，但不会写入本地历史记录。</span>
+            <span class="toggle-title" data-i18n="popup_toggle_privacy_title">无痕模式</span>
+            <span class="toggle-desc" data-i18n="popup_toggle_privacy_desc">仍会把当前页面内容发送给模型，但不会写入本地历史记录。</span>
           </div>
           <input id="privacyMode" type="checkbox" data-autosave="immediate">
         </div>
         <div class="toggle-row">
           <div>
-            <span class="toggle-title">默认写入历史</span>
-            <span class="toggle-desc">关闭后，新的总结结果只保留在当前侧栏，不进入历史记录。</span>
+            <span class="toggle-title" data-i18n="popup_toggle_history_title">默认写入历史</span>
+            <span class="toggle-desc" data-i18n="popup_toggle_history_desc">关闭后，新的总结结果只保留在当前侧栏，不进入历史记录。</span>
           </div>
           <input id="defaultAllowHistory" type="checkbox" data-autosave="immediate">
         </div>
         <div class="toggle-row">
           <div>
-            <span class="toggle-title">允许分享卡</span>
-            <span class="toggle-desc">控制长截图分享功能，分享卡会附带来源链接。</span>
+            <span class="toggle-title" data-i18n="popup_toggle_share_title">允许分享卡</span>
+            <span class="toggle-desc" data-i18n="popup_toggle_share_desc">控制长截图分享功能，分享卡会附带来源链接。</span>
           </div>
           <input id="defaultAllowShare" type="checkbox" data-autosave="immediate">
         </div>
@@ -843,64 +868,64 @@
       hidden
     >
       <div class="card">
-        <div class="card-title">快捷操作</div>
-        <div class="hint">右键菜单“用一览总结此页”或快捷键 <code>Alt + S</code> 可直接打开侧栏。</div>
+        <div class="card-title" data-i18n="popup_card_quick_actions">快捷操作</div>
+        <div class="hint"><span data-i18n="popup_quick_hint_prefix">右键菜单“用一览总结此页”或快捷键</span> <code>Alt + S</code> <span data-i18n="popup_quick_hint_suffix">可直接打开侧栏。</span></div>
         <div class="toggle-row">
           <div>
-            <span class="toggle-title">入口自动生成摘要</span>
-            <span class="toggle-desc">开启后，右键菜单或 Alt + S 会直接开始生成；关闭后只打开侧栏。</span>
+            <span class="toggle-title" data-i18n="popup_toggle_autostart_title">入口自动生成摘要</span>
+            <span class="toggle-desc" data-i18n="popup_toggle_autostart_desc">开启后，右键菜单或 Alt + S 会直接开始生成；关闭后只打开侧栏。</span>
           </div>
           <input id="entrypointAutoStart" type="checkbox" data-autosave="immediate">
         </div>
         <div class="toggle-row">
           <div>
-            <span class="toggle-title">入口默认简短总结</span>
-            <span class="toggle-desc">入口触发时默认使用更省 token 的简短模式。</span>
+            <span class="toggle-title" data-i18n="popup_toggle_simple_title">入口默认简短总结</span>
+            <span class="toggle-desc" data-i18n="popup_toggle_simple_desc">入口触发时默认使用更省 token 的简短模式。</span>
           </div>
           <input id="entrypointSimpleMode" type="checkbox" data-autosave="immediate">
         </div>
         <div class="toggle-row">
           <div>
-            <span class="toggle-title">优先显示本页历史摘要</span>
-            <span class="toggle-desc">如果当前页面已有已完成摘要，先直接展示最近一条记录，不自动重跑；仍可手动点击“重新生成”更新。</span>
+            <span class="toggle-title" data-i18n="popup_toggle_reuse_title">优先显示本页历史摘要</span>
+            <span class="toggle-desc" data-i18n="popup_toggle_reuse_desc">如果当前页面已有已完成摘要，先直接展示最近一条记录，不自动重跑；仍可手动点击“重新生成”更新。</span>
           </div>
           <input id="entrypointReuseHistory" type="checkbox" data-autosave="immediate">
         </div>
         <div class="btn-row single">
-          <button type="button" id="historyBtn">打开历史记录</button>
+          <button type="button" id="historyBtn" data-i18n="popup_history_btn">打开历史记录</button>
         </div>
       </div>
 
       <div class="card">
-        <div class="card-title">入口与快捷键</div>
+        <div class="card-title" data-i18n="popup_card_entrypoints">入口与快捷键</div>
         <div class="status-grid">
           <div class="status-row">
             <div class="status-row-main">
-              <span class="toggle-title">右键菜单</span>
-              <span id="contextMenuDesc" class="toggle-desc">正在检查菜单注册状态...</span>
+              <span class="toggle-title" data-i18n="popup_context_menu_title">右键菜单</span>
+              <span id="contextMenuDesc" class="toggle-desc" data-i18n="popup_context_menu_checking">正在检查菜单注册状态...</span>
             </div>
-            <span id="contextMenuBadge" class="status-badge">检查中</span>
+            <span id="contextMenuBadge" class="status-badge" data-i18n="popup_badge_checking">检查中</span>
           </div>
           <div class="status-row">
             <div class="status-row-main">
-              <span class="toggle-title">快捷键</span>
-              <span id="shortcutDesc" class="toggle-desc">正在检查快捷键绑定状态...</span>
+              <span class="toggle-title" data-i18n="popup_shortcut_title">快捷键</span>
+              <span id="shortcutDesc" class="toggle-desc" data-i18n="popup_shortcut_checking">正在检查快捷键绑定状态...</span>
             </div>
-            <span id="shortcutBadge" class="status-badge">检查中</span>
+            <span id="shortcutBadge" class="status-badge" data-i18n="popup_badge_checking">检查中</span>
           </div>
         </div>
-        <div id="entrypointMeta" class="status-meta">正在加载最近触发与修复信息...</div>
-        <div class="hint">如果按下 <code>Alt + S</code> 没有反应，可以重新检查入口并打开浏览器快捷键设置页确认绑定。</div>
+        <div id="entrypointMeta" class="status-meta" data-i18n="popup_entrypoint_meta_loading">正在加载最近触发与修复信息...</div>
+        <div class="hint"><span data-i18n="popup_shortcut_hint_prefix">如果按下</span> <code>Alt + S</code> <span data-i18n="popup_shortcut_hint_suffix">没有反应，可以重新检查入口并打开浏览器快捷键设置页确认绑定。</span></div>
         <div class="btn-row">
-          <button type="button" id="refreshEntrypointsBtn">检查入口</button>
-          <button type="button" id="shortcutSettingsBtn">快捷键设置</button>
+          <button type="button" id="refreshEntrypointsBtn" data-i18n="popup_refresh_entrypoints_btn">检查入口</button>
+          <button type="button" id="shortcutSettingsBtn" data-i18n="popup_shortcut_settings_btn">快捷键设置</button>
         </div>
       </div>
     </section>
 
-    <div id="status" class="status">设置修改后会自动保存。</div>
+    <div id="status" class="status" data-i18n="popup_idle_status">设置修改后会自动保存。</div>
     <details id="statusDetails" class="status-details" hidden>
-      <summary>错误详情</summary>
+      <summary data-i18n="popup_status_details_summary">错误详情</summary>
       <pre id="statusDetailsText"></pre>
     </details>
   </form>
@@ -911,6 +936,12 @@
   <script src="shared/provider-presets.js"></script>
   <script src="shared/constants.js"></script>
   <script src="shared/url-utils.js"></script>
+  <script src="shared/chrome-api.js"></script>
+  <script src="popup/theme-controls.js"></script>
+  <script src="popup/profiles.js"></script>
+  <script src="popup/provider-selection.js"></script>
+  <script src="popup/models.js"></script>
+  <script src="popup/entrypoints-view.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

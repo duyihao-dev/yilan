@@ -25,10 +25,10 @@
         </div>
       </div>
       <div class="topbar-actions">
-        <button id="readerBtn" class="topbar-chip-btn" title="在新标签页打开专注阅读" aria-label="在新标签页打开专注阅读">阅读</button>
-        <button id="historyBtn" class="topbar-chip-btn" title="打开历史与收藏" aria-label="打开历史与收藏">历史/收藏</button>
+        <button id="readerBtn" class="topbar-chip-btn" title="在新标签页打开专注阅读" aria-label="在新标签页打开专注阅读" data-i18n="sidebar_reader_btn" data-i18n-title="sidebar_reader_btn_title" data-i18n-aria-label="sidebar_reader_btn_title">阅读</button>
+        <button id="historyBtn" class="topbar-chip-btn" title="打开历史与收藏" aria-label="打开历史与收藏" data-i18n="sidebar_history_btn" data-i18n-title="sidebar_history_btn_title" data-i18n-aria-label="sidebar_history_btn_title">历史/收藏</button>
         <button id="themeBtn" class="theme-toggle-btn" title="切换明暗模式" aria-label="切换明暗模式">明暗：跟随系统</button>
-        <button id="closeBtn" class="icon-btn" title="关闭" aria-label="关闭">
+        <button id="closeBtn" class="icon-btn" title="关闭" aria-label="关闭" data-i18n-title="sidebar_close_title" data-i18n-aria-label="sidebar_close_title">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
             <line x1="18" y1="6" x2="6" y2="18"></line>
             <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -40,30 +40,30 @@
     <main class="workspace">
       <div class="context-grid">
         <section class="source-card">
-          <div class="source-eyebrow">来源信息</div>
-          <h1 id="articleTitle" class="article-title">等待页面内容</h1>
-          <a id="sourceLink" class="source-link" href="#" target="_blank" rel="noreferrer noopener">当前还没有载入页面链接</a>
+          <div class="source-eyebrow" data-i18n="sidebar_source_eyebrow">来源信息</div>
+          <h1 id="articleTitle" class="article-title" data-i18n="sidebar_waiting_content">等待页面内容</h1>
+          <a id="sourceLink" class="source-link" href="#" target="_blank" rel="noreferrer noopener" data-i18n="sidebar_no_source_link">当前还没有载入页面链接</a>
           <div class="badge-row">
-            <span id="hostBadge" class="badge">未识别站点</span>
-            <span id="siteTypeBadge" class="badge badge-accent">通用网页</span>
-            <span id="strategyBadge" class="badge badge-soft">通用精读</span>
-            <span id="modeBadge" class="badge badge-soft">标准总结</span>
+            <span id="hostBadge" class="badge" data-i18n="sidebar_unknown_host">未识别站点</span>
+            <span id="siteTypeBadge" class="badge badge-accent" data-i18n="sidebar_generic_page">通用网页</span>
+            <span id="strategyBadge" class="badge badge-soft" data-i18n="sidebar_generic_strategy">通用精读</span>
+            <span id="modeBadge" class="badge badge-soft" data-i18n="label_mode_medium">标准总结</span>
           </div>
           <div class="meta-grid">
             <div class="meta-item">
-              <span class="meta-label">作者</span>
+              <span class="meta-label" data-i18n="sidebar_meta_author">作者</span>
               <strong id="authorValue" class="meta-value">-</strong>
             </div>
             <div class="meta-item">
-              <span class="meta-label" title="发布时间">发布</span>
+              <span class="meta-label" title="发布时间" data-i18n="sidebar_meta_published" data-i18n-title="sidebar_meta_published_title">发布</span>
               <strong id="publishedValue" class="meta-value">-</strong>
             </div>
             <div class="meta-item">
-              <span class="meta-label" title="正文长度">字数</span>
+              <span class="meta-label" title="正文长度" data-i18n="sidebar_meta_length" data-i18n-title="sidebar_meta_length_title">字数</span>
               <strong id="lengthValue" class="meta-value">-</strong>
             </div>
             <div class="meta-item">
-              <span class="meta-label" title="分段策略">分段</span>
+              <span class="meta-label" title="分段策略" data-i18n="sidebar_meta_chunk" data-i18n-title="sidebar_meta_chunk_title">分段</span>
               <strong id="chunkValue" class="meta-value">-</strong>
             </div>
           </div>
@@ -71,34 +71,34 @@
         </section>
 
         <section class="trust-card">
-          <div class="source-eyebrow">可信与控制</div>
+          <div class="source-eyebrow" data-i18n="sidebar_trust_eyebrow">可信与控制</div>
           <div class="trust-header">
             <div>
-              <div id="trustTitle" class="trust-title">当前策略</div>
-              <div id="trustSummary" class="trust-summary">页面内容载入后，会按照当前策略决定是否写入历史和允许分享。</div>
+              <div id="trustTitle" class="trust-title" data-i18n="sidebar_trust_title">当前策略</div>
+              <div id="trustSummary" class="trust-summary" data-i18n="sidebar_trust_summary">页面内容载入后，会按照当前策略决定是否写入历史和允许分享。</div>
             </div>
-            <button id="privacyToggleBtn" class="action-btn trust-toggle-btn" type="button">开启无痕</button>
+            <button id="privacyToggleBtn" class="action-btn trust-toggle-btn" type="button" data-i18n="sidebar_privacy_enable">开启无痕</button>
           </div>
           <div class="badge-row trust-badges">
-            <span id="trustModeBadge" class="badge">标准模式</span>
-            <span id="trustHistoryBadge" class="badge">写入历史</span>
-            <span id="trustShareBadge" class="badge">允许分享</span>
+            <span id="trustModeBadge" class="badge" data-i18n="sidebar_trust_mode_standard">标准模式</span>
+            <span id="trustHistoryBadge" class="badge" data-i18n="sidebar_trust_history_on">写入历史</span>
+            <span id="trustShareBadge" class="badge" data-i18n="sidebar_trust_share_on">允许分享</span>
           </div>
           <div class="trust-grid">
             <div class="trust-item">
-              <span class="trust-label">发送到模型</span>
-              <strong id="trustSendValue" class="trust-value">等待页面内容</strong>
-              <div id="trustSendNote" class="trust-note">等当前页面内容载入后，才会发送标题、来源和正文到模型接口。</div>
+              <span class="trust-label" data-i18n="sidebar_trust_send_label">发送到模型</span>
+              <strong id="trustSendValue" class="trust-value" data-i18n="sidebar_waiting_content">等待页面内容</strong>
+              <div id="trustSendNote" class="trust-note" data-i18n="sidebar_trust_send_note">等当前页面内容载入后，才会发送标题、来源和正文到模型接口。</div>
             </div>
             <div class="trust-item">
-              <span class="trust-label">历史写入</span>
-              <strong id="trustHistoryValue" class="trust-value">待决定</strong>
-              <div id="trustHistoryNote" class="trust-note">页面载入后，生成结果会写入本地历史记录。</div>
+              <span class="trust-label" data-i18n="sidebar_trust_history_label">历史写入</span>
+              <strong id="trustHistoryValue" class="trust-value" data-i18n="sidebar_trust_pending">待决定</strong>
+              <div id="trustHistoryNote" class="trust-note" data-i18n="sidebar_trust_history_note">页面载入后，生成结果会写入本地历史记录。</div>
             </div>
             <div class="trust-item">
-              <span class="trust-label">分享卡</span>
-              <strong id="trustShareValue" class="trust-value">待决定</strong>
-              <div id="trustShareNote" class="trust-note">页面载入后，可以生成带来源链接的分享卡。</div>
+              <span class="trust-label" data-i18n="sidebar_trust_share_label">分享卡</span>
+              <strong id="trustShareValue" class="trust-value" data-i18n="sidebar_trust_pending">待决定</strong>
+              <div id="trustShareNote" class="trust-note" data-i18n="sidebar_trust_share_note">页面载入后，可以生成带来源链接的分享卡。</div>
             </div>
           </div>
         </section>
@@ -106,7 +106,7 @@
 
       <section class="controls-card">
         <div class="controls-row">
-          <span id="summaryModeFieldLabel" class="field-label">摘要模式</span>
+          <span id="summaryModeFieldLabel" class="field-label" data-i18n="sidebar_mode_label">摘要模式</span>
           <div class="mode-select-shell">
             <button
               id="summaryModeTrigger"
@@ -116,34 +116,34 @@
               aria-expanded="false"
               aria-labelledby="summaryModeFieldLabel summaryModeCurrentLabel"
             >
-              <span id="summaryModeCurrentLabel" class="mode-trigger-label">标准总结</span>
+              <span id="summaryModeCurrentLabel" class="mode-trigger-label" data-i18n="label_mode_medium">标准总结</span>
               <svg class="mode-trigger-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="M3.5 6 8 10.5 12.5 6"></path>
               </svg>
             </button>
-            <div id="summaryModeMenu" class="mode-menu hidden" role="listbox" aria-label="摘要模式"></div>
+            <div id="summaryModeMenu" class="mode-menu hidden" role="listbox" aria-label="摘要模式" data-i18n-aria-label="sidebar_mode_label"></div>
             <select id="summaryModeSelect" class="mode-select-native" tabindex="-1" aria-hidden="true"></select>
           </div>
         </div>
         <div class="action-row">
-          <button id="regenerateBtn" class="action-btn action-btn-primary">重新生成</button>
-          <button id="cancelBtn" class="action-btn">取消</button>
-          <button id="favoriteBtn" class="action-btn">加入收藏</button>
-          <button id="copyBtn" class="action-btn">复制</button>
-          <button id="shareBtn" class="action-btn">长截图</button>
-          <button id="exportBtn" class="action-btn">导出</button>
-          <select id="subtitleTrackSelect" class="subtitle-track-select" hidden aria-label="选择字幕轨道"></select>
-          <button id="subtitleExportBtn" class="action-btn" hidden>导出字幕</button>
+          <button id="regenerateBtn" class="action-btn action-btn-primary" data-i18n="sidebar_regenerate">重新生成</button>
+          <button id="cancelBtn" class="action-btn" data-i18n="sidebar_cancel">取消</button>
+          <button id="favoriteBtn" class="action-btn" data-i18n="sidebar_add_favorite">加入收藏</button>
+          <button id="copyBtn" class="action-btn" data-i18n="sidebar_copy">复制</button>
+          <button id="shareBtn" class="action-btn" data-i18n="sidebar_share">长截图</button>
+          <button id="exportBtn" class="action-btn" data-i18n="sidebar_export">导出</button>
+          <select id="subtitleTrackSelect" class="subtitle-track-select" hidden aria-label="选择字幕轨道" data-i18n-aria-label="sidebar_subtitle_track_aria"></select>
+          <button id="subtitleExportBtn" class="action-btn" hidden data-i18n="sidebar_export_subtitles">导出字幕</button>
         </div>
         <div class="secondary-inline">
           <div>
-            <div class="secondary-inline-label">继续生成</div>
-            <div class="secondary-title">基于当前摘要继续处理</div>
+            <div class="secondary-inline-label" data-i18n="sidebar_secondary_label">继续生成</div>
+            <div class="secondary-title" data-i18n="sidebar_secondary_title">基于当前摘要继续处理</div>
           </div>
           <div class="secondary-actions">
-            <button class="secondary-btn" data-mode="action_items">行动项</button>
-            <button class="secondary-btn" data-mode="glossary">术语表</button>
-            <button class="secondary-btn" data-mode="qa">问答卡片</button>
+            <button class="secondary-btn" data-mode="action_items" data-i18n="label_mode_action_items">行动项</button>
+            <button class="secondary-btn" data-mode="glossary" data-i18n="label_mode_glossary">术语表</button>
+            <button class="secondary-btn" data-mode="qa" data-i18n="label_mode_qa">问答卡片</button>
           </div>
         </div>
       </section>
@@ -151,8 +151,8 @@
       <section id="content" class="content-panel">
         <div id="summaryRoot" class="summary-root summary-placeholder">
           <div class="placeholder-icon">览</div>
-          <h2>准备开始总结</h2>
-          <p>右键当前页面选择“用一览总结此页”，或者使用快捷键 <kbd>Alt + S</kbd>。</p>
+          <h2 data-i18n="sidebar_placeholder_title">准备开始总结</h2>
+          <p><span data-i18n="sidebar_placeholder_body">右键当前页面选择“用一览总结此页”，或者使用快捷键</span> <kbd>Alt + S</kbd>。</p>
         </div>
       </section>
     </main>
@@ -160,10 +160,10 @@
     <aside id="historyPanel" class="history-panel hidden">
       <div class="history-header">
         <div>
-          <div class="source-eyebrow">总结记录</div>
-          <div class="history-title">历史与收藏</div>
+          <div class="source-eyebrow" data-i18n="sidebar_history_eyebrow">总结记录</div>
+          <div class="history-title" data-i18n="sidebar_history_title">历史与收藏</div>
         </div>
-        <button id="historyCloseBtn" class="icon-btn" aria-label="关闭历史面板">
+        <button id="historyCloseBtn" class="icon-btn" aria-label="关闭历史面板" data-i18n-aria-label="sidebar_history_close_aria">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
             <line x1="18" y1="6" x2="6" y2="18"></line>
             <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -171,10 +171,10 @@
         </button>
       </div>
       <div class="history-tools">
-        <input id="historySearch" class="history-search" type="search" placeholder="搜索标题、站点、模式、模型">
+        <input id="historySearch" class="history-search" type="search" placeholder="搜索标题、站点、模式、模型" data-i18n-placeholder="sidebar_history_search_placeholder">
         <label class="history-filter">
           <input id="favoritesOnly" type="checkbox">
-          <span>只看收藏</span>
+          <span data-i18n="sidebar_favorites_only">只看收藏</span>
         </label>
       </div>
       <div id="historySiteFilters" class="history-site-filters"></div>
@@ -182,12 +182,11 @@
     </aside>
 
     <footer class="footer">
-      <span id="statusText" class="status-text">就绪</span>
+      <span id="statusText" class="status-text" data-i18n="sidebar_ready">就绪</span>
       <div class="footer-meta">
-        <span id="statsText" class="stats-text"></span>
         <details id="diagnosticsBlock" class="diagnostics-card">
-          <summary id="diagnosticsToggle">运行诊断</summary>
-          <pre id="diagnosticsPre" class="diagnostics-pre">等待本次运行的诊断信息...</pre>
+          <summary id="diagnosticsToggle" data-i18n="sidebar_diagnostics_toggle">运行诊断</summary>
+          <pre id="diagnosticsPre" class="diagnostics-pre" data-i18n="sidebar_diagnostics_waiting">等待本次运行的诊断信息...</pre>
         </details>
       </div>
     </footer>
@@ -197,6 +196,7 @@
   <script src="shared/strings.js"></script>
   <script src="shared/page-strategy.js"></script>
   <script src="shared/abort-utils.js"></script>
+  <script src="shared/i18n.js"></script>
   <script src="shared/errors.js"></script>
   <script src="shared/article-utils.js"></script>
   <script src="shared/trust-policy.js"></script>
@@ -208,6 +208,8 @@
   <script src="shared/reader-view.js"></script>
   <script src="shared/history-view.js"></script>
   <script src="shared/sidebar-meta-view.js"></script>
+  <script src="shared/constants.js"></script>
+  <script src="shared/chrome-api.js"></script>
   <script src="libs/purify.min.js"></script>
   <script src="libs/marked.min.js"></script>
   <script src="libs/highlight.min.js"></script>

@@ -237,106 +237,130 @@
     return map[targetLanguage] || `请使用 ${targetLanguage} 输出。`;
   }
 
+  // Prompt locale chain: explicit target language (zh/en) wins, then the UI
+  // locale, then Chinese. Other output languages keep the zh/en prompt body
+  // plus the language instruction line above.
+  function resolvePromptLocale(targetLanguage, uiLocale) {
+    const ui = uiLocale
+      || (global.YilanI18n && typeof global.YilanI18n.getUILanguage === 'function' ? global.YilanI18n.getUILanguage() : '')
+      || 'zh';
+    return Strings.pickPromptLocale(targetLanguage, ui);
+  }
+
+  function resolvePromptStrategy(article, locale) {
+    if (locale === 'en') {
+      return PageStrategy.resolveStrategy({ sourceType: article?.sourceType, locale: 'en' });
+    }
+    return article?.sourceStrategy || PageStrategy.resolveStrategy({ sourceType: article?.sourceType });
+  }
+
   function buildMarkdownOutputGuidance(mode, options) {
     const includeTemplate = options?.includeTemplate !== false;
+    const glue = options?.glue || Strings.getPromptCatalog('zh').glue;
     return [
-      '# 输出格式要求',
-      Strings.MARKDOWN_OUTPUT_RULES || '',
-      includeTemplate && mode?.formatHint ? '# 推荐输出骨架\n' + mode.formatHint : ''
+      glue.markdownGuidanceTitle,
+      options?.markdownRules || '',
+      includeTemplate && mode?.formatHint ? glue.templateTitle + '\n' + mode.formatHint : ''
     ].filter(Boolean).join('\n\n');
   }
 
-  function buildChunkOutputGuidance() {
-    return [
-      '# 分段输出要求',
-      '请把当前分段压缩成便于后续汇总的中间结果。',
-      '- 只保留当前分段中最重要的信息，不要补全其它分段内容。',
-      '- 优先使用 3-6 条简洁要点；只有在确有必要时再加 1-2 个小标题。',
-      '- 如果当前分段主要是背景、过渡或例子，请用更短篇幅概括，不要硬凑结构。',
-      '- 不要重复文章标题，不要写前言，不要把整篇答案包在代码块里。'
-    ].join('\n');
+  function buildChunkOutputGuidance(glue) {
+    const g = glue || Strings.getPromptCatalog('zh').glue;
+    return [g.chunkGuidanceTitle].concat(g.chunkGuidanceLines).join('\n');
   }
 
   function buildPrimaryPrompt(options) {
+    const locale = resolvePromptLocale(options.targetLanguage, options.uiLocale);
+    const catalog = Strings.getPromptCatalog(locale);
+    const glue = catalog.glue;
     const modeKey = options.summaryMode || 'medium';
-    const mode = Strings.SUMMARY_MODES[modeKey] || Strings.SUMMARY_MODES.medium;
+    const mode = catalog.modes[modeKey] || catalog.modes.medium;
     const article = options.article;
-    const strategy = article?.sourceStrategy || PageStrategy.resolveStrategy({ sourceType: article?.sourceType });
+    const strategy = resolvePromptStrategy(article, locale);
     const languageInstruction = buildLanguageInstruction(options.targetLanguage);
 
     return [
       mode.prompt,
       languageInstruction,
-      buildMarkdownOutputGuidance(mode),
-      '请尽量保留文章的结构和关键事实，避免空泛表述。',
+      buildMarkdownOutputGuidance(mode, { glue, markdownRules: catalog.markdownRules }),
+      glue.primaryKeep,
       strategy.promptFocus,
-      '# 页面上下文\n' + buildStrategyHints(article),
-      `# 标题\n${article.title}`,
-      article.subtitle ? `# 摘要说明\n${article.subtitle}` : '',
-      '# 正文\n' + (article.cleanText || article.content || '')
+      glue.contextTitle + '\n' + buildStrategyHints(article),
+      `${glue.titleHeader}\n${article.title}`,
+      article.subtitle ? `${glue.subtitleHeader}\n${article.subtitle}` : '',
+      `${glue.contentHeader}\n` + (article.cleanText || article.content || '')
     ].filter(Boolean).join('\n\n');
   }
 
   function buildChunkPrompt(options) {
+    const locale = resolvePromptLocale(options.targetLanguage, options.uiLocale);
+    const catalog = Strings.getPromptCatalog(locale);
+    const glue = catalog.glue;
     const modeKey = options.summaryMode || 'medium';
-    const mode = Strings.SUMMARY_MODES[modeKey] || Strings.SUMMARY_MODES.medium;
+    const mode = catalog.modes[modeKey] || catalog.modes.medium;
     const article = options.article;
     const chunk = options.chunk;
-    const strategy = article?.sourceStrategy || PageStrategy.resolveStrategy({ sourceType: article?.sourceType });
+    const strategy = resolvePromptStrategy(article, locale);
     const languageInstruction = buildLanguageInstruction(options.targetLanguage);
 
     return [
-      '你正在帮助总结一篇长网页，这是其中一个分段。',
+      glue.chunkIntro,
       mode.prompt,
       languageInstruction,
-      buildChunkOutputGuidance(),
+      buildChunkOutputGuidance(glue),
       strategy.chunkPromptFocus,
-      '请只总结当前分段，并保留该分段中最关键的信息，避免重复其它分段可能出现的背景信息。',
-      `页面策略: ${strategy.label}`,
-      `当前分段: ${chunk.index + 1}/${article.chunkCount}`,
-      `文章标题: ${article.title}`,
-      '# 当前分段正文\n' + chunk.content
+      glue.chunkKeep,
+      `${glue.strategyLabel}: ${strategy.label}`,
+      `${glue.currentChunk}: ${chunk.index + 1}/${article.chunkCount}`,
+      `${glue.articleTitle}: ${article.title}`,
+      `${glue.chunkContentHeader}\n` + chunk.content
     ].filter(Boolean).join('\n\n');
   }
 
   function buildSynthesisPrompt(options) {
+    const locale = resolvePromptLocale(options.targetLanguage, options.uiLocale);
+    const catalog = Strings.getPromptCatalog(locale);
+    const glue = catalog.glue;
     const modeKey = options.summaryMode || 'medium';
-    const mode = Strings.SUMMARY_MODES[modeKey] || Strings.SUMMARY_MODES.medium;
+    const mode = catalog.modes[modeKey] || catalog.modes.medium;
     const article = options.article;
-    const strategy = article?.sourceStrategy || PageStrategy.resolveStrategy({ sourceType: article?.sourceType });
+    const strategy = resolvePromptStrategy(article, locale);
     const languageInstruction = buildLanguageInstruction(options.targetLanguage);
     const partialSummaries = options.partialSummaries || [];
 
     return [
-      '以下是同一篇长网页分段总结后的结果，请把它们合成为一份完整、去重、结构清晰的最终总结。',
+      glue.synthesisIntro,
       mode.prompt,
       languageInstruction,
-      buildMarkdownOutputGuidance(mode),
+      buildMarkdownOutputGuidance(mode, { glue, markdownRules: catalog.markdownRules }),
       strategy.synthesisPromptFocus,
-      '请消除重复，补齐上下文，并确保最终输出像直接总结整篇文章一样自然。',
-      `页面策略: ${strategy.label}`,
-      `文章标题: ${article.title}`,
-      '# 分段总结\n' + partialSummaries.map((item, index) => `## 分段 ${index + 1}\n${item}`).join('\n\n')
+      glue.synthesisDedupe,
+      `${glue.strategyLabel}: ${strategy.label}`,
+      `${glue.articleTitle}: ${article.title}`,
+      `${glue.chunksSection}\n` + partialSummaries.map((item, index) => `## ${glue.chunkSection} ${index + 1}\n${item}`).join('\n\n')
     ].join('\n\n');
   }
 
   function buildSecondaryPrompt(options) {
+    const locale = resolvePromptLocale(options.targetLanguage, options.uiLocale);
+    const catalog = Strings.getPromptCatalog(locale);
+    const glue = catalog.glue;
     const modeKey = options.summaryMode || 'action_items';
-    const mode = Strings.SUMMARY_MODES[modeKey] || Strings.SUMMARY_MODES.action_items;
+    const mode = catalog.modes[modeKey] || catalog.modes.action_items;
     const article = options.article || {};
-    const strategy = article?.sourceStrategy || PageStrategy.resolveStrategy({ sourceType: article?.sourceType });
+    const strategy = resolvePromptStrategy(article, locale);
     const languageInstruction = buildLanguageInstruction(options.targetLanguage);
 
     return [
-      '以下是网页原始摘要，请基于摘要内容进行二次加工。必要时可参考文章标题和来源。',
+      glue.secondaryIntro,
       mode.prompt,
       languageInstruction,
-      buildMarkdownOutputGuidance(mode),
+      buildMarkdownOutputGuidance(mode, { glue, markdownRules: catalog.markdownRules }),
       strategy.secondaryPromptFocus,
-      article.title ? `文章标题: ${article.title}` : '',
-      article.sourceHost ? `来源站点: ${article.sourceHost}` : '',
-      strategy.label ? `页面策略: ${strategy.label}` : '',
-      '# 原始摘要\n' + (options.summaryMarkdown || '')
+      article.title ? `${glue.articleTitle}: ${article.title}` : '',
+      article.sourceHost ? `${glue.sourceSite}: ${article.sourceHost}` : '',
+      strategy.label ? `${glue.strategyLabel}: ${strategy.label}` : '',
+      `${glue.rawSummarySection}\n` + (options.summaryMarkdown || '')
     ].filter(Boolean).join('\n\n');
   }
 

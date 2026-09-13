@@ -1,0 +1,1992 @@
+{
+  "extName": {
+    "message": "Yilan - AI Reading Workspace"
+  },
+  "extDescription": {
+    "message": "Yilan: reliable AI summaries for web pages, YouTube and Bilibili videos, with long-article chunking, subtitle export, local history, share cards, and flexible provider support."
+  },
+  "shortcutDescription": {
+    "message": "Summarize the current page with Yilan"
+  },
+  "popup_title": {
+    "message": "Yilan Settings"
+  },
+  "popup_tab_groups_aria": {
+    "message": "Settings sections"
+  },
+  "popup_tab_connection": {
+    "message": "Connection"
+  },
+  "popup_tab_preferences": {
+    "message": "Preferences"
+  },
+  "popup_tab_entrypoints": {
+    "message": "Entrypoints"
+  },
+  "popup_autosave_note": {
+    "message": "Changes are saved automatically. Text input is saved after you pause and again as soon as you leave the field."
+  },
+  "popup_card_model_connection": {
+    "message": "Model connection"
+  },
+  "popup_label_provider": {
+    "message": "Provider preset"
+  },
+  "popup_card_behaviors": {
+    "message": "Behavior"
+  },
+  "popup_label_system_prompt": {
+    "message": "Extra system prompt"
+  },
+  "popup_system_prompt_placeholder": {
+    "message": "Optional. This content is prepended to the summary prompt."
+  },
+  "popup_toggle_auto_translate_title": {
+    "message": "Auto-translate output"
+  },
+  "popup_toggle_auto_translate_desc": {
+    "message": "Switch the summary output language automatically based on the default language."
+  },
+  "popup_label_default_language": {
+    "message": "Default output language"
+  },
+  "popup_label_chunk_concurrency": {
+    "message": "Chunk concurrency"
+  },
+  "popup_chunk_concurrency_hint": {
+    "message": "Parallel requests for long-article chunk summaries; 1 runs chunks one by one, 2 by default. Lower this if your gateway rate-limits aggressively."
+  },
+  "popup_label_ui_language": {
+    "message": "Interface language"
+  },
+  "popup_ui_language_auto": {
+    "message": "Follow browser"
+  },
+  "popup_ui_language_zh": {
+    "message": "中文"
+  },
+  "popup_ui_language_en": {
+    "message": "English"
+  },
+  "popup_card_appearance": {
+    "message": "Appearance"
+  },
+  "popup_label_theme_preference": {
+    "message": "Theme mode"
+  },
+  "popup_theme_hint_default": {
+    "message": "Popup and sidebar themes follow your system light/dark mode automatically."
+  },
+  "popup_label_palette": {
+    "message": "Color palette"
+  },
+  "popup_palette_jade_name": {
+    "message": "Jade"
+  },
+  "popup_palette_jade_desc": {
+    "message": "Default; fresh and steady"
+  },
+  "popup_palette_slate_name": {
+    "message": "Slate"
+  },
+  "popup_palette_slate_desc": {
+    "message": "Calm; easy for reading"
+  },
+  "popup_palette_copper_name": {
+    "message": "Copper"
+  },
+  "popup_palette_copper_desc": {
+    "message": "Warm, without a yellow cast"
+  },
+  "popup_palette_plum_name": {
+    "message": "Plum"
+  },
+  "popup_palette_plum_desc": {
+    "message": "Subtle, with brand character"
+  },
+  "popup_palette_hint_default": {
+    "message": "The palette syncs across popup, sidebar, and reader."
+  },
+  "popup_toggle_compact_title": {
+    "message": "Compact sidebar by default"
+  },
+  "popup_toggle_compact_desc": {
+    "message": "When on, the sidebar always opens in the compact layout, giving more room to summaries."
+  },
+  "popup_card_privacy": {
+    "message": "Privacy & controls"
+  },
+  "popup_toggle_privacy_title": {
+    "message": "Private mode"
+  },
+  "popup_toggle_privacy_desc": {
+    "message": "Page content is still sent to the model, but nothing is written to local history."
+  },
+  "popup_toggle_history_title": {
+    "message": "Save to history by default"
+  },
+  "popup_toggle_history_desc": {
+    "message": "When off, new summaries stay only in the current sidebar and never enter history."
+  },
+  "popup_toggle_share_title": {
+    "message": "Allow share cards"
+  },
+  "popup_toggle_share_desc": {
+    "message": "Controls the long-screenshot sharing feature; share cards include a source link."
+  },
+  "popup_card_quick_actions": {
+    "message": "Quick actions"
+  },
+  "popup_quick_hint_prefix": {
+    "message": "Use the right-click menu \"Summarize this page with Yilan\" or the shortcut"
+  },
+  "popup_quick_hint_suffix": {
+    "message": "to open the sidebar directly."
+  },
+  "popup_toggle_autostart_title": {
+    "message": "Auto-start from entrypoints"
+  },
+  "popup_toggle_autostart_desc": {
+    "message": "When on, the context menu or Alt + S starts generating immediately; when off, it only opens the sidebar."
+  },
+  "popup_toggle_simple_title": {
+    "message": "Short summary from entrypoints"
+  },
+  "popup_toggle_simple_desc": {
+    "message": "Entrypoints use the token-saving short mode by default."
+  },
+  "popup_toggle_reuse_title": {
+    "message": "Reuse current-page history first"
+  },
+  "popup_toggle_reuse_desc": {
+    "message": "If this page already has a finished summary, show the latest record directly instead of rerunning; you can still click \"Regenerate\" to update."
+  },
+  "popup_history_btn": {
+    "message": "Open history"
+  },
+  "popup_card_entrypoints": {
+    "message": "Entrypoints & shortcuts"
+  },
+  "popup_context_menu_title": {
+    "message": "Context menu"
+  },
+  "popup_context_menu_checking": {
+    "message": "Checking menu registration..."
+  },
+  "popup_badge_checking": {
+    "message": "Checking"
+  },
+  "popup_shortcut_title": {
+    "message": "Shortcut"
+  },
+  "popup_shortcut_checking": {
+    "message": "Checking shortcut binding..."
+  },
+  "popup_entrypoint_meta_loading": {
+    "message": "Loading recent triggers and repair info..."
+  },
+  "popup_shortcut_hint_prefix": {
+    "message": "If pressing"
+  },
+  "popup_shortcut_hint_suffix": {
+    "message": "does nothing, re-check the entrypoints and confirm the binding in your browser's shortcut settings."
+  },
+  "popup_refresh_entrypoints_btn": {
+    "message": "Check entrypoints"
+  },
+  "popup_shortcut_settings_btn": {
+    "message": "Shortcut settings"
+  },
+  "popup_status_details_summary": {
+    "message": "Error details"
+  },
+  "popup_key_storage_summary": {
+    "message": "Key storage details"
+  },
+  "popup_key_storage_detail": {
+    "message": "API Keys are stored through Chrome Sync and may sync to your Google account. If you are concerned, disable sync in Chrome settings or use a browser profile without sync."
+  },
+  "popup_label_model": {
+    "message": "Model"
+  },
+  "popup_refresh_models_btn": {
+    "message": "Refresh"
+  },
+  "popup_advanced_settings": {
+    "message": "Advanced settings"
+  },
+  "popup_label_provider_route": {
+    "message": "API route"
+  },
+  "popup_label_base_url": {
+    "message": "Custom Base URL"
+  },
+  "popup_base_url_placeholder_route": {
+    "message": "Leave empty for the recommended URL"
+  },
+  "popup_label_ai_provider": {
+    "message": "Protocol"
+  },
+  "popup_provider_openai": {
+    "message": "OpenAI / OpenAI-compatible"
+  },
+  "popup_provider_anthropic": {
+    "message": "Anthropic / Claude-compatible"
+  },
+  "popup_label_endpoint_mode": {
+    "message": "Endpoint mode"
+  },
+  "popup_test_btn": {
+    "message": "Test connection"
+  },
+  "popup_label_profiles": {
+    "message": "Profiles"
+  },
+  "popup_manage_profiles": {
+    "message": "Manage profiles"
+  },
+  "popup_profile_new_btn": {
+    "message": "New profile"
+  },
+  "popup_profile_save_as_btn": {
+    "message": "Save as…"
+  },
+  "popup_profile_rename_btn": {
+    "message": "Rename…"
+  },
+  "popup_profile_delete_btn": {
+    "message": "Delete"
+  },
+  "popup_idle_status": {
+    "message": "Changes are saved automatically."
+  },
+  "popup_waiting_autosave": {
+    "message": "Changes detected; saving automatically after you pause typing."
+  },
+  "popup_base_url_security_hint": {
+    "message": "Remote endpoints must use HTTPS; HTTP is allowed only for localhost or LAN addresses."
+  },
+  "popup_base_url_invalid": {
+    "message": "Base URL supports HTTPS only; HTTP is allowed only for localhost or LAN addresses."
+  },
+  "popup_fallback_hint_openai": {
+    "message": "Leave empty to use the OpenAI default root URL, or enter a full endpoint directly."
+  },
+  "popup_fallback_hint_anthropic": {
+    "message": "Leave empty to use the Anthropic default root URL, or enter a compatible root URL."
+  },
+  "popup_theme_system": {
+    "message": "Follow system"
+  },
+  "popup_theme_light": {
+    "message": "Always light"
+  },
+  "popup_theme_dark": {
+    "message": "Always dark"
+  },
+  "popup_theme_effective_light": {
+    "message": "light"
+  },
+  "popup_theme_effective_dark": {
+    "message": "dark"
+  },
+  "popup_palette_jade": {
+    "message": "Jade"
+  },
+  "popup_palette_slate": {
+    "message": "Slate"
+  },
+  "popup_palette_copper": {
+    "message": "Copper"
+  },
+  "popup_palette_plum": {
+    "message": "Plum"
+  },
+  "popup_palette_hint_jade": {
+    "message": "Default palette; fresh, steady, and comfortable for long reading"
+  },
+  "popup_palette_hint_slate": {
+    "message": "A restrained blue-gray that keeps brand color out of the way"
+  },
+  "popup_palette_hint_copper": {
+    "message": "A tea-brown warm palette that keeps warmth without going yellow"
+  },
+  "popup_palette_hint_plum": {
+    "message": "A distinctive deep plum that emphasizes brand feel"
+  },
+  "popup_not_recorded": {
+    "message": "Not recorded"
+  },
+  "popup_saved_private": {
+    "message": "Saved automatically. Private mode is on."
+  },
+  "popup_saved": {
+    "message": "Saved automatically."
+  },
+  "popup_theme_hint_system": {
+    "message": "$pref$. Currently active: $eff$; switches automatically when the system theme changes.",
+    "placeholders": {
+      "pref": {
+        "content": "$1"
+      },
+      "eff": {
+        "content": "$2"
+      }
+    }
+  },
+  "popup_theme_hint_fixed": {
+    "message": "$pref$. Popup and sidebar stay in $eff$ mode.",
+    "placeholders": {
+      "pref": {
+        "content": "$1"
+      },
+      "eff": {
+        "content": "$2"
+      }
+    }
+  },
+  "popup_palette_hint_render": {
+    "message": "$label$: $hint$. Syncs across popup, sidebar, and reader.",
+    "placeholders": {
+      "label": {
+        "content": "$1"
+      },
+      "hint": {
+        "content": "$2"
+      }
+    }
+  },
+  "popup_context_menu_ready": {
+    "message": "Context menu registered. You can start a summary from any page's blank area."
+  },
+  "popup_context_menu_not_ready": {
+    "message": "Context menu is not ready yet. Click \"Check entrypoints\" to try repairing it."
+  },
+  "popup_badge_ready": {
+    "message": "Ready"
+  },
+  "popup_badge_repair": {
+    "message": "Repair"
+  },
+  "popup_badge_bound": {
+    "message": "Bound"
+  },
+  "popup_badge_missing": {
+    "message": "Missing"
+  },
+  "popup_badge_unbound": {
+    "message": "Unbound"
+  },
+  "popup_badge_failed": {
+    "message": "Failed"
+  },
+  "popup_shortcut_bound": {
+    "message": "Currently bound: $key$",
+    "placeholders": {
+      "key": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_shortcut_missing": {
+    "message": "No active shortcut detected. Confirm Alt + S in the browser's shortcut settings."
+  },
+  "popup_meta_menu_checked": {
+    "message": "Menu last verified: $time$",
+    "placeholders": {
+      "time": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_meta_menu_triggered": {
+    "message": "Menu last triggered: $time$",
+    "placeholders": {
+      "time": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_meta_shortcut_triggered": {
+    "message": "Shortcut last triggered: $time$",
+    "placeholders": {
+      "time": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_endpoint_auto_probe": {
+    "message": "auto probe"
+  },
+  "popup_endpoint_mode_auto": {
+    "message": "Auto-detect"
+  },
+  "popup_preview_actual_url": {
+    "message": "Actual request URL: $url$",
+    "placeholders": {
+      "url": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_preview_mode": {
+    "message": "Endpoint mode: $mode$",
+    "placeholders": {
+      "mode": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_preview_mode_full": {
+    "message": "Endpoint mode: $mode$ (full endpoint detected)",
+    "placeholders": {
+      "mode": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_preview_full_note": {
+    "message": "A full endpoint takes precedence over the Endpoint Mode suffix."
+  },
+  "popup_base_url_has_v1": {
+    "message": "Base URL already includes /v1."
+  },
+  "popup_base_url_no_v1": {
+    "message": "Base URL does not include /v1; the connection test can fix it automatically when the error is explicit."
+  },
+  "popup_source_label": {
+    "message": "Source: $url$",
+    "placeholders": {
+      "url": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_source_verified": {
+    "message": " ($date$)",
+    "placeholders": {
+      "date": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_preset_hint_default": {
+    "message": "Picking a provider preset fills in the recommended endpoint automatically."
+  },
+  "popup_api_key_hint_default": {
+    "message": "Enter the API Key for the selected provider."
+  },
+  "popup_endpoint_mode_hint_suffix": {
+    "message": "The final path is appended according to this mode: $path$.",
+    "placeholders": {
+      "path": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_base_url_hint_route": {
+    "message": "Recommended root URL: $url$. Override it directly if you use a proxy or private gateway.",
+    "placeholders": {
+      "url": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_base_url_placeholder_default": {
+    "message": "Leave empty for the default URL"
+  },
+  "popup_unnamed_profile": {
+    "message": "Unnamed"
+  },
+  "popup_profile_unbound_option": {
+    "message": "Current settings (unbound)"
+  },
+  "popup_profile_bound_hint": {
+    "message": "Bound to \"$name$\"; changes are saved to this profile automatically.",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_profile_hint_default": {
+    "message": "Save multiple connection profiles for quick switching."
+  },
+  "popup_switched_to_unbound": {
+    "message": "Switched to current settings (unbound)."
+  },
+  "popup_profile_not_found": {
+    "message": "This profile's data was not found; it may have been deleted."
+  },
+  "popup_profile_switched": {
+    "message": "Profile switched."
+  },
+  "popup_models_loaded_count": {
+    "message": "Loaded $count$ models ($time$).",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "time": {
+        "content": "$2"
+      }
+    }
+  },
+  "popup_models_loaded": {
+    "message": "Loaded $count$ models.",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_refreshing_models": {
+    "message": "Refreshing..."
+  },
+  "popup_models_need_key": {
+    "message": "Enter an API Key before refreshing the model list."
+  },
+  "popup_models_fetch_failed": {
+    "message": "Failed to fetch the model list: $err$",
+    "placeholders": {
+      "err": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_autosaving": {
+    "message": "Saving automatically..."
+  },
+  "popup_save_failed": {
+    "message": "Save failed: $err$",
+    "placeholders": {
+      "err": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_unknown_error": {
+    "message": "Unknown error"
+  },
+  "popup_saving_settings": {
+    "message": "Saving settings..."
+  },
+  "popup_need_api_key": {
+    "message": "Enter an API Key first."
+  },
+  "popup_testing": {
+    "message": "Testing..."
+  },
+  "popup_testing_connection": {
+    "message": "Testing connection..."
+  },
+  "popup_default_model": {
+    "message": "default model"
+  },
+  "popup_auto_v1_added": {
+    "message": "/v1 added automatically"
+  },
+  "popup_auto_v1_removed": {
+    "message": "/v1 removed automatically"
+  },
+  "popup_connected": {
+    "message": "Connected. Current model: $model$$extras$",
+    "placeholders": {
+      "model": {
+        "content": "$1"
+      },
+      "extras": {
+        "content": "$2"
+      }
+    }
+  },
+  "popup_extras_joined": {
+    "message": " ($items$)",
+    "placeholders": {
+      "items": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_opening_history": {
+    "message": "Opening this page's history..."
+  },
+  "popup_history_opened": {
+    "message": "History opened on the current page."
+  },
+  "popup_history_open_failed": {
+    "message": "Failed to open history."
+  },
+  "popup_checking_entrypoints": {
+    "message": "Checking context menu and shortcut status..."
+  },
+  "popup_entrypoint_check_failed": {
+    "message": "Entrypoint status check failed."
+  },
+  "popup_context_menu_status_failed": {
+    "message": "Failed to get context menu status."
+  },
+  "popup_shortcut_status_failed": {
+    "message": "Failed to get shortcut status."
+  },
+  "popup_reload_hint": {
+    "message": "Reload the extension and try again."
+  },
+  "popup_entrypoints_refreshed": {
+    "message": "Entrypoint status refreshed."
+  },
+  "popup_opening_shortcut_settings": {
+    "message": "Opening the browser's shortcut settings..."
+  },
+  "popup_shortcut_settings_opened": {
+    "message": "Shortcut settings opened."
+  },
+  "popup_shortcut_settings_failed": {
+    "message": "Failed to open shortcut settings."
+  },
+  "popup_switch_profile_failed": {
+    "message": "Profile switch failed: $err$",
+    "placeholders": {
+      "err": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_prompt_new_profile": {
+    "message": "New profile name"
+  },
+  "popup_profile_created": {
+    "message": "Created and switched to profile: $name$",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_create_profile_failed": {
+    "message": "Failed to create profile: $err$",
+    "placeholders": {
+      "err": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_default_profile_name": {
+    "message": "Profile"
+  },
+  "popup_prompt_save_as": {
+    "message": "Save profile as"
+  },
+  "popup_copy_suffix": {
+    "message": "$name$ copy",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_profile_saved_as": {
+    "message": "Saved as and switched to profile: $name$",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_save_as_failed": {
+    "message": "Save as failed: $err$",
+    "placeholders": {
+      "err": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_prompt_rename": {
+    "message": "Rename profile"
+  },
+  "popup_profile_renamed": {
+    "message": "Profile renamed."
+  },
+  "popup_rename_failed": {
+    "message": "Rename failed: $err$",
+    "placeholders": {
+      "err": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_confirm_delete": {
+    "message": "Delete profile \"$name$\"?",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_profile_deleted": {
+    "message": "Profile deleted; current settings are unbound."
+  },
+  "popup_delete_failed": {
+    "message": "Delete failed: $err$",
+    "placeholders": {
+      "err": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_settings_load_failed": {
+    "message": "Failed to load settings."
+  },
+  "sidebar_reader_btn": {
+    "message": "Read"
+  },
+  "sidebar_reader_btn_title": {
+    "message": "Open focused reading in a new tab"
+  },
+  "sidebar_history_btn": {
+    "message": "History"
+  },
+  "sidebar_history_btn_title": {
+    "message": "Open history and favorites"
+  },
+  "sidebar_close_title": {
+    "message": "Close"
+  },
+  "sidebar_source_eyebrow": {
+    "message": "Source"
+  },
+  "sidebar_waiting_content": {
+    "message": "Waiting for page content"
+  },
+  "sidebar_no_source_link": {
+    "message": "No page link loaded yet"
+  },
+  "sidebar_unknown_host": {
+    "message": "Unknown site"
+  },
+  "sidebar_generic_page": {
+    "message": "Web page"
+  },
+  "sidebar_generic_strategy": {
+    "message": "General reading"
+  },
+  "sidebar_meta_author": {
+    "message": "Author"
+  },
+  "sidebar_meta_published": {
+    "message": "Published"
+  },
+  "sidebar_meta_published_title": {
+    "message": "Publish date"
+  },
+  "sidebar_meta_length": {
+    "message": "Words"
+  },
+  "sidebar_meta_length_title": {
+    "message": "Content length"
+  },
+  "sidebar_meta_chunk": {
+    "message": "Chunks"
+  },
+  "sidebar_meta_chunk_title": {
+    "message": "Chunking strategy"
+  },
+  "sidebar_trust_eyebrow": {
+    "message": "Trust & controls"
+  },
+  "sidebar_trust_title": {
+    "message": "Current policy"
+  },
+  "sidebar_trust_summary": {
+    "message": "Once page content loads, the current policy decides whether results are written to history and sharing is allowed."
+  },
+  "sidebar_privacy_enable": {
+    "message": "Go private"
+  },
+  "sidebar_trust_mode_standard": {
+    "message": "Standard mode"
+  },
+  "sidebar_trust_history_on": {
+    "message": "Saves history"
+  },
+  "sidebar_trust_share_on": {
+    "message": "Sharing allowed"
+  },
+  "sidebar_trust_send_label": {
+    "message": "Sent to model"
+  },
+  "sidebar_trust_pending": {
+    "message": "Pending"
+  },
+  "sidebar_trust_send_note": {
+    "message": "Title, source, and page content are sent to the model endpoint only after the page content loads."
+  },
+  "sidebar_trust_history_label": {
+    "message": "History"
+  },
+  "sidebar_trust_history_note": {
+    "message": "Once the page loads, generated results are written to local history."
+  },
+  "sidebar_trust_share_label": {
+    "message": "Share card"
+  },
+  "sidebar_trust_share_note": {
+    "message": "Once the page loads, a share card with a source link can be generated."
+  },
+  "sidebar_mode_label": {
+    "message": "Summary mode"
+  },
+  "sidebar_regenerate": {
+    "message": "Regenerate"
+  },
+  "sidebar_cancel": {
+    "message": "Cancel"
+  },
+  "sidebar_add_favorite": {
+    "message": "Favorite"
+  },
+  "sidebar_copy": {
+    "message": "Copy"
+  },
+  "sidebar_share": {
+    "message": "Screenshot"
+  },
+  "sidebar_export": {
+    "message": "Export"
+  },
+  "sidebar_subtitle_track_aria": {
+    "message": "Choose a subtitle track"
+  },
+  "sidebar_export_subtitles": {
+    "message": "Export subtitles"
+  },
+  "sidebar_secondary_label": {
+    "message": "Continue"
+  },
+  "sidebar_secondary_title": {
+    "message": "Running follow-up generation"
+  },
+  "sidebar_placeholder_title": {
+    "message": "Ready to summarize"
+  },
+  "sidebar_placeholder_body": {
+    "message": "Right-click the page and choose \"Summarize this page with Yilan\", or press"
+  },
+  "sidebar_history_eyebrow": {
+    "message": "Records"
+  },
+  "sidebar_history_title": {
+    "message": "History & favorites"
+  },
+  "sidebar_history_close_aria": {
+    "message": "Close history panel"
+  },
+  "sidebar_history_search_placeholder": {
+    "message": "Search titles, sites, modes, models"
+  },
+  "sidebar_favorites_only": {
+    "message": "Favorites only"
+  },
+  "sidebar_ready": {
+    "message": "Ready"
+  },
+  "sidebar_diagnostics_toggle": {
+    "message": "Diagnostics"
+  },
+  "sidebar_diagnostics_waiting": {
+    "message": "Waiting for this run's diagnostics..."
+  },
+  "label_mode_short": {
+    "message": "Short summary"
+  },
+  "label_mode_medium": {
+    "message": "Standard summary"
+  },
+  "label_mode_long": {
+    "message": "Detailed analysis"
+  },
+  "label_mode_long_reader": {
+    "message": "In-depth summary"
+  },
+  "label_mode_key_points": {
+    "message": "Key points"
+  },
+  "label_mode_qa": {
+    "message": "Q&A cards"
+  },
+  "label_mode_glossary": {
+    "message": "Glossary"
+  },
+  "label_mode_action_items": {
+    "message": "Action items"
+  },
+  "label_status_completed": {
+    "message": "Completed"
+  },
+  "label_status_failed": {
+    "message": "Failed"
+  },
+  "label_status_cancelled": {
+    "message": "Cancelled"
+  },
+  "label_status_running": {
+    "message": "Running"
+  },
+  "label_status_reader_running": {
+    "message": "Generating"
+  },
+  "label_unknown": {
+    "message": "Unknown"
+  },
+  "label_warning_missing_title": {
+    "message": "Incomplete title"
+  },
+  "label_warning_empty_content": {
+    "message": "Empty content"
+  },
+  "label_warning_short_content": {
+    "message": "Very short content"
+  },
+  "label_warning_truncated": {
+    "message": "Content truncated"
+  },
+  "label_warning_legacy_import": {
+    "message": "Imported from legacy history"
+  },
+  "label_strategy_news": {
+    "message": "News brief"
+  },
+  "label_strategy_blog": {
+    "message": "Blog insight"
+  },
+  "label_strategy_doc": {
+    "message": "Doc deep-read"
+  },
+  "label_strategy_forum": {
+    "message": "Q&A roundup"
+  },
+  "label_strategy_repo": {
+    "message": "README guide"
+  },
+  "label_strategy_generic": {
+    "message": "General reading"
+  },
+  "label_chunking_none": {
+    "message": "Single chunk"
+  },
+  "label_chunking_paragraph": {
+    "message": "Paragraphs"
+  },
+  "label_chunking_section": {
+    "message": "Sections"
+  },
+  "label_chunking_auto": {
+    "message": "Auto"
+  },
+  "sidebar_entry_trigger_failed": {
+    "message": "Failed to handle the entrypoint trigger"
+  },
+  "sidebar_reader_no_content": {
+    "message": "There is no readable summary content yet."
+  },
+  "sidebar_reader_opened": {
+    "message": "Focused reading opened in a new tab."
+  },
+  "sidebar_reader_open_failed": {
+    "message": "Failed to open the reader page."
+  },
+  "sidebar_action_failed": {
+    "message": "Action failed"
+  },
+  "sidebar_all_sites": {
+    "message": "All sites"
+  },
+  "sidebar_all_sites_title": {
+    "message": "View summary records across all sites"
+  },
+  "sidebar_site_record_count": {
+    "message": "$p1$ records",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "sidebar_site_favorite_count": {
+    "message": "$p1$ favorites",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "sidebar_site_last_updated": {
+    "message": "Last updated: $p1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "sidebar_favorite": {
+    "message": "Favorite"
+  },
+  "sidebar_favorite_update_failed": {
+    "message": "Failed to update favorite state"
+  },
+  "sidebar_delete": {
+    "message": "Delete"
+  },
+  "sidebar_record_deleted_title": {
+    "message": "Record deleted"
+  },
+  "sidebar_record_deleted_body": {
+    "message": "You can regenerate the summary for this page."
+  },
+  "sidebar_record_delete_failed": {
+    "message": "Failed to delete the history record"
+  },
+  "sidebar_history_empty": {
+    "message": "No matching summary records."
+  },
+  "sidebar_history_load_failed": {
+    "message": "Failed to load history: "
+  },
+  "sidebar_history_refresh_failed": {
+    "message": "Failed to refresh history"
+  },
+  "sidebar_processing": {
+    "message": "Processing"
+  },
+  "sidebar_cancelled_partial_head": {
+    "message": "Content generated before cancel"
+  },
+  "sidebar_chunk_done": {
+    "message": "Chunk processed"
+  },
+  "sidebar_chunk_progress_title": {
+    "message": "Summarizing the long article in chunks"
+  },
+  "sidebar_chunk_progress_body": {
+    "message": "Completed $p1$/$p2$ chunks; consolidating.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "sidebar_raw_diagnostics_json": {
+    "message": "--- Raw diagnostics JSON ---"
+  },
+  "sidebar_stream_synthesis": {
+    "message": "Consolidating the final result..."
+  },
+  "sidebar_stream_chunk_index": {
+    "message": "Summarizing chunk $p1$/$p2$...",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "sidebar_stream_chunk": {
+    "message": "Summarizing the current chunk..."
+  },
+  "sidebar_stream_generating": {
+    "message": "Generating the summary..."
+  },
+  "sidebar_stream_synthesis_short": {
+    "message": "Consolidating the final result"
+  },
+  "sidebar_stream_generating_short": {
+    "message": "Generating the summary"
+  },
+  "sidebar_stream_retry": {
+    "message": "$p1$; endpoint hiccup, retry attempt $p2$...",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "sidebar_cancelling": {
+    "message": "Cancelling this run..."
+  },
+  "sidebar_bilibili_note_title": {
+    "message": "Using Bilibili's official AI summary"
+  },
+  "sidebar_bilibili_note_body": {
+    "message": "Fetched Bilibili's official AI summary; your model endpoint will not be called this time."
+  },
+  "sidebar_bilibili_saving": {
+    "message": "Saving the official Bilibili AI summary..."
+  },
+  "sidebar_bilibili_showing": {
+    "message": "Showing the official Bilibili AI summary; not written to history..."
+  },
+  "sidebar_bilibili_model": {
+    "message": "Bilibili official AI summary"
+  },
+  "sidebar_bilibili_done_saved": {
+    "message": "Used Bilibili's official AI summary"
+  },
+  "sidebar_bilibili_done_nohistory": {
+    "message": "Showed Bilibili's official AI summary; not written to history"
+  },
+  "sidebar_simple_mode_title": {
+    "message": "Short summary mode"
+  },
+  "sidebar_preparing_title": {
+    "message": "Preparing the summary"
+  },
+  "sidebar_simple_mode_body": {
+    "message": "Simple mode is on; long-article chunking is skipped to save tokens."
+  },
+  "sidebar_preparing_body": {
+    "message": "Initializing this run, please wait."
+  },
+  "sidebar_generating_saving": {
+    "message": "Extracting and generating the summary..."
+  },
+  "sidebar_generating_nohistory": {
+    "message": "Generating the summary for this page; it will not be written to history..."
+  },
+  "sidebar_chunking_long": {
+    "message": "Analyzing the long article in chunks..."
+  },
+  "sidebar_completed_nohistory": {
+    "message": "Summary completed; not written to history this time"
+  },
+  "sidebar_completed": {
+    "message": "Summary completed"
+  },
+  "sidebar_need_api_key": {
+    "message": "Configure an API Key first"
+  },
+  "sidebar_generating_mode": {
+    "message": "Generating $p1$...",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "sidebar_generating_mode_nohistory": {
+    "message": "Generating $p1$; it will not be written to history...",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "sidebar_secondary_body": {
+    "message": "Generating $p1$ from the current summary.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "sidebar_secondary_done_nohistory": {
+    "message": "$p1$ completed; not written to history this time",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "sidebar_secondary_done": {
+    "message": "$p1$ completed",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "sidebar_run_cancelled": {
+    "message": "This run was cancelled."
+  },
+  "sidebar_run_failed": {
+    "message": "Summary generation failed."
+  },
+  "sidebar_unnamed_page": {
+    "message": "Untitled page"
+  },
+  "sidebar_subtitle_track_title": {
+    "message": "Choose a subtitle track to export"
+  },
+  "sidebar_no_subtitles": {
+    "message": "No subtitles"
+  },
+  "sidebar_export_subtitles_title": {
+    "message": "Export the selected video subtitles"
+  },
+  "sidebar_no_subtitles_title": {
+    "message": "No exportable subtitles found for this video"
+  },
+  "sidebar_no_summary_title": {
+    "message": "No summary content"
+  },
+  "sidebar_no_summary_body": {
+    "message": "Regenerate here, or switch to another summary from history."
+  },
+  "sidebar_run_failed_short": {
+    "message": "Generation failed"
+  },
+  "sidebar_record_loaded": {
+    "message": "Record loaded"
+  },
+  "sidebar_time_suffix": {
+    "message": " ($p1$)",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "sidebar_reused_history_status": {
+    "message": "Loaded this page's history summary$p1$. Click \"Regenerate\" to refresh it.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "sidebar_page_ready_title": {
+    "message": "Page is ready"
+  },
+  "sidebar_page_ready_nav_body": {
+    "message": "Switched to a new page; summarizing will not start automatically. The model is called only after you click \"Regenerate\"."
+  },
+  "sidebar_page_ready_body": {
+    "message": "Click \"Regenerate\" to start a summary, or switch the summary mode first."
+  },
+  "sidebar_waiting_manual_start": {
+    "message": "Waiting to start manually"
+  },
+  "sidebar_checking_history_note_title": {
+    "message": "Checking history"
+  },
+  "sidebar_checking_history_note_body": {
+    "message": "If this page already has a finished summary, the latest record loads directly."
+  },
+  "sidebar_checking_history_status": {
+    "message": "Checking history summaries for this page..."
+  },
+  "sidebar_reading_page_title": {
+    "message": "Reading the page content"
+  },
+  "sidebar_reading_page_simple_body": {
+    "message": "Simple summary is on; starting now."
+  },
+  "sidebar_reading_page_body": {
+    "message": "Starting the summary for this page now."
+  },
+  "sidebar_navigation_update_failed": {
+    "message": "Failed to handle the navigation update"
+  },
+  "sidebar_favorite_blocked_no_history": {
+    "message": "This result was not written to history, so it cannot be favorited."
+  },
+  "sidebar_copied": {
+    "message": "Summary copied to the clipboard."
+  },
+  "sidebar_copy_failed": {
+    "message": "Copy failed; please try again later"
+  },
+  "sidebar_privacy_on": {
+    "message": "Private mode is on; the next run will not write history."
+  },
+  "sidebar_privacy_off": {
+    "message": "Private mode is off; the next run follows the default history policy."
+  },
+  "sidebar_theme_dark": {
+    "message": "dark"
+  },
+  "sidebar_theme_light": {
+    "message": "light"
+  },
+  "sidebar_theme_system": {
+    "message": "system"
+  },
+  "sidebar_theme_system_current": {
+    "message": "system (currently $p1$)",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "sidebar_theme_btn_label": {
+    "message": "Theme: $p1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "sidebar_theme_btn_title": {
+    "message": "Current theme mode is $p1$; click to switch to $p2$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "sidebar_theme_switched_system": {
+    "message": "Theme switched to follow the system; currently active: $p1$.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "sidebar_theme_switched_fixed": {
+    "message": "Theme switched to fixed $p1$.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "sidebar_add_favorite_title": {
+    "message": "Add this summary to favorites"
+  },
+  "sidebar_not_in_history": {
+    "message": "Not in history"
+  },
+  "sidebar_not_in_history_title": {
+    "message": "This result was not written to history, so it cannot be favorited"
+  },
+  "sidebar_remove_favorite": {
+    "message": "Unfavorite"
+  },
+  "sidebar_remove_favorite_title": {
+    "message": "Remove this summary from favorites"
+  },
+  "sidebar_init_placeholder_body": {
+    "message": "Right-click the page and choose \"Summarize this page with Yilan\", or press Alt + S."
+  },
+  "sidebar_settings_load_failed": {
+    "message": "Failed to load settings."
+  },
+  "sidebar_share_model_label": {
+    "message": "Model: $p1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "sidebar_subtitle_current": {
+    "message": "Current subtitles"
+  },
+  "sidebar_subtitle_empty_track": {
+    "message": "The selected subtitle track returned empty content; nothing exported."
+  },
+  "sidebar_video_no_subtitles": {
+    "message": "This video has no exportable subtitles yet."
+  },
+  "sidebar_subtitle_exported": {
+    "message": "Subtitles exported."
+  },
+  "sidebar_markdown_exported": {
+    "message": "Markdown exported."
+  },
+  "sidebar_bilibili_no_subtitles": {
+    "message": "This Bilibili video has no exportable subtitles yet."
+  },
+  "sidebar_file_subtitles": {
+    "message": "-subtitles"
+  },
+  "sidebar_md_source": {
+    "message": "Source: "
+  },
+  "sidebar_md_site": {
+    "message": "Site: "
+  },
+  "sidebar_md_mode": {
+    "message": "Mode: "
+  },
+  "sidebar_md_generated_at": {
+    "message": "Generated at: "
+  },
+  "sidebar_share_subtitle": {
+    "message": "Reliable AI reading workspace"
+  },
+  "sidebar_share_unknown_source": {
+    "message": "Unknown source"
+  },
+  "sidebar_share_source_label": {
+    "message": "Source link"
+  },
+  "sidebar_share_quote_label": {
+    "message": "Excerpt · up to $p1$ characters",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "sidebar_share_from": {
+    "message": "Source: "
+  },
+  "sidebar_share_disabled": {
+    "message": "The current policy has share cards turned off."
+  },
+  "sidebar_share_generating": {
+    "message": "Rendering the long screenshot, please wait..."
+  },
+  "sidebar_file_share_card": {
+    "message": "-share-card"
+  },
+  "sidebar_share_done": {
+    "message": "Long screenshot generated"
+  },
+  "sidebar_share_failed": {
+    "message": "Failed to generate the long screenshot."
+  },
+  "reader_eyebrow": {
+    "message": "Focused reading"
+  },
+  "reader_loading_title": {
+    "message": "Loading summary..."
+  },
+  "reader_open_source": {
+    "message": "Open source"
+  },
+  "reader_copy_markdown": {
+    "message": "Copy Markdown"
+  },
+  "reader_toc_aria": {
+    "message": "Document structure"
+  },
+  "reader_toc_kicker": {
+    "message": "Outline"
+  },
+  "reader_toc_title": {
+    "message": "Document navigation"
+  },
+  "reader_empty_title": {
+    "message": "No summary to read"
+  },
+  "reader_empty_detail": {
+    "message": "Go back to the extension sidebar, generate a summary first, then open a new tab from the \"Read\" button."
+  },
+  "reader_read_minutes_short": {
+    "message": "About 1 min"
+  },
+  "reader_read_minutes": {
+    "message": "About $p1$ min read",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "reader_error_no_session": {
+    "message": "Reading session not found."
+  },
+  "reader_error_expired_session": {
+    "message": "The reading session has expired. Reopen it from the sidebar."
+  },
+  "reader_default_title": {
+    "message": "Yilan Reader"
+  },
+  "reader_no_source_link": {
+    "message": "No source link available"
+  },
+  "reader_badge_private": {
+    "message": "Private mode"
+  },
+  "reader_badge_favorited": {
+    "message": "Favorited"
+  },
+  "reader_detail_status": {
+    "message": "Status"
+  },
+  "reader_detail_reading": {
+    "message": "Read"
+  },
+  "reader_detail_generated_at": {
+    "message": "Generated"
+  },
+  "reader_detail_model": {
+    "message": "Model"
+  },
+  "reader_temp_view_status": {
+    "message": "This is a temporary reading view; it was not written to history."
+  },
+  "reader_ready_status": {
+    "message": "The reader is ready."
+  },
+  "reader_copied": {
+    "message": "Markdown copied to the clipboard."
+  },
+  "reader_error_title": {
+    "message": "Cannot open the reader"
+  },
+  "reader_unknown_error": {
+    "message": "An unknown error occurred."
+  },
+  "reader_copy_failed": {
+    "message": "Copy failed."
+  },
+  "context_menu_title": {
+    "message": "Summarize this page with Yilan"
+  },
+  "bg_connection_test_failed": {
+    "message": "Connection test failed."
+  },
+  "bg_run_failed": {
+    "message": "Summary generation failed."
+  },
+  "bg_history_open_failed": {
+    "message": "Failed to open history."
+  },
+  "bg_entrypoint_status_failed": {
+    "message": "Failed to get entrypoint status."
+  },
+  "bg_shortcut_settings_failed": {
+    "message": "Failed to open shortcut settings."
+  },
+  "bg_reader_open_failed": {
+    "message": "Failed to open the reader page."
+  },
+  "bg_models_raw_hint": {
+    "message": "This provider does not support fetching the model list yet (you can still type a model ID)."
+  },
+  "error_config_missing_api_key": {
+    "message": "Configure an API Key in the settings first."
+  },
+  "error_extraction_empty": {
+    "message": "Not enough article content was extracted from this page."
+  },
+  "error_adapter_not_found": {
+    "message": "No usable model adapter was found."
+  },
+  "error_network_timeout": {
+    "message": "The request timed out. Please try again later."
+  },
+  "error_network_error": {
+    "message": "The network request failed. Check your network or the endpoint URL."
+  },
+  "error_network_connection": {
+    "message": "Could not connect to the endpoint. Check your network, gateway, or proxy."
+  },
+  "error_network_cors": {
+    "message": "The browser blocked a cross-origin request. Check the endpoint's CORS or the extension's permissions."
+  },
+  "error_network_dns": {
+    "message": "Could not resolve the endpoint domain. Check the URL or your DNS."
+  },
+  "error_network_tls": {
+    "message": "The TLS/certificate handshake with the endpoint failed. Check the HTTPS certificate or your proxy."
+  },
+  "error_network_stream_disconnected": {
+    "message": "The streaming connection dropped unexpectedly. Check the endpoint's streaming support or gateway stability."
+  },
+  "error_http_status": {
+    "message": "The endpoint returned an error status code."
+  },
+  "error_http_status_short": {
+    "message": "Endpoint returned $p1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "error_http_status_detail": {
+    "message": "Endpoint returned $p1$: $p2$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "error_parse": {
+    "message": "Failed to parse the model response."
+  },
+  "error_endpoint_not_supported": {
+    "message": "The endpoint may not support the selected mode."
+  },
+  "error_unsupported_response_format": {
+    "message": "The endpoint response format is unrecognized."
+  },
+  "provider_preset_custom_label": {
+    "message": "Custom compatible endpoint"
+  },
+  "provider_preset_custom_hint": {
+    "message": "For self-hosted proxies, OneAPI-style gateways, or providers that are not built in yet."
+  },
+  "provider_route_custom_openai_label": {
+    "message": "OpenAI compatible"
+  },
+  "provider_route_custom_openai_hint": {
+    "message": "Enter the gateway root URL or a full endpoint; the connection test tries to detect a working API."
+  },
+  "provider_route_custom_openai_key_hint": {
+    "message": "Use the API Key provided by your gateway."
+  },
+  "provider_route_custom_anthropic_label": {
+    "message": "Anthropic compatible"
+  },
+  "provider_route_custom_anthropic_hint": {
+    "message": "Enter the compatible gateway root URL; the extension completes it to `/v1/messages`."
+  },
+  "provider_route_custom_anthropic_key_hint": {
+    "message": "Use the API Key provided by your Claude-compatible gateway."
+  },
+  "provider_preset_openai_official_label": {
+    "message": "OpenAI (official)"
+  },
+  "provider_preset_openai_official_hint": {
+    "message": "Uses the Responses API by default; switch to Chat Completions or Legacy Completions in advanced settings."
+  },
+  "provider_route_openai_official_label": {
+    "message": "OpenAI official API"
+  },
+  "provider_route_openai_official_hint": {
+    "message": "Enter the root URL; the extension appends the final path based on the endpoint mode."
+  },
+  "provider_route_openai_official_key_hint": {
+    "message": "Use an OpenAI API Key, usually starting with `sk-`."
+  },
+  "provider_preset_anthropic_official_label": {
+    "message": "Anthropic (official)"
+  },
+  "provider_preset_anthropic_official_hint": {
+    "message": "Uses the native Claude Messages API and keeps the official `anthropic-version` header automatically."
+  },
+  "provider_route_anthropic_official_label": {
+    "message": "Anthropic Messages API"
+  },
+  "provider_route_anthropic_official_hint": {
+    "message": "Enter the root URL; the extension completes it to `/v1/messages`."
+  },
+  "provider_route_anthropic_official_key_hint": {
+    "message": "Use an Anthropic API Key."
+  },
+  "provider_preset_deepseek_label": {
+    "message": "DeepSeek"
+  },
+  "provider_preset_deepseek_hint": {
+    "message": "Offers OpenAI and Anthropic compatibility; defaults to OpenAI Chat Completions."
+  },
+  "provider_route_deepseek_openai_label": {
+    "message": "OpenAI compatible"
+  },
+  "provider_route_deepseek_openai_hint": {
+    "message": "Chat requests go to `/chat/completions`."
+  },
+  "provider_route_deepseek_openai_key_hint": {
+    "message": "Use a DeepSeek API Key."
+  },
+  "provider_route_deepseek_anthropic_label": {
+    "message": "Anthropic compatible"
+  },
+  "provider_route_deepseek_anthropic_hint": {
+    "message": "The Claude-compatible root URL is `/anthropic`."
+  },
+  "provider_route_deepseek_anthropic_key_hint": {
+    "message": "Use a DeepSeek API Key."
+  },
+  "provider_preset_gemini_label": {
+    "message": "Gemini / Google"
+  },
+  "provider_preset_gemini_hint": {
+    "message": "The Gemini API exposes an OpenAI-compatible endpoint; defaults to Chat Completions."
+  },
+  "provider_route_gemini_openai_label": {
+    "message": "OpenAI compatible"
+  },
+  "provider_route_gemini_openai_hint": {
+    "message": "The official OpenAI-compatible root URL already includes `/v1beta/openai`."
+  },
+  "provider_route_gemini_openai_key_hint": {
+    "message": "Use a Google AI Studio or Gemini API Key."
+  },
+  "provider_preset_qwen_label": {
+    "message": "Qwen / Bailian"
+  },
+  "provider_preset_qwen_hint": {
+    "message": "Supports OpenAI and Anthropic compatibility; defaults to the OpenAI-compatible endpoint."
+  },
+  "provider_route_qwen_openai_label": {
+    "message": "OpenAI compatible"
+  },
+  "provider_route_qwen_openai_hint": {
+    "message": "Requests go to `/compatible-mode/v1/chat/completions`."
+  },
+  "provider_route_qwen_openai_key_hint": {
+    "message": "Use an Alibaba Cloud Bailian (DashScope) API Key."
+  },
+  "provider_route_qwen_anthropic_label": {
+    "message": "Anthropic compatible"
+  },
+  "provider_route_qwen_anthropic_hint": {
+    "message": "The Anthropic-compatible root URL is `/apps/anthropic`."
+  },
+  "provider_route_qwen_anthropic_key_hint": {
+    "message": "Use an Alibaba Cloud Bailian (DashScope) API Key."
+  },
+  "provider_preset_glm_label": {
+    "message": "GLM / Zhipu"
+  },
+  "provider_preset_glm_hint": {
+    "message": "Offers both OpenAI and Claude compatibility; defaults to the OpenAI-compatible endpoint."
+  },
+  "provider_route_glm_openai_label": {
+    "message": "OpenAI compatible"
+  },
+  "provider_route_glm_openai_hint": {
+    "message": "The official OpenAI-compatible root URL is `/api/paas/v4`."
+  },
+  "provider_route_glm_openai_key_hint": {
+    "message": "Use a Zhipu API Key."
+  },
+  "provider_route_glm_anthropic_label": {
+    "message": "Claude compatible"
+  },
+  "provider_route_glm_anthropic_hint": {
+    "message": "The Claude-compatible root URL is `/api/anthropic`."
+  },
+  "provider_route_glm_anthropic_key_hint": {
+    "message": "Use a Zhipu API Key."
+  },
+  "provider_preset_mimo_label": {
+    "message": "MiMo / Xiaomi"
+  },
+  "provider_preset_mimo_hint": {
+    "message": "Provides pay-as-you-go APIs and regional Token Plan clusters; the API Key prefix must match the endpoint region."
+  },
+  "provider_route_mimo_openai_metered_label": {
+    "message": "Metered API · OpenAI compatible"
+  },
+  "provider_route_mimo_openai_metered_hint": {
+    "message": "Recommended default route; chat requests go to `/chat/completions`."
+  },
+  "provider_route_mimo_openai_metered_key_hint": {
+    "message": "A metered API Key usually starts with `sk-`."
+  },
+  "provider_route_mimo_openai_metered_key_rule": {
+    "message": "The MiMo metered API endpoint requires an API Key starting with `sk-`; Token Plan `tp-` keys are not interchangeable."
+  },
+  "provider_route_mimo_openai_token_plan_label": {
+    "message": "Token Plan CN · OpenAI compatible"
+  },
+  "provider_route_mimo_openai_token_plan_hint": {
+    "message": "Choose this only when using a Token Plan Key."
+  },
+  "provider_route_mimo_openai_token_plan_key_hint": {
+    "message": "Use a CN-region Token Plan API Key, usually starting with `tp-`; keys are not interchangeable across regions."
+  },
+  "provider_route_mimo_openai_token_plan_key_rule": {
+    "message": "The MiMo Token Plan CN endpoint requires a `tp-` API Key for that region; metered `sk-` keys or keys from other regions are not interchangeable."
+  },
+  "provider_route_mimo_openai_token_plan_sgp_label": {
+    "message": "Token Plan SGP · OpenAI compatible"
+  },
+  "provider_route_mimo_openai_token_plan_sgp_hint": {
+    "message": "OpenAI-compatible root URL for the Singapore Token Plan."
+  },
+  "provider_route_mimo_openai_token_plan_sgp_key_hint": {
+    "message": "Use an SGP-region Token Plan API Key, usually starting with `tp-`; keys are not interchangeable across regions."
+  },
+  "provider_route_mimo_openai_token_plan_sgp_key_rule": {
+    "message": "The MiMo Token Plan SGP endpoint requires a `tp-` API Key for that region; metered `sk-` keys or keys from other regions are not interchangeable."
+  },
+  "provider_route_mimo_openai_token_plan_ams_label": {
+    "message": "Token Plan AMS · OpenAI compatible"
+  },
+  "provider_route_mimo_openai_token_plan_ams_hint": {
+    "message": "OpenAI-compatible root URL for the Europe (AMS) Token Plan."
+  },
+  "provider_route_mimo_openai_token_plan_ams_key_hint": {
+    "message": "Use an AMS-region Token Plan API Key, usually starting with `tp-`; keys are not interchangeable across regions."
+  },
+  "provider_route_mimo_openai_token_plan_ams_key_rule": {
+    "message": "The MiMo Token Plan AMS endpoint requires a `tp-` API Key for that region; metered `sk-` keys or keys from other regions are not interchangeable."
+  },
+  "provider_route_mimo_anthropic_metered_label": {
+    "message": "Metered API · Anthropic compatible"
+  },
+  "provider_route_mimo_anthropic_metered_hint": {
+    "message": "The final endpoint is `/v1/messages`."
+  },
+  "provider_route_mimo_anthropic_metered_key_hint": {
+    "message": "A metered API Key usually starts with `sk-`."
+  },
+  "provider_route_mimo_anthropic_metered_key_rule": {
+    "message": "The MiMo metered API endpoint requires an API Key starting with `sk-`; Token Plan `tp-` keys are not interchangeable."
+  },
+  "provider_route_mimo_anthropic_token_plan_label": {
+    "message": "Token Plan CN · Anthropic compatible"
+  },
+  "provider_route_mimo_anthropic_token_plan_hint": {
+    "message": "The final endpoint is `/v1/messages`."
+  },
+  "provider_route_mimo_anthropic_token_plan_key_hint": {
+    "message": "Use a CN-region Token Plan API Key, usually starting with `tp-`; keys are not interchangeable across regions."
+  },
+  "provider_route_mimo_anthropic_token_plan_key_rule": {
+    "message": "The MiMo Token Plan CN endpoint requires a `tp-` API Key for that region; metered `sk-` keys or keys from other regions are not interchangeable."
+  },
+  "provider_route_mimo_anthropic_token_plan_sgp_label": {
+    "message": "Token Plan SGP · Anthropic compatible"
+  },
+  "provider_route_mimo_anthropic_token_plan_sgp_hint": {
+    "message": "Anthropic-compatible root URL for the Singapore Token Plan; the final endpoint is `/v1/messages`."
+  },
+  "provider_route_mimo_anthropic_token_plan_sgp_key_hint": {
+    "message": "Use an SGP-region Token Plan API Key, usually starting with `tp-`; keys are not interchangeable across regions."
+  },
+  "provider_route_mimo_anthropic_token_plan_sgp_key_rule": {
+    "message": "The MiMo Token Plan SGP endpoint requires a `tp-` API Key for that region; metered `sk-` keys or keys from other regions are not interchangeable."
+  },
+  "provider_route_mimo_anthropic_token_plan_ams_label": {
+    "message": "Token Plan AMS · Anthropic compatible"
+  },
+  "provider_route_mimo_anthropic_token_plan_ams_hint": {
+    "message": "Anthropic-compatible root URL for the Europe (AMS) Token Plan; the final endpoint is `/v1/messages`."
+  },
+  "provider_route_mimo_anthropic_token_plan_ams_key_hint": {
+    "message": "Use an AMS-region Token Plan API Key, usually starting with `tp-`; keys are not interchangeable across regions."
+  },
+  "provider_route_mimo_anthropic_token_plan_ams_key_rule": {
+    "message": "The MiMo Token Plan AMS endpoint requires a `tp-` API Key for that region; metered `sk-` keys or keys from other regions are not interchangeable."
+  },
+  "provider_preset_xai_label": {
+    "message": "xAI / Grok"
+  },
+  "provider_preset_xai_hint": {
+    "message": "Offers both Chat Completions and Responses; defaults to the Responses API."
+  },
+  "provider_route_xai_openai_label": {
+    "message": "OpenAI compatible"
+  },
+  "provider_route_xai_openai_hint": {
+    "message": "The official OpenAI-compatible root URL is `https://api.x.ai/v1`."
+  },
+  "provider_route_xai_openai_key_hint": {
+    "message": "Use an xAI API Key."
+  },
+  "provider_preset_minimax_label": {
+    "message": "MiniMax"
+  },
+  "provider_preset_minimax_hint": {
+    "message": "Supports OpenAI and Anthropic compatibility; defaults to the OpenAI-compatible endpoint."
+  },
+  "provider_route_minimax_openai_label": {
+    "message": "OpenAI compatible"
+  },
+  "provider_route_minimax_openai_hint": {
+    "message": "The default root URL in mainland China is `https://api.minimaxi.com/v1`."
+  },
+  "provider_route_minimax_openai_key_hint": {
+    "message": "Use a MiniMax API Key."
+  },
+  "provider_route_minimax_anthropic_label": {
+    "message": "Anthropic compatible"
+  },
+  "provider_route_minimax_anthropic_hint": {
+    "message": "The Anthropic-compatible root URL is `/anthropic`."
+  },
+  "provider_route_minimax_anthropic_key_hint": {
+    "message": "Use a MiniMax API Key."
+  },
+  "provider_preset_doubao_label": {
+    "message": "Doubao / Volcano Ark"
+  },
+  "provider_preset_doubao_hint": {
+    "message": "Offers Chat, Responses, and Anthropic compatibility; defaults to OpenAI Chat Completions."
+  },
+  "provider_route_doubao_openai_label": {
+    "message": "OpenAI compatible"
+  },
+  "provider_route_doubao_openai_hint": {
+    "message": "Chat and Responses share this root URL on the pay-as-you-go endpoint."
+  },
+  "provider_route_doubao_openai_key_hint": {
+    "message": "Use a Volcano Ark API Key."
+  },
+  "provider_route_doubao_anthropic_label": {
+    "message": "Anthropic compatible"
+  },
+  "provider_route_doubao_anthropic_hint": {
+    "message": "The Anthropic-compatible root URL is `/api/compatible`."
+  },
+  "provider_route_doubao_anthropic_key_hint": {
+    "message": "Use a Volcano Ark API Key."
+  },
+  "provider_preset_hunyuan_label": {
+    "message": "Hunyuan / Tencent"
+  },
+  "provider_preset_hunyuan_hint": {
+    "message": "Supports OpenAI and Anthropic compatibility; defaults to the OpenAI-compatible endpoint."
+  },
+  "provider_route_hunyuan_openai_label": {
+    "message": "OpenAI compatible"
+  },
+  "provider_route_hunyuan_openai_hint": {
+    "message": "The official OpenAI-compatible root URL is `https://api.hunyuan.cloud.tencent.com/v1`."
+  },
+  "provider_route_hunyuan_openai_key_hint": {
+    "message": "Use a Tencent Hunyuan API Key."
+  },
+  "provider_route_hunyuan_anthropic_label": {
+    "message": "Anthropic compatible"
+  },
+  "provider_route_hunyuan_anthropic_hint": {
+    "message": "The official Anthropic-compatible root URL is `/anthropic`."
+  },
+  "provider_route_hunyuan_anthropic_key_hint": {
+    "message": "Use a Tencent Hunyuan API Key."
+  },
+  "provider_endpoint_mode_auto_label": {
+    "message": "Auto-detect"
+  },
+  "provider_endpoint_mode_auto_description": {
+    "message": "Probes the Base URL for the final endpoint; suits self-hosted proxies, OneAPI-style gateways, or providers not built in yet."
+  },
+  "provider_endpoint_mode_responses_label": {
+    "message": "Responses API"
+  },
+  "provider_endpoint_mode_responses_description": {
+    "message": "Uses the `/responses` endpoint; suits the official OpenAI API and newer compatible gateways."
+  },
+  "provider_endpoint_mode_chat_completions_label": {
+    "message": "Chat Completions"
+  },
+  "provider_endpoint_mode_chat_completions_description": {
+    "message": "Widest compatibility; most OpenAI-compatible services prefer `/chat/completions`."
+  },
+  "provider_endpoint_mode_legacy_completions_label": {
+    "message": "Legacy Completions"
+  },
+  "provider_endpoint_mode_legacy_completions_description": {
+    "message": "Only for legacy `/completions` endpoints; modern services should usually not default to this."
+  },
+  "provider_endpoint_mode_messages_label": {
+    "message": "Messages API"
+  },
+  "provider_endpoint_mode_messages_description": {
+    "message": "For Anthropic / Claude-compatible endpoints; the final request usually goes to `/v1/messages`."
+  }
+}

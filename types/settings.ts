@@ -10,6 +10,7 @@ export type EndpointMode =
 
 export type ThemePreference = 'system' | 'light' | 'dark' | string;
 export type ThemePalette = 'jade' | 'slate' | 'copper' | 'plum' | string;
+export type UiLanguagePreference = 'auto' | 'zh' | 'en' | string;
 
 export type SummaryMode = 'brief' | 'medium' | 'detailed' | 'action_items' | 'glossary' | 'qa' | string;
 
@@ -24,6 +25,8 @@ export interface UserSettings {
   targetLanguage?: string;
   summaryMode?: SummaryMode;
   autoTranslate?: boolean;
+  uiLanguage?: UiLanguagePreference;
+  chunkConcurrency?: number;
   themePreference?: ThemePreference;
   themePalette?: ThemePalette;
   sidebarCompactMode?: boolean;

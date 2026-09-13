@@ -1,0 +1,1992 @@
+{
+  "extName": {
+    "message": "一览 - AI 阅读工作台"
+  },
+  "extDescription": {
+    "message": "一览：稳定的网页、YouTube 与 B 站视频 AI 摘要扩展，支持长文分段、字幕导出、历史记录、分享卡与多接口适配。"
+  },
+  "shortcutDescription": {
+    "message": "用一览总结当前网页"
+  },
+  "popup_title": {
+    "message": "一览设置"
+  },
+  "popup_tab_groups_aria": {
+    "message": "设置分组"
+  },
+  "popup_tab_connection": {
+    "message": "连接"
+  },
+  "popup_tab_preferences": {
+    "message": "偏好"
+  },
+  "popup_tab_entrypoints": {
+    "message": "入口"
+  },
+  "popup_autosave_note": {
+    "message": "设置变更后会自动保存。文本输入会在停顿后保存，离开输入框时也会立即保存。"
+  },
+  "popup_card_model_connection": {
+    "message": "模型连接"
+  },
+  "popup_label_provider": {
+    "message": "服务商"
+  },
+  "popup_card_behaviors": {
+    "message": "产品行为"
+  },
+  "popup_label_system_prompt": {
+    "message": "额外系统要求"
+  },
+  "popup_system_prompt_placeholder": {
+    "message": "可选，这里的内容会追加到摘要提示词之前。"
+  },
+  "popup_toggle_auto_translate_title": {
+    "message": "自动翻译输出"
+  },
+  "popup_toggle_auto_translate_desc": {
+    "message": "根据默认语言自动切换摘要输出语言。"
+  },
+  "popup_label_default_language": {
+    "message": "默认输出语言"
+  },
+  "popup_label_chunk_concurrency": {
+    "message": "分段并发数"
+  },
+  "popup_chunk_concurrency_hint": {
+    "message": "长文分段摘要的并行请求数；1 为逐段串行，默认 2，网关限流严格时可调低。"
+  },
+  "popup_label_ui_language": {
+    "message": "界面语言"
+  },
+  "popup_ui_language_auto": {
+    "message": "跟随浏览器"
+  },
+  "popup_ui_language_zh": {
+    "message": "中文"
+  },
+  "popup_ui_language_en": {
+    "message": "English"
+  },
+  "popup_card_appearance": {
+    "message": "界面外观"
+  },
+  "popup_label_theme_preference": {
+    "message": "明暗模式"
+  },
+  "popup_theme_hint_default": {
+    "message": "会根据系统明暗模式自动切换 popup 和侧栏主题。"
+  },
+  "popup_label_palette": {
+    "message": "色彩方案"
+  },
+  "popup_palette_jade_name": {
+    "message": "松石绿"
+  },
+  "popup_palette_jade_desc": {
+    "message": "默认，清爽稳定"
+  },
+  "popup_palette_slate_name": {
+    "message": "雾蓝"
+  },
+  "popup_palette_slate_desc": {
+    "message": "冷静，阅读感强"
+  },
+  "popup_palette_copper_name": {
+    "message": "岩茶棕"
+  },
+  "popup_palette_copper_desc": {
+    "message": "温润，不偏黄"
+  },
+  "popup_palette_plum_name": {
+    "message": "檀紫"
+  },
+  "popup_palette_plum_desc": {
+    "message": "克制，有品牌感"
+  },
+  "popup_palette_hint_default": {
+    "message": "色彩方案会同步到 popup、侧栏和阅读页。"
+  },
+  "popup_toggle_compact_title": {
+    "message": "侧栏默认精简模式"
+  },
+  "popup_toggle_compact_desc": {
+    "message": "开启后，每次打开侧栏都会自动进入精简布局，优先把空间留给总结内容。"
+  },
+  "popup_card_privacy": {
+    "message": "隐私与控制"
+  },
+  "popup_toggle_privacy_title": {
+    "message": "无痕模式"
+  },
+  "popup_toggle_privacy_desc": {
+    "message": "仍会把当前页面内容发送给模型，但不会写入本地历史记录。"
+  },
+  "popup_toggle_history_title": {
+    "message": "默认写入历史"
+  },
+  "popup_toggle_history_desc": {
+    "message": "关闭后，新的总结结果只保留在当前侧栏，不进入历史记录。"
+  },
+  "popup_toggle_share_title": {
+    "message": "允许分享卡"
+  },
+  "popup_toggle_share_desc": {
+    "message": "控制长截图分享功能，分享卡会附带来源链接。"
+  },
+  "popup_card_quick_actions": {
+    "message": "快捷操作"
+  },
+  "popup_quick_hint_prefix": {
+    "message": "右键菜单“用一览总结此页”或快捷键"
+  },
+  "popup_quick_hint_suffix": {
+    "message": "可直接打开侧栏。"
+  },
+  "popup_toggle_autostart_title": {
+    "message": "入口自动生成摘要"
+  },
+  "popup_toggle_autostart_desc": {
+    "message": "开启后，右键菜单或 Alt + S 会直接开始生成；关闭后只打开侧栏。"
+  },
+  "popup_toggle_simple_title": {
+    "message": "入口默认简短总结"
+  },
+  "popup_toggle_simple_desc": {
+    "message": "入口触发时默认使用更省 token 的简短模式。"
+  },
+  "popup_toggle_reuse_title": {
+    "message": "优先显示本页历史摘要"
+  },
+  "popup_toggle_reuse_desc": {
+    "message": "如果当前页面已有已完成摘要，先直接展示最近一条记录，不自动重跑；仍可手动点击“重新生成”更新。"
+  },
+  "popup_history_btn": {
+    "message": "打开历史记录"
+  },
+  "popup_card_entrypoints": {
+    "message": "入口与快捷键"
+  },
+  "popup_context_menu_title": {
+    "message": "右键菜单"
+  },
+  "popup_context_menu_checking": {
+    "message": "正在检查菜单注册状态..."
+  },
+  "popup_badge_checking": {
+    "message": "检查中"
+  },
+  "popup_shortcut_title": {
+    "message": "快捷键"
+  },
+  "popup_shortcut_checking": {
+    "message": "正在检查快捷键绑定状态..."
+  },
+  "popup_entrypoint_meta_loading": {
+    "message": "正在加载最近触发与修复信息..."
+  },
+  "popup_shortcut_hint_prefix": {
+    "message": "如果按下"
+  },
+  "popup_shortcut_hint_suffix": {
+    "message": "没有反应，可以重新检查入口并打开浏览器快捷键设置页确认绑定。"
+  },
+  "popup_refresh_entrypoints_btn": {
+    "message": "检查入口"
+  },
+  "popup_shortcut_settings_btn": {
+    "message": "快捷键设置"
+  },
+  "popup_status_details_summary": {
+    "message": "错误详情"
+  },
+  "popup_key_storage_summary": {
+    "message": "密钥存储说明"
+  },
+  "popup_key_storage_detail": {
+    "message": "API Key 会通过 Chrome 同步存储，可能同步到你的 Google 账号。如有顾虑，请在 Chrome 设置中关闭同步，或仅在不开启同步的浏览器配置中使用。"
+  },
+  "popup_label_model": {
+    "message": "模型"
+  },
+  "popup_refresh_models_btn": {
+    "message": "刷新"
+  },
+  "popup_advanced_settings": {
+    "message": "高级设置"
+  },
+  "popup_label_provider_route": {
+    "message": "接口地址"
+  },
+  "popup_label_base_url": {
+    "message": "自定义 Base URL"
+  },
+  "popup_base_url_placeholder_route": {
+    "message": "留空使用推荐地址"
+  },
+  "popup_label_ai_provider": {
+    "message": "协议类型"
+  },
+  "popup_provider_openai": {
+    "message": "OpenAI / OpenAI 兼容接口"
+  },
+  "popup_provider_anthropic": {
+    "message": "Anthropic / Claude 兼容接口"
+  },
+  "popup_label_endpoint_mode": {
+    "message": "接口模式"
+  },
+  "popup_test_btn": {
+    "message": "测试连接"
+  },
+  "popup_label_profiles": {
+    "message": "配置方案"
+  },
+  "popup_manage_profiles": {
+    "message": "管理配置方案"
+  },
+  "popup_profile_new_btn": {
+    "message": "新建配置方案"
+  },
+  "popup_profile_save_as_btn": {
+    "message": "另存为…"
+  },
+  "popup_profile_rename_btn": {
+    "message": "重命名…"
+  },
+  "popup_profile_delete_btn": {
+    "message": "删除"
+  },
+  "popup_idle_status": {
+    "message": "设置修改后会自动保存。"
+  },
+  "popup_waiting_autosave": {
+    "message": "检测到变更，输入停顿后会自动保存。"
+  },
+  "popup_base_url_security_hint": {
+    "message": "远程接口必须使用 HTTPS；HTTP 仅允许本机或局域网地址。"
+  },
+  "popup_base_url_invalid": {
+    "message": "Base URL 仅支持 HTTPS；HTTP 仅允许本机或局域网地址。"
+  },
+  "popup_fallback_hint_openai": {
+    "message": "留空时使用 OpenAI 默认根地址，也可以直接填写完整 endpoint。"
+  },
+  "popup_fallback_hint_anthropic": {
+    "message": "留空时使用 Anthropic 默认根地址，也可以填写兼容根地址。"
+  },
+  "popup_theme_system": {
+    "message": "自动跟随系统"
+  },
+  "popup_theme_light": {
+    "message": "固定浅色"
+  },
+  "popup_theme_dark": {
+    "message": "固定深色"
+  },
+  "popup_theme_effective_light": {
+    "message": "浅色"
+  },
+  "popup_theme_effective_dark": {
+    "message": "深色"
+  },
+  "popup_palette_jade": {
+    "message": "松石绿"
+  },
+  "popup_palette_slate": {
+    "message": "雾蓝"
+  },
+  "popup_palette_copper": {
+    "message": "岩茶棕"
+  },
+  "popup_palette_plum": {
+    "message": "檀紫"
+  },
+  "popup_palette_hint_jade": {
+    "message": "默认方案，清爽、稳定，适合长期阅读"
+  },
+  "popup_palette_hint_slate": {
+    "message": "蓝灰倾向更克制，适合弱化品牌色干扰"
+  },
+  "popup_palette_hint_copper": {
+    "message": "偏茶棕的暖调方案，保留温度但不偏黄"
+  },
+  "popup_palette_hint_plum": {
+    "message": "更有识别度的深檀色调，适合强调品牌感"
+  },
+  "popup_not_recorded": {
+    "message": "未记录"
+  },
+  "popup_saved_private": {
+    "message": "已自动保存，当前处于无痕模式。"
+  },
+  "popup_saved": {
+    "message": "已自动保存。"
+  },
+  "popup_theme_hint_system": {
+    "message": "$pref$。当前生效：$eff$；系统主题变化时会自动切换。",
+    "placeholders": {
+      "pref": {
+        "content": "$1"
+      },
+      "eff": {
+        "content": "$2"
+      }
+    }
+  },
+  "popup_theme_hint_fixed": {
+    "message": "$pref$。当前 popup 和侧栏会保持 $eff$ 模式。",
+    "placeholders": {
+      "pref": {
+        "content": "$1"
+      },
+      "eff": {
+        "content": "$2"
+      }
+    }
+  },
+  "popup_palette_hint_render": {
+    "message": "$label$：$hint$。会同步到 popup、侧栏和阅读页。",
+    "placeholders": {
+      "label": {
+        "content": "$1"
+      },
+      "hint": {
+        "content": "$2"
+      }
+    }
+  },
+  "popup_context_menu_ready": {
+    "message": "右键菜单已注册，可以在网页空白区域直接启动摘要。"
+  },
+  "popup_context_menu_not_ready": {
+    "message": "右键菜单还没准备好，建议点击“检查入口”尝试修复。"
+  },
+  "popup_badge_ready": {
+    "message": "已就绪"
+  },
+  "popup_badge_repair": {
+    "message": "待修复"
+  },
+  "popup_badge_bound": {
+    "message": "已绑定"
+  },
+  "popup_badge_missing": {
+    "message": "缺失"
+  },
+  "popup_badge_unbound": {
+    "message": "未绑定"
+  },
+  "popup_badge_failed": {
+    "message": "失败"
+  },
+  "popup_shortcut_bound": {
+    "message": "当前绑定：$key$",
+    "placeholders": {
+      "key": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_shortcut_missing": {
+    "message": "没有检测到生效中的快捷键，请前往快捷键设置页确认 Alt + S。"
+  },
+  "popup_meta_menu_checked": {
+    "message": "菜单最近校验：$time$",
+    "placeholders": {
+      "time": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_meta_menu_triggered": {
+    "message": "菜单最近触发：$time$",
+    "placeholders": {
+      "time": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_meta_shortcut_triggered": {
+    "message": "快捷键最近触发：$time$",
+    "placeholders": {
+      "time": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_endpoint_auto_probe": {
+    "message": "自动试探"
+  },
+  "popup_endpoint_mode_auto": {
+    "message": "自动判断"
+  },
+  "popup_preview_actual_url": {
+    "message": "实际请求地址：$url$",
+    "placeholders": {
+      "url": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_preview_mode": {
+    "message": "接口模式：$mode$",
+    "placeholders": {
+      "mode": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_preview_mode_full": {
+    "message": "接口模式：$mode$（已识别完整 endpoint）",
+    "placeholders": {
+      "mode": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_preview_full_note": {
+    "message": "说明：完整 endpoint 会优先于 Endpoint Mode 拼接。"
+  },
+  "popup_base_url_has_v1": {
+    "message": "Base URL 已包含 /v1。"
+  },
+  "popup_base_url_no_v1": {
+    "message": "Base URL 未包含 /v1，连接测试可在明确报错时自动修正。"
+  },
+  "popup_source_label": {
+    "message": "来源：$url$",
+    "placeholders": {
+      "url": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_source_verified": {
+    "message": "（$date$）",
+    "placeholders": {
+      "date": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_preset_hint_default": {
+    "message": "选择服务商后会自动填入推荐接口地址。"
+  },
+  "popup_api_key_hint_default": {
+    "message": "填写所选服务商的 API Key。"
+  },
+  "popup_endpoint_mode_hint_suffix": {
+    "message": "当前会按这个模式补最终路径：$path$。",
+    "placeholders": {
+      "path": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_base_url_hint_route": {
+    "message": "推荐根地址：$url$。需要代理或私有网关时可直接覆盖。",
+    "placeholders": {
+      "url": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_base_url_placeholder_default": {
+    "message": "留空使用默认地址"
+  },
+  "popup_unnamed_profile": {
+    "message": "未命名"
+  },
+  "popup_profile_unbound_option": {
+    "message": "当前配置（未绑定）"
+  },
+  "popup_profile_bound_hint": {
+    "message": "已绑定「$name$」，修改会自动保存到该方案。",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_profile_hint_default": {
+    "message": "可保存多套连接配置，方便快速切换。"
+  },
+  "popup_switched_to_unbound": {
+    "message": "已切换到当前配置（未绑定）。"
+  },
+  "popup_profile_not_found": {
+    "message": "未找到该配置方案的数据，可能已被删除。"
+  },
+  "popup_profile_switched": {
+    "message": "已切换配置方案。"
+  },
+  "popup_models_loaded_count": {
+    "message": "已加载 $count$ 个模型（$time$）。",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "time": {
+        "content": "$2"
+      }
+    }
+  },
+  "popup_models_loaded": {
+    "message": "已加载 $count$ 个模型。",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_refreshing_models": {
+    "message": "刷新中..."
+  },
+  "popup_models_need_key": {
+    "message": "请先填写 API Key 后再刷新模型列表。"
+  },
+  "popup_models_fetch_failed": {
+    "message": "模型列表获取失败：$err$",
+    "placeholders": {
+      "err": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_autosaving": {
+    "message": "正在自动保存..."
+  },
+  "popup_save_failed": {
+    "message": "保存失败：$err$",
+    "placeholders": {
+      "err": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_unknown_error": {
+    "message": "未知错误"
+  },
+  "popup_saving_settings": {
+    "message": "正在保存设置..."
+  },
+  "popup_need_api_key": {
+    "message": "请先填写 API Key。"
+  },
+  "popup_testing": {
+    "message": "测试中..."
+  },
+  "popup_testing_connection": {
+    "message": "正在测试连接..."
+  },
+  "popup_default_model": {
+    "message": "默认模型"
+  },
+  "popup_auto_v1_added": {
+    "message": "已自动补齐 /v1"
+  },
+  "popup_auto_v1_removed": {
+    "message": "已自动去除 /v1"
+  },
+  "popup_connected": {
+    "message": "连接成功，当前模型：$model$$extras$",
+    "placeholders": {
+      "model": {
+        "content": "$1"
+      },
+      "extras": {
+        "content": "$2"
+      }
+    }
+  },
+  "popup_extras_joined": {
+    "message": "（$items$）",
+    "placeholders": {
+      "items": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_opening_history": {
+    "message": "正在打开当前页面的历史记录..."
+  },
+  "popup_history_opened": {
+    "message": "已在当前页面打开历史记录。"
+  },
+  "popup_history_open_failed": {
+    "message": "打开历史记录失败。"
+  },
+  "popup_checking_entrypoints": {
+    "message": "正在检查右键菜单和快捷键状态..."
+  },
+  "popup_entrypoint_check_failed": {
+    "message": "入口状态检查失败。"
+  },
+  "popup_context_menu_status_failed": {
+    "message": "右键菜单状态获取失败。"
+  },
+  "popup_shortcut_status_failed": {
+    "message": "快捷键状态获取失败。"
+  },
+  "popup_reload_hint": {
+    "message": "请刷新扩展后重试。"
+  },
+  "popup_entrypoints_refreshed": {
+    "message": "入口状态已刷新。"
+  },
+  "popup_opening_shortcut_settings": {
+    "message": "正在打开浏览器快捷键设置页..."
+  },
+  "popup_shortcut_settings_opened": {
+    "message": "已打开快捷键设置页。"
+  },
+  "popup_shortcut_settings_failed": {
+    "message": "打开快捷键设置页失败。"
+  },
+  "popup_switch_profile_failed": {
+    "message": "切换配置失败：$err$",
+    "placeholders": {
+      "err": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_prompt_new_profile": {
+    "message": "新建配置方案名称"
+  },
+  "popup_profile_created": {
+    "message": "已创建并切换到配置方案：$name$",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_create_profile_failed": {
+    "message": "新建配置失败：$err$",
+    "placeholders": {
+      "err": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_default_profile_name": {
+    "message": "配置方案"
+  },
+  "popup_prompt_save_as": {
+    "message": "另存为配置方案名称"
+  },
+  "popup_copy_suffix": {
+    "message": "$name$ 副本",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_profile_saved_as": {
+    "message": "已另存为并切换到配置方案：$name$",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_save_as_failed": {
+    "message": "另存为失败：$err$",
+    "placeholders": {
+      "err": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_prompt_rename": {
+    "message": "重命名配置方案"
+  },
+  "popup_profile_renamed": {
+    "message": "已重命名配置方案。"
+  },
+  "popup_rename_failed": {
+    "message": "重命名失败：$err$",
+    "placeholders": {
+      "err": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_confirm_delete": {
+    "message": "确定删除配置方案「$name$」吗？",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_profile_deleted": {
+    "message": "已删除配置方案，当前配置已解除绑定。"
+  },
+  "popup_delete_failed": {
+    "message": "删除失败：$err$",
+    "placeholders": {
+      "err": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_settings_load_failed": {
+    "message": "设置加载失败。"
+  },
+  "sidebar_reader_btn": {
+    "message": "阅读"
+  },
+  "sidebar_reader_btn_title": {
+    "message": "在新标签页打开专注阅读"
+  },
+  "sidebar_history_btn": {
+    "message": "历史/收藏"
+  },
+  "sidebar_history_btn_title": {
+    "message": "打开历史与收藏"
+  },
+  "sidebar_close_title": {
+    "message": "关闭"
+  },
+  "sidebar_source_eyebrow": {
+    "message": "来源信息"
+  },
+  "sidebar_waiting_content": {
+    "message": "等待页面内容"
+  },
+  "sidebar_no_source_link": {
+    "message": "当前还没有载入页面链接"
+  },
+  "sidebar_unknown_host": {
+    "message": "未识别站点"
+  },
+  "sidebar_generic_page": {
+    "message": "通用网页"
+  },
+  "sidebar_generic_strategy": {
+    "message": "通用精读"
+  },
+  "sidebar_meta_author": {
+    "message": "作者"
+  },
+  "sidebar_meta_published": {
+    "message": "发布"
+  },
+  "sidebar_meta_published_title": {
+    "message": "发布时间"
+  },
+  "sidebar_meta_length": {
+    "message": "字数"
+  },
+  "sidebar_meta_length_title": {
+    "message": "正文长度"
+  },
+  "sidebar_meta_chunk": {
+    "message": "分段"
+  },
+  "sidebar_meta_chunk_title": {
+    "message": "分段策略"
+  },
+  "sidebar_trust_eyebrow": {
+    "message": "可信与控制"
+  },
+  "sidebar_trust_title": {
+    "message": "当前策略"
+  },
+  "sidebar_trust_summary": {
+    "message": "页面内容载入后，会按照当前策略决定是否写入历史和允许分享。"
+  },
+  "sidebar_privacy_enable": {
+    "message": "开启无痕"
+  },
+  "sidebar_trust_mode_standard": {
+    "message": "标准模式"
+  },
+  "sidebar_trust_history_on": {
+    "message": "写入历史"
+  },
+  "sidebar_trust_share_on": {
+    "message": "允许分享"
+  },
+  "sidebar_trust_send_label": {
+    "message": "发送到模型"
+  },
+  "sidebar_trust_pending": {
+    "message": "待决定"
+  },
+  "sidebar_trust_send_note": {
+    "message": "等当前页面内容载入后，才会发送标题、来源和正文到模型接口。"
+  },
+  "sidebar_trust_history_label": {
+    "message": "历史写入"
+  },
+  "sidebar_trust_history_note": {
+    "message": "页面载入后，生成结果会写入本地历史记录。"
+  },
+  "sidebar_trust_share_label": {
+    "message": "分享卡"
+  },
+  "sidebar_trust_share_note": {
+    "message": "页面载入后，可以生成带来源链接的分享卡。"
+  },
+  "sidebar_mode_label": {
+    "message": "摘要模式"
+  },
+  "sidebar_regenerate": {
+    "message": "重新生成"
+  },
+  "sidebar_cancel": {
+    "message": "取消"
+  },
+  "sidebar_add_favorite": {
+    "message": "加入收藏"
+  },
+  "sidebar_copy": {
+    "message": "复制"
+  },
+  "sidebar_share": {
+    "message": "长截图"
+  },
+  "sidebar_export": {
+    "message": "导出"
+  },
+  "sidebar_subtitle_track_aria": {
+    "message": "选择字幕轨道"
+  },
+  "sidebar_export_subtitles": {
+    "message": "导出字幕"
+  },
+  "sidebar_secondary_label": {
+    "message": "继续生成"
+  },
+  "sidebar_secondary_title": {
+    "message": "正在进行二次生成"
+  },
+  "sidebar_placeholder_title": {
+    "message": "准备开始总结"
+  },
+  "sidebar_placeholder_body": {
+    "message": "右键当前页面选择“用一览总结此页”，或者使用快捷键"
+  },
+  "sidebar_history_eyebrow": {
+    "message": "总结记录"
+  },
+  "sidebar_history_title": {
+    "message": "历史与收藏"
+  },
+  "sidebar_history_close_aria": {
+    "message": "关闭历史面板"
+  },
+  "sidebar_history_search_placeholder": {
+    "message": "搜索标题、站点、模式、模型"
+  },
+  "sidebar_favorites_only": {
+    "message": "只看收藏"
+  },
+  "sidebar_ready": {
+    "message": "就绪"
+  },
+  "sidebar_diagnostics_toggle": {
+    "message": "运行诊断"
+  },
+  "sidebar_diagnostics_waiting": {
+    "message": "等待本次运行的诊断信息..."
+  },
+  "label_mode_short": {
+    "message": "简短总结"
+  },
+  "label_mode_medium": {
+    "message": "标准总结"
+  },
+  "label_mode_long": {
+    "message": "详细分析"
+  },
+  "label_mode_long_reader": {
+    "message": "深度总结"
+  },
+  "label_mode_key_points": {
+    "message": "关键要点"
+  },
+  "label_mode_qa": {
+    "message": "问答卡片"
+  },
+  "label_mode_glossary": {
+    "message": "术语表"
+  },
+  "label_mode_action_items": {
+    "message": "行动项"
+  },
+  "label_status_completed": {
+    "message": "已完成"
+  },
+  "label_status_failed": {
+    "message": "失败"
+  },
+  "label_status_cancelled": {
+    "message": "已取消"
+  },
+  "label_status_running": {
+    "message": "进行中"
+  },
+  "label_status_reader_running": {
+    "message": "生成中"
+  },
+  "label_unknown": {
+    "message": "未知"
+  },
+  "label_warning_missing_title": {
+    "message": "标题不完整"
+  },
+  "label_warning_empty_content": {
+    "message": "正文为空"
+  },
+  "label_warning_short_content": {
+    "message": "正文偏短"
+  },
+  "label_warning_truncated": {
+    "message": "正文已截断"
+  },
+  "label_warning_legacy_import": {
+    "message": "来自旧版历史迁移"
+  },
+  "label_strategy_news": {
+    "message": "新闻速读"
+  },
+  "label_strategy_blog": {
+    "message": "博客洞察"
+  },
+  "label_strategy_doc": {
+    "message": "文档精读"
+  },
+  "label_strategy_forum": {
+    "message": "问答归纳"
+  },
+  "label_strategy_repo": {
+    "message": "README 导读"
+  },
+  "label_strategy_generic": {
+    "message": "通用精读"
+  },
+  "label_chunking_none": {
+    "message": "单段"
+  },
+  "label_chunking_paragraph": {
+    "message": "段落"
+  },
+  "label_chunking_section": {
+    "message": "章节"
+  },
+  "label_chunking_auto": {
+    "message": "自动"
+  },
+  "sidebar_entry_trigger_failed": {
+    "message": "处理入口触发失败"
+  },
+  "sidebar_reader_no_content": {
+    "message": "当前还没有可阅读的摘要内容。"
+  },
+  "sidebar_reader_opened": {
+    "message": "已在新标签页打开专注阅读。"
+  },
+  "sidebar_reader_open_failed": {
+    "message": "打开阅读页失败。"
+  },
+  "sidebar_action_failed": {
+    "message": "操作失败"
+  },
+  "sidebar_all_sites": {
+    "message": "全部站点"
+  },
+  "sidebar_all_sites_title": {
+    "message": "查看全部站点的总结记录"
+  },
+  "sidebar_site_record_count": {
+    "message": "$p1$ 条记录",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "sidebar_site_favorite_count": {
+    "message": "$p1$ 条收藏",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "sidebar_site_last_updated": {
+    "message": "最近更新：$p1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "sidebar_favorite": {
+    "message": "收藏"
+  },
+  "sidebar_favorite_update_failed": {
+    "message": "更新收藏状态失败"
+  },
+  "sidebar_delete": {
+    "message": "删除"
+  },
+  "sidebar_record_deleted_title": {
+    "message": "记录已删除"
+  },
+  "sidebar_record_deleted_body": {
+    "message": "可以重新生成当前页面摘要。"
+  },
+  "sidebar_record_delete_failed": {
+    "message": "删除历史记录失败"
+  },
+  "sidebar_history_empty": {
+    "message": "没有找到匹配的总结记录。"
+  },
+  "sidebar_history_load_failed": {
+    "message": "历史记录加载失败："
+  },
+  "sidebar_history_refresh_failed": {
+    "message": "刷新历史记录失败"
+  },
+  "sidebar_processing": {
+    "message": "处理中"
+  },
+  "sidebar_cancelled_partial_head": {
+    "message": "取消前已生成内容"
+  },
+  "sidebar_chunk_done": {
+    "message": "分段处理完成"
+  },
+  "sidebar_chunk_progress_title": {
+    "message": "正在分段总结长文"
+  },
+  "sidebar_chunk_progress_body": {
+    "message": "已完成 $p1$/$p2$ 个分段，正在整理中。",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "sidebar_raw_diagnostics_json": {
+    "message": "--- 原始诊断 JSON ---"
+  },
+  "sidebar_stream_synthesis": {
+    "message": "正在汇总最终结果..."
+  },
+  "sidebar_stream_chunk_index": {
+    "message": "正在总结第 $p1$/$p2$ 段...",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "sidebar_stream_chunk": {
+    "message": "正在总结当前分段..."
+  },
+  "sidebar_stream_generating": {
+    "message": "正在生成总结..."
+  },
+  "sidebar_stream_synthesis_short": {
+    "message": "正在汇总最终结果"
+  },
+  "sidebar_stream_generating_short": {
+    "message": "正在生成总结"
+  },
+  "sidebar_stream_retry": {
+    "message": "$p1$，接口波动，正在进行第 $p2$ 次重试...",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "sidebar_cancelling": {
+    "message": "正在取消本次生成..."
+  },
+  "sidebar_bilibili_note_title": {
+    "message": "使用 B 站官方 AI 总结"
+  },
+  "sidebar_bilibili_note_body": {
+    "message": "已获取 B 站官方 AI 总结，本次不再请求你的模型接口。"
+  },
+  "sidebar_bilibili_saving": {
+    "message": "正在保存 B 站官方 AI 总结..."
+  },
+  "sidebar_bilibili_showing": {
+    "message": "正在展示 B 站官方 AI 总结，本次不写入历史..."
+  },
+  "sidebar_bilibili_model": {
+    "message": "Bilibili 官方 AI 总结"
+  },
+  "sidebar_bilibili_done_saved": {
+    "message": "已使用 B 站官方 AI 总结"
+  },
+  "sidebar_bilibili_done_nohistory": {
+    "message": "已展示 B 站官方 AI 总结，本次未写入历史"
+  },
+  "sidebar_simple_mode_title": {
+    "message": "简单总结模式"
+  },
+  "sidebar_preparing_title": {
+    "message": "准备生成摘要"
+  },
+  "sidebar_simple_mode_body": {
+    "message": "已启用简单模式，将跳过长文分段以节省 token。"
+  },
+  "sidebar_preparing_body": {
+    "message": "正在初始化本次任务，请稍候。"
+  },
+  "sidebar_generating_saving": {
+    "message": "正在提取并生成总结..."
+  },
+  "sidebar_generating_nohistory": {
+    "message": "正在生成当前页面摘要，本次不会写入历史..."
+  },
+  "sidebar_chunking_long": {
+    "message": "正在分段分析长文..."
+  },
+  "sidebar_completed_nohistory": {
+    "message": "生成完成，本次未写入历史"
+  },
+  "sidebar_completed": {
+    "message": "生成完成"
+  },
+  "sidebar_need_api_key": {
+    "message": "请先配置 API Key"
+  },
+  "sidebar_generating_mode": {
+    "message": "正在生成 $p1$...",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "sidebar_generating_mode_nohistory": {
+    "message": "正在生成 $p1$，本次不会写入历史...",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "sidebar_secondary_body": {
+    "message": "基于当前摘要生成 $p1$。",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "sidebar_secondary_done_nohistory": {
+    "message": "$p1$ 生成完成，本次未写入历史",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "sidebar_secondary_done": {
+    "message": "$p1$ 生成完成",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "sidebar_run_cancelled": {
+    "message": "本次生成已取消。"
+  },
+  "sidebar_run_failed": {
+    "message": "生成失败。"
+  },
+  "sidebar_unnamed_page": {
+    "message": "未命名页面"
+  },
+  "sidebar_subtitle_track_title": {
+    "message": "选择要导出的字幕轨道"
+  },
+  "sidebar_no_subtitles": {
+    "message": "无字幕"
+  },
+  "sidebar_export_subtitles_title": {
+    "message": "导出选中的视频字幕"
+  },
+  "sidebar_no_subtitles_title": {
+    "message": "当前视频未发现可导出的字幕"
+  },
+  "sidebar_no_summary_title": {
+    "message": "暂无摘要内容"
+  },
+  "sidebar_no_summary_body": {
+    "message": "可以重新生成，或者从历史记录里切换其它摘要。"
+  },
+  "sidebar_run_failed_short": {
+    "message": "生成失败"
+  },
+  "sidebar_record_loaded": {
+    "message": "已加载记录"
+  },
+  "sidebar_time_suffix": {
+    "message": "（$p1$）",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "sidebar_reused_history_status": {
+    "message": "已加载当前页面的历史摘要$p1$，可点击“重新生成”更新当前内容。",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "sidebar_page_ready_title": {
+    "message": "页面已就绪"
+  },
+  "sidebar_page_ready_nav_body": {
+    "message": "已切换到新页面，不会自动开始总结。点击“重新生成”后才会请求模型。"
+  },
+  "sidebar_page_ready_body": {
+    "message": "点击“重新生成”开始生成摘要，或先切换摘要模式。"
+  },
+  "sidebar_waiting_manual_start": {
+    "message": "等待手动开始"
+  },
+  "sidebar_checking_history_note_title": {
+    "message": "正在检查历史摘要"
+  },
+  "sidebar_checking_history_note_body": {
+    "message": "如果当前页面已有已完成摘要，会直接加载最近一次记录。"
+  },
+  "sidebar_checking_history_status": {
+    "message": "正在检查当前页面的历史摘要..."
+  },
+  "sidebar_reading_page_title": {
+    "message": "正在读取页面内容"
+  },
+  "sidebar_reading_page_simple_body": {
+    "message": "已启用简单总结，马上开始生成。"
+  },
+  "sidebar_reading_page_body": {
+    "message": "马上开始生成当前页面的摘要。"
+  },
+  "sidebar_navigation_update_failed": {
+    "message": "处理页面导航更新失败"
+  },
+  "sidebar_favorite_blocked_no_history": {
+    "message": "本次结果未写入历史，不能收藏。"
+  },
+  "sidebar_copied": {
+    "message": "摘要已复制到剪贴板。"
+  },
+  "sidebar_copy_failed": {
+    "message": "复制失败，请稍后重试"
+  },
+  "sidebar_privacy_on": {
+    "message": "无痕模式已开启，下次生成不会写入历史。"
+  },
+  "sidebar_privacy_off": {
+    "message": "无痕模式已关闭，下次生成会恢复默认历史策略。"
+  },
+  "sidebar_theme_dark": {
+    "message": "深色"
+  },
+  "sidebar_theme_light": {
+    "message": "浅色"
+  },
+  "sidebar_theme_system": {
+    "message": "跟随系统"
+  },
+  "sidebar_theme_system_current": {
+    "message": "跟随系统（当前$p1$）",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "sidebar_theme_btn_label": {
+    "message": "明暗：$p1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "sidebar_theme_btn_title": {
+    "message": "当前明暗模式为$p1$；点击切换到$p2$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "sidebar_theme_switched_system": {
+    "message": "明暗模式已改为跟随系统，当前生效：$p1$。",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "sidebar_theme_switched_fixed": {
+    "message": "明暗模式已切换为固定$p1$。",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "sidebar_add_favorite_title": {
+    "message": "把这条总结加入收藏"
+  },
+  "sidebar_not_in_history": {
+    "message": "未写入历史"
+  },
+  "sidebar_not_in_history_title": {
+    "message": "本次结果没有写入历史，因此不能收藏"
+  },
+  "sidebar_remove_favorite": {
+    "message": "取消收藏"
+  },
+  "sidebar_remove_favorite_title": {
+    "message": "把这条总结从收藏中移除"
+  },
+  "sidebar_init_placeholder_body": {
+    "message": "右键当前页面选择“用一览总结此页”，或使用快捷键 Alt + S。"
+  },
+  "sidebar_settings_load_failed": {
+    "message": "设置加载失败。"
+  },
+  "sidebar_share_model_label": {
+    "message": "模型：$p1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "sidebar_subtitle_current": {
+    "message": "当前字幕"
+  },
+  "sidebar_subtitle_empty_track": {
+    "message": "选中了空的字幕轨道内容，未导出。"
+  },
+  "sidebar_video_no_subtitles": {
+    "message": "当前视频还没有可导出的字幕。"
+  },
+  "sidebar_subtitle_exported": {
+    "message": "字幕已导出。"
+  },
+  "sidebar_markdown_exported": {
+    "message": "Markdown 已导出。"
+  },
+  "sidebar_bilibili_no_subtitles": {
+    "message": "当前 B 站视频还没有可导出的字幕。"
+  },
+  "sidebar_file_subtitles": {
+    "message": "-字幕"
+  },
+  "sidebar_md_source": {
+    "message": "来源："
+  },
+  "sidebar_md_site": {
+    "message": "站点："
+  },
+  "sidebar_md_mode": {
+    "message": "模式："
+  },
+  "sidebar_md_generated_at": {
+    "message": "生成时间："
+  },
+  "sidebar_share_subtitle": {
+    "message": "稳定摘要工作台"
+  },
+  "sidebar_share_unknown_source": {
+    "message": "未知来源"
+  },
+  "sidebar_share_source_label": {
+    "message": "来源链接"
+  },
+  "sidebar_share_quote_label": {
+    "message": "原文摘录 · 最多 $p1$ 字",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "sidebar_share_from": {
+    "message": "来源："
+  },
+  "sidebar_share_disabled": {
+    "message": "当前策略已关闭分享卡输出。"
+  },
+  "sidebar_share_generating": {
+    "message": "正在生成长截图，请稍候..."
+  },
+  "sidebar_file_share_card": {
+    "message": "-分享卡"
+  },
+  "sidebar_share_done": {
+    "message": "长截图已生成"
+  },
+  "sidebar_share_failed": {
+    "message": "长截图生成失败。"
+  },
+  "reader_eyebrow": {
+    "message": "专注阅读"
+  },
+  "reader_loading_title": {
+    "message": "正在加载摘要..."
+  },
+  "reader_open_source": {
+    "message": "打开原文"
+  },
+  "reader_copy_markdown": {
+    "message": "复制 Markdown"
+  },
+  "reader_toc_aria": {
+    "message": "文档结构"
+  },
+  "reader_toc_kicker": {
+    "message": "结构"
+  },
+  "reader_toc_title": {
+    "message": "文档导航"
+  },
+  "reader_empty_title": {
+    "message": "没有可读取的摘要"
+  },
+  "reader_empty_detail": {
+    "message": "请回到扩展侧栏，先生成一份摘要，再从“阅读”按钮打开新标签页。"
+  },
+  "reader_read_minutes_short": {
+    "message": "约 1 分钟"
+  },
+  "reader_read_minutes": {
+    "message": "约 $p1$ 分钟阅读",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "reader_error_no_session": {
+    "message": "没有找到阅读会话。"
+  },
+  "reader_error_expired_session": {
+    "message": "阅读会话已失效，请回到侧栏重新打开。"
+  },
+  "reader_default_title": {
+    "message": "一览阅读"
+  },
+  "reader_no_source_link": {
+    "message": "没有可用原文链接"
+  },
+  "reader_badge_private": {
+    "message": "无痕模式"
+  },
+  "reader_badge_favorited": {
+    "message": "已收藏"
+  },
+  "reader_detail_status": {
+    "message": "状态"
+  },
+  "reader_detail_reading": {
+    "message": "阅读"
+  },
+  "reader_detail_generated_at": {
+    "message": "生成时间"
+  },
+  "reader_detail_model": {
+    "message": "模型"
+  },
+  "reader_temp_view_status": {
+    "message": "这是一次未写入历史的临时阅读视图。"
+  },
+  "reader_ready_status": {
+    "message": "阅读页已准备好。"
+  },
+  "reader_copied": {
+    "message": "Markdown 已复制到剪贴板。"
+  },
+  "reader_error_title": {
+    "message": "无法打开阅读页"
+  },
+  "reader_unknown_error": {
+    "message": "发生未知错误。"
+  },
+  "reader_copy_failed": {
+    "message": "复制失败。"
+  },
+  "context_menu_title": {
+    "message": "用一览总结此页"
+  },
+  "bg_connection_test_failed": {
+    "message": "连接测试失败。"
+  },
+  "bg_run_failed": {
+    "message": "生成摘要失败。"
+  },
+  "bg_history_open_failed": {
+    "message": "打开历史记录失败。"
+  },
+  "bg_entrypoint_status_failed": {
+    "message": "获取入口状态失败。"
+  },
+  "bg_shortcut_settings_failed": {
+    "message": "打开快捷键设置失败。"
+  },
+  "bg_reader_open_failed": {
+    "message": "打开阅读页失败。"
+  },
+  "bg_models_raw_hint": {
+    "message": "当前 provider 暂不支持自动拉取模型列表（仍可手动输入模型 ID）。"
+  },
+  "error_config_missing_api_key": {
+    "message": "请先在设置中配置 API Key。"
+  },
+  "error_extraction_empty": {
+    "message": "当前页面未提取到足够的正文内容。"
+  },
+  "error_adapter_not_found": {
+    "message": "未找到可用的模型适配器。"
+  },
+  "error_network_timeout": {
+    "message": "请求超时，请稍后重试。"
+  },
+  "error_network_error": {
+    "message": "网络请求失败，请检查网络或接口地址。"
+  },
+  "error_network_connection": {
+    "message": "无法建立到接口的网络连接，请检查网络、网关或代理。"
+  },
+  "error_network_cors": {
+    "message": "浏览器拦截了跨域请求，请检查接口的 CORS 或扩展权限。"
+  },
+  "error_network_dns": {
+    "message": "无法解析接口域名，请检查接口地址或 DNS。"
+  },
+  "error_network_tls": {
+    "message": "接口 TLS/证书握手失败，请检查 HTTPS 证书或代理。"
+  },
+  "error_network_stream_disconnected": {
+    "message": "流式连接意外中断，请检查接口的流式支持或网关稳定性。"
+  },
+  "error_http_status": {
+    "message": "接口返回错误状态码。"
+  },
+  "error_http_status_short": {
+    "message": "接口返回 $p1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "error_http_status_detail": {
+    "message": "接口返回 $p1$：$p2$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "error_parse": {
+    "message": "模型响应解析失败。"
+  },
+  "error_endpoint_not_supported": {
+    "message": "当前接口可能不支持所选端点。"
+  },
+  "error_unsupported_response_format": {
+    "message": "接口响应格式无法识别。"
+  },
+  "provider_preset_custom_label": {
+    "message": "自定义兼容接口"
+  },
+  "provider_preset_custom_hint": {
+    "message": "适合自建代理、OneAPI 类网关或暂未内置的服务商。"
+  },
+  "provider_route_custom_openai_label": {
+    "message": "OpenAI 兼容"
+  },
+  "provider_route_custom_openai_hint": {
+    "message": "填写网关根地址或完整 endpoint；连接测试会尽量识别可用接口。"
+  },
+  "provider_route_custom_openai_key_hint": {
+    "message": "使用目标网关提供的 API Key。"
+  },
+  "provider_route_custom_anthropic_label": {
+    "message": "Anthropic 兼容"
+  },
+  "provider_route_custom_anthropic_hint": {
+    "message": "填写兼容网关根地址，插件会补成 `/v1/messages`。"
+  },
+  "provider_route_custom_anthropic_key_hint": {
+    "message": "使用目标 Claude 兼容网关提供的 API Key。"
+  },
+  "provider_preset_openai_official_label": {
+    "message": "OpenAI 官方"
+  },
+  "provider_preset_openai_official_hint": {
+    "message": "默认走 Responses API，也可在高级设置切到 Chat Completions 或 Legacy Completions。"
+  },
+  "provider_route_openai_official_label": {
+    "message": "OpenAI 官方 API"
+  },
+  "provider_route_openai_official_hint": {
+    "message": "填写根地址即可，插件会按 endpoint mode 补最终路径。"
+  },
+  "provider_route_openai_official_key_hint": {
+    "message": "使用 OpenAI API Key，通常以 `sk-` 开头。"
+  },
+  "provider_preset_anthropic_official_label": {
+    "message": "Anthropic 官方"
+  },
+  "provider_preset_anthropic_official_hint": {
+    "message": "使用 Claude 原生 Messages API，会自动保留官方 `anthropic-version` 头。"
+  },
+  "provider_route_anthropic_official_label": {
+    "message": "Anthropic Messages API"
+  },
+  "provider_route_anthropic_official_hint": {
+    "message": "填写根地址即可，插件会自动补成 `/v1/messages`。"
+  },
+  "provider_route_anthropic_official_key_hint": {
+    "message": "使用 Anthropic API Key。"
+  },
+  "provider_preset_deepseek_label": {
+    "message": "DeepSeek"
+  },
+  "provider_preset_deepseek_hint": {
+    "message": "兼容 OpenAI 与 Anthropic；默认使用 OpenAI Chat Completions。"
+  },
+  "provider_route_deepseek_openai_label": {
+    "message": "OpenAI 兼容"
+  },
+  "provider_route_deepseek_openai_hint": {
+    "message": "聊天接口走 `/chat/completions`。"
+  },
+  "provider_route_deepseek_openai_key_hint": {
+    "message": "使用 DeepSeek API Key。"
+  },
+  "provider_route_deepseek_anthropic_label": {
+    "message": "Anthropic 兼容"
+  },
+  "provider_route_deepseek_anthropic_hint": {
+    "message": "Claude 兼容根地址为 `/anthropic`。"
+  },
+  "provider_route_deepseek_anthropic_key_hint": {
+    "message": "使用 DeepSeek API Key。"
+  },
+  "provider_preset_gemini_label": {
+    "message": "Gemini / Google"
+  },
+  "provider_preset_gemini_hint": {
+    "message": "Gemini API 提供 OpenAI 兼容入口；默认走 Chat Completions。"
+  },
+  "provider_route_gemini_openai_label": {
+    "message": "OpenAI 兼容"
+  },
+  "provider_route_gemini_openai_hint": {
+    "message": "官方 OpenAI 兼容根地址已包含 `/v1beta/openai`。"
+  },
+  "provider_route_gemini_openai_key_hint": {
+    "message": "使用 Google AI Studio 或 Gemini API Key。"
+  },
+  "provider_preset_qwen_label": {
+    "message": "Qwen / 百炼"
+  },
+  "provider_preset_qwen_hint": {
+    "message": "支持 OpenAI 兼容与 Anthropic 兼容；默认使用 OpenAI 兼容入口。"
+  },
+  "provider_route_qwen_openai_label": {
+    "message": "OpenAI 兼容"
+  },
+  "provider_route_qwen_openai_hint": {
+    "message": "最终请求会走 `/compatible-mode/v1/chat/completions`。"
+  },
+  "provider_route_qwen_openai_key_hint": {
+    "message": "使用阿里云百炼 DashScope API Key。"
+  },
+  "provider_route_qwen_anthropic_label": {
+    "message": "Anthropic 兼容"
+  },
+  "provider_route_qwen_anthropic_hint": {
+    "message": "Anthropic 兼容根地址为 `/apps/anthropic`。"
+  },
+  "provider_route_qwen_anthropic_key_hint": {
+    "message": "使用阿里云百炼 DashScope API Key。"
+  },
+  "provider_preset_glm_label": {
+    "message": "GLM / 智谱"
+  },
+  "provider_preset_glm_hint": {
+    "message": "同时提供 OpenAI 与 Claude 兼容接入；默认使用 OpenAI 兼容入口。"
+  },
+  "provider_route_glm_openai_label": {
+    "message": "OpenAI 兼容"
+  },
+  "provider_route_glm_openai_hint": {
+    "message": "官方 OpenAI 兼容根地址是 `/api/paas/v4`。"
+  },
+  "provider_route_glm_openai_key_hint": {
+    "message": "使用智谱 API Key。"
+  },
+  "provider_route_glm_anthropic_label": {
+    "message": "Claude 兼容"
+  },
+  "provider_route_glm_anthropic_hint": {
+    "message": "Claude 兼容根地址是 `/api/anthropic`。"
+  },
+  "provider_route_glm_anthropic_key_hint": {
+    "message": "使用智谱 API Key。"
+  },
+  "provider_preset_mimo_label": {
+    "message": "MiMo / 小米"
+  },
+  "provider_preset_mimo_hint": {
+    "message": "提供按量 API 与 Token Plan 地域集群地址，API Key 前缀和地域需与地址匹配。"
+  },
+  "provider_route_mimo_openai_metered_label": {
+    "message": "按量 API · OpenAI 兼容"
+  },
+  "provider_route_mimo_openai_metered_hint": {
+    "message": "默认推荐路线，聊天接口走 `/chat/completions`。"
+  },
+  "provider_route_mimo_openai_metered_key_hint": {
+    "message": "按量 API Key 通常以 `sk-` 开头。"
+  },
+  "provider_route_mimo_openai_metered_key_rule": {
+    "message": "MiMo 按量 API 域名需要 `sk-` 开头的 API Key；Token Plan `tp-` 密钥不能混用。"
+  },
+  "provider_route_mimo_openai_token_plan_label": {
+    "message": "Token Plan CN · OpenAI 兼容"
+  },
+  "provider_route_mimo_openai_token_plan_hint": {
+    "message": "仅在使用 Token Plan Key 时选择。"
+  },
+  "provider_route_mimo_openai_token_plan_key_hint": {
+    "message": "使用 CN 地域 Token Plan API Key，通常以 `tp-` 开头；不同地域 Key 不通用。"
+  },
+  "provider_route_mimo_openai_token_plan_key_rule": {
+    "message": "MiMo Token Plan CN 域名需要对应地域的 `tp-` API Key；按量 `sk-` 密钥或其他地域 Key 不能混用。"
+  },
+  "provider_route_mimo_openai_token_plan_sgp_label": {
+    "message": "Token Plan SGP · OpenAI 兼容"
+  },
+  "provider_route_mimo_openai_token_plan_sgp_hint": {
+    "message": "新加坡地域 Token Plan OpenAI 兼容根地址。"
+  },
+  "provider_route_mimo_openai_token_plan_sgp_key_hint": {
+    "message": "使用 SGP 地域 Token Plan API Key，通常以 `tp-` 开头；不同地域 Key 不通用。"
+  },
+  "provider_route_mimo_openai_token_plan_sgp_key_rule": {
+    "message": "MiMo Token Plan SGP 域名需要对应地域的 `tp-` API Key；按量 `sk-` 密钥或其他地域 Key 不能混用。"
+  },
+  "provider_route_mimo_openai_token_plan_ams_label": {
+    "message": "Token Plan AMS · OpenAI 兼容"
+  },
+  "provider_route_mimo_openai_token_plan_ams_hint": {
+    "message": "欧洲 AMS 地域 Token Plan OpenAI 兼容根地址。"
+  },
+  "provider_route_mimo_openai_token_plan_ams_key_hint": {
+    "message": "使用 AMS 地域 Token Plan API Key，通常以 `tp-` 开头；不同地域 Key 不通用。"
+  },
+  "provider_route_mimo_openai_token_plan_ams_key_rule": {
+    "message": "MiMo Token Plan AMS 域名需要对应地域的 `tp-` API Key；按量 `sk-` 密钥或其他地域 Key 不能混用。"
+  },
+  "provider_route_mimo_anthropic_metered_label": {
+    "message": "按量 API · Anthropic 兼容"
+  },
+  "provider_route_mimo_anthropic_metered_hint": {
+    "message": "最终端点为 `/v1/messages`。"
+  },
+  "provider_route_mimo_anthropic_metered_key_hint": {
+    "message": "按量 API Key 通常以 `sk-` 开头。"
+  },
+  "provider_route_mimo_anthropic_metered_key_rule": {
+    "message": "MiMo 按量 API 域名需要 `sk-` 开头的 API Key；Token Plan `tp-` 密钥不能混用。"
+  },
+  "provider_route_mimo_anthropic_token_plan_label": {
+    "message": "Token Plan CN · Anthropic 兼容"
+  },
+  "provider_route_mimo_anthropic_token_plan_hint": {
+    "message": "最终端点为 `/v1/messages`。"
+  },
+  "provider_route_mimo_anthropic_token_plan_key_hint": {
+    "message": "使用 CN 地域 Token Plan API Key，通常以 `tp-` 开头；不同地域 Key 不通用。"
+  },
+  "provider_route_mimo_anthropic_token_plan_key_rule": {
+    "message": "MiMo Token Plan CN 域名需要对应地域的 `tp-` API Key；按量 `sk-` 密钥或其他地域 Key 不能混用。"
+  },
+  "provider_route_mimo_anthropic_token_plan_sgp_label": {
+    "message": "Token Plan SGP · Anthropic 兼容"
+  },
+  "provider_route_mimo_anthropic_token_plan_sgp_hint": {
+    "message": "新加坡地域 Token Plan Anthropic 兼容根地址，最终端点为 `/v1/messages`。"
+  },
+  "provider_route_mimo_anthropic_token_plan_sgp_key_hint": {
+    "message": "使用 SGP 地域 Token Plan API Key，通常以 `tp-` 开头；不同地域 Key 不通用。"
+  },
+  "provider_route_mimo_anthropic_token_plan_sgp_key_rule": {
+    "message": "MiMo Token Plan SGP 域名需要对应地域的 `tp-` API Key；按量 `sk-` 密钥或其他地域 Key 不能混用。"
+  },
+  "provider_route_mimo_anthropic_token_plan_ams_label": {
+    "message": "Token Plan AMS · Anthropic 兼容"
+  },
+  "provider_route_mimo_anthropic_token_plan_ams_hint": {
+    "message": "欧洲 AMS 地域 Token Plan Anthropic 兼容根地址，最终端点为 `/v1/messages`。"
+  },
+  "provider_route_mimo_anthropic_token_plan_ams_key_hint": {
+    "message": "使用 AMS 地域 Token Plan API Key，通常以 `tp-` 开头；不同地域 Key 不通用。"
+  },
+  "provider_route_mimo_anthropic_token_plan_ams_key_rule": {
+    "message": "MiMo Token Plan AMS 域名需要对应地域的 `tp-` API Key；按量 `sk-` 密钥或其他地域 Key 不能混用。"
+  },
+  "provider_preset_xai_label": {
+    "message": "xAI / Grok"
+  },
+  "provider_preset_xai_hint": {
+    "message": "同时提供 Chat Completions 与 Responses；默认使用 Responses API。"
+  },
+  "provider_route_xai_openai_label": {
+    "message": "OpenAI 兼容"
+  },
+  "provider_route_xai_openai_hint": {
+    "message": "官方 OpenAI 兼容根地址是 `https://api.x.ai/v1`。"
+  },
+  "provider_route_xai_openai_key_hint": {
+    "message": "使用 xAI API Key。"
+  },
+  "provider_preset_minimax_label": {
+    "message": "MiniMax"
+  },
+  "provider_preset_minimax_hint": {
+    "message": "同时支持 OpenAI 与 Anthropic 兼容；默认使用 OpenAI 兼容入口。"
+  },
+  "provider_route_minimax_openai_label": {
+    "message": "OpenAI 兼容"
+  },
+  "provider_route_minimax_openai_hint": {
+    "message": "国内默认根地址是 `https://api.minimaxi.com/v1`。"
+  },
+  "provider_route_minimax_openai_key_hint": {
+    "message": "使用 MiniMax API Key。"
+  },
+  "provider_route_minimax_anthropic_label": {
+    "message": "Anthropic 兼容"
+  },
+  "provider_route_minimax_anthropic_hint": {
+    "message": "Anthropic 兼容根地址是 `/anthropic`。"
+  },
+  "provider_route_minimax_anthropic_key_hint": {
+    "message": "使用 MiniMax API Key。"
+  },
+  "provider_preset_doubao_label": {
+    "message": "Doubao / 火山方舟"
+  },
+  "provider_preset_doubao_hint": {
+    "message": "提供 Chat、Responses 与 Anthropic 兼容；默认使用 OpenAI Chat Completions。"
+  },
+  "provider_route_doubao_openai_label": {
+    "message": "OpenAI 兼容"
+  },
+  "provider_route_doubao_openai_hint": {
+    "message": "按量接口 Chat / Responses 共用该根地址。"
+  },
+  "provider_route_doubao_openai_key_hint": {
+    "message": "使用火山方舟 API Key。"
+  },
+  "provider_route_doubao_anthropic_label": {
+    "message": "Anthropic 兼容"
+  },
+  "provider_route_doubao_anthropic_hint": {
+    "message": "Anthropic 兼容根地址是 `/api/compatible`。"
+  },
+  "provider_route_doubao_anthropic_key_hint": {
+    "message": "使用火山方舟 API Key。"
+  },
+  "provider_preset_hunyuan_label": {
+    "message": "Hunyuan / 腾讯混元"
+  },
+  "provider_preset_hunyuan_hint": {
+    "message": "支持 OpenAI 与 Anthropic 兼容；默认使用 OpenAI 兼容入口。"
+  },
+  "provider_route_hunyuan_openai_label": {
+    "message": "OpenAI 兼容"
+  },
+  "provider_route_hunyuan_openai_hint": {
+    "message": "官方 OpenAI 兼容根地址是 `https://api.hunyuan.cloud.tencent.com/v1`。"
+  },
+  "provider_route_hunyuan_openai_key_hint": {
+    "message": "使用腾讯混元 API Key。"
+  },
+  "provider_route_hunyuan_anthropic_label": {
+    "message": "Anthropic 兼容"
+  },
+  "provider_route_hunyuan_anthropic_hint": {
+    "message": "官方 Anthropic 兼容根地址是 `/anthropic`。"
+  },
+  "provider_route_hunyuan_anthropic_key_hint": {
+    "message": "使用腾讯混元 API Key。"
+  },
+  "provider_endpoint_mode_auto_label": {
+    "message": "自动判断"
+  },
+  "provider_endpoint_mode_auto_description": {
+    "message": "按 Base URL 试探最终接口；适合自建代理、OneAPI 类网关或暂未内置的兼容服务。"
+  },
+  "provider_endpoint_mode_responses_label": {
+    "message": "Responses API"
+  },
+  "provider_endpoint_mode_responses_description": {
+    "message": "优先使用新式 `/responses` 接口；适合 OpenAI 官方与部分新兼容网关。"
+  },
+  "provider_endpoint_mode_chat_completions_label": {
+    "message": "Chat Completions"
+  },
+  "provider_endpoint_mode_chat_completions_description": {
+    "message": "兼容面最广；多数国产 OpenAI 兼容接口优先走 `/chat/completions`。"
+  },
+  "provider_endpoint_mode_legacy_completions_label": {
+    "message": "Legacy Completions"
+  },
+  "provider_endpoint_mode_legacy_completions_description": {
+    "message": "仅用于老式 `/completions` 接口；现代服务通常不建议默认使用。"
+  },
+  "provider_endpoint_mode_messages_label": {
+    "message": "Messages API"
+  },
+  "provider_endpoint_mode_messages_description": {
+    "message": "适用于 Anthropic / Claude 兼容接口，最终请求通常为 `/v1/messages`。"
+  }
+}
