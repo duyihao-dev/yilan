@@ -76,10 +76,11 @@ OpenAI、Anthropic Claude、DeepSeek、Google Gemini、xAI Grok、通义千问 Q
 
 Paste-ready Chrome Web Store update text:
 
-1.4.1 adds a default compact sidebar mode setting, keeps the full standard sidebar layout for source details and diagnostics, and polishes theme-linked colors across compact controls, summary scrollbars, reader backgrounds, and footer status text. Since the 1.0.0 store version, Yilan also added YouTube and Bilibili video summaries, subtitle export, a reader document navigation panel, redesigned provider setup, MiMo route/key validation improvements, broader diagnostics, and updated release gates.
+1.5.0 adds full interface internationalization (browser-following Chinese/English across every surface), a configurable chunk concurrency setting for long-article summaries, an API key visibility toggle, and a hardened streaming network layer; popup settings were also consolidated onto a single stylesheet. Since the 1.0.0 store version, Yilan also added YouTube and Bilibili video summaries, subtitle export, a reader document navigation panel, redesigned provider setup, MiMo route/key validation improvements, broader diagnostics, and updated release gates.
 
 Full user-visible changes since the 1.0.0 store version:
 
+- 1.5.0: Localized every surface (extension name, popup, sidebar, reader, prompts) into Chinese/English with a user-selectable interface language, added a chunk concurrency setting (1-4) for long articles, added an API key show/hide toggle, hardened streaming retries/timeouts and rate-limit handling, consolidated popup styles into a single stylesheet, and simplified the connection tab around a provider → API Key → model flow.
 - 1.4.1: Added a popup setting for default compact sidebar mode, preserved standard sidebar mode as the full information layout, and improved theme-linked colors for compact controls, summary scrollbars, standalone reader backgrounds, and footer status text.
 - 1.3.0: Added YouTube video summaries using captions where available, with DOM player response, watch HTML, InnerTube, JSON/XML caption parsing, translated caption candidates, stale SPA response handling, metadata fallback, diagnostics persistence, and summary-selected subtitle export.
 - 1.2.0: Added Bilibili video summaries using video metadata, official Bilibili AI summaries when available, subtitle fallback, diagnostics, and Bilibili subtitle export.

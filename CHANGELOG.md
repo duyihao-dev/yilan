@@ -1,7 +1,9 @@
 # Changelog
 
-## Unreleased
+## 1.5.0 - 2026-09-13
 
+- Consolidated the popup settings styles into the single `popup-premium.css` stylesheet (the inline `<style>` block was removed from `popup.html`); DOM ids, `data-i18n`, and `data-autosave` hooks stay unchanged.
+- Added a show/hide visibility toggle for the API key field in the popup, with localized labels in both locales and `aria-pressed` state.
 - Added a user-facing chunk concurrency setting (1-4, default 2) in the popup preferences tab: it controls how many long-article chunk summaries run in parallel, with 1 keeping fully sequential requests for strictly rate-limited gateways.
 - Speed up long-article summaries by running chunk requests two at a time (results and progress stay in chunk order; cancellation and failure semantics are unchanged), and bound streaming memory by capping the raw SSE capture used for previews and fallback parsing; stream readers are also closed on parse failures instead of leaving the connection open.
 - Hardened the network layer: streaming retries now restart the visible output instead of appending to partial text (this also fixed duplicated copy in saved records); the request deadline now covers response-body reads with a 30s stall watchdog for streams; `/models` requests gained a 15s timeout; auto-endpoint compatibility probes run with a short 20s deadline; 429/5xx responses honor `Retry-After` while other 4xx statuses fail fast instead of retrying; exponential backoff now uses full jitter; and the sidebar pings the stream port mid-run to keep the MV3 service worker alive.
