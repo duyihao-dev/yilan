@@ -1,9 +1,9 @@
 {
   "extName": {
-    "message": "一览 - AI 阅读工作台"
+    "message": "一览 Yilan - AI 摘要插件：网页/YouTube/B站总结"
   },
   "extDescription": {
-    "message": "一览：稳定的网页、YouTube 与 B 站视频 AI 摘要扩展，支持长文分段、字幕导出、历史记录、分享卡与多接口适配。"
+    "message": "AI 摘要浏览器插件：总结网页、YouTube 与 B 站视频。自带 API Key（BYOK），长文分段、结构化摘要、字幕导出、本地历史与专注阅读。"
   },
   "shortcutDescription": {
     "message": "用一览总结当前网页"

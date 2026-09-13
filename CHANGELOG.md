@@ -2,6 +2,7 @@
 
 ## 1.5.0 - 2026-09-13
 
+- Renamed the extension to "一览 Yilan - AI 摘要插件：网页/YouTube/B站总结"（英文 "Yilan - AI Summaries: Web, YouTube, Bilibili"）and rewrote the store-facing descriptions around search keywords; also fixed the English manifest description exceeding Chrome's 132-character limit.
 - Consolidated the popup settings styles into the single `popup-premium.css` stylesheet (the inline `<style>` block was removed from `popup.html`); DOM ids, `data-i18n`, and `data-autosave` hooks stay unchanged.
 - Added a show/hide visibility toggle for the API key field in the popup, with localized labels in both locales and `aria-pressed` state.
 - Added a user-facing chunk concurrency setting (1-4, default 2) in the popup preferences tab: it controls how many long-article chunk summaries run in parallel, with 1 keeping fully sequential requests for strictly rate-limited gateways.

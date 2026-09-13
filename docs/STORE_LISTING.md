@@ -1,58 +1,105 @@
 # Chrome Web Store Listing（商店列表文案与提交素材）
 
-Last updated: 2026-09-04
+Last updated: 2026-09-13
 
-说明：商店条目名称来自 manifest.json 的 `name`，改标题需要改包（或等 i18n 批次用 `_locales` 落地）；简短描述、详细描述、截图、分类可直接在 CWS 后台随时更新，零代码。
+说明：商店条目名称与简短介绍自 1.5.0 起经 `_locales/*/messages.json` 的 `extName` / `extDescription` 随包下发（中文面向 zh 商店、英文面向 en 商店），改文案即改包；CWS 后台的「简短描述」和「详细描述」可随时更新，零代码。所有字段长度已按 CWS 限制核验（名称 ≤45 字符，简短描述/manifest 描述 ≤132 字符）。
 
-## 标题（≤45 字符，随下个版本包更新）
+## 标题（≤45 字符，已随 1.5.0 包通过 `_locales` 生效）
 
-当前线上：`一览 - AI 阅读工作台`
-
-建议改为（品牌在前，补齐高频搜索词）：
+品牌在前保留中英文双搜索入口，补齐最高频搜索词「AI 摘要 / 插件 / 网页 / YouTube / B站 / 总结」：
 
 ```
-一览 - AI 摘要 · 网页 / YouTube / B 站视频总结
+一览 Yilan - AI 摘要插件：网页/YouTube/B站总结
 ```
 
-备选：`一览 Yilan - AI 网页与视频摘要（YouTube / B站总结）`
-
-理由：CWS 搜索里标题权重最高，"AI 摘要 / 总结 / YouTube / B站" 是目标用户最可能输入的词；"AI 阅读工作台" 是品牌叙事，不是搜索词。
-
-## 简短描述（Short Description，≤132 字符，立即可改）
+英文商店（en listing）：
 
 ```
-用你自己的 AI Key 总结网页、YouTube 与 B 站视频：字幕级来源、结构化摘要、二次生成、本地历史与专注阅读。BYOK 本地优先。
+Yilan - AI Summaries: Web, YouTube, Bilibili
+```
+
+理由：CWS 搜索里标题权重最高；「插件」比「扩展」搜索量更高，「摘要/总结」双词都覆盖，YouTube/B站是场景词；「AI 阅读工作台」是品牌叙事，不是搜索词，已弃用。
+
+## 简短描述（Short Description，≤132 字符，CWS 后台立即可改）
+
+```
+AI 摘要浏览器插件：总结网页、YouTube 与 B 站视频，自带 API Key（BYOK）。结构化摘要、行动项/术语表二次生成、本地历史与专注阅读。
 ```
 
 ## 详细描述（立即可改）
 
+前两行是折叠前的黄金位置：放核心关键词（AI 摘要、浏览器插件、网页/YouTube/B站）+ 一句话价值主张。
+
 ```
-一览（Yilan）是一款本地优先的 AI 阅读工作台浏览器扩展：把网页、YouTube 视频和 B 站视频变成结构化摘要，支持继续加工、本地沉淀与专注阅读。
+一览（Yilan）是本地优先的 AI 摘要浏览器插件：把网页文章、YouTube 视频和 B 站视频一键变成结构化总结，还能继续加工成行动项、术语表与问答卡片，沉淀到本地历史，随时回看与导出。中英双语界面，跟随浏览器语言。
 
-—— 核心能力 ——
+—— 三大场景，一个插件 ——
 • 网页 AI 摘要：自动抽取正文、标题、作者与发布时间，长文自动分段；简短总结 / 标准总结 / 详细分析 / 关键要点四种模式
-• YouTube 总结：优先读取字幕与翻译字幕，多级来源回退，支持字幕导出
-• B 站总结：优先使用 B 站官方 AI 总结，字幕回退，支持字幕导出
-• 二次生成：行动项、术语表、问答卡片
-• 历史与收藏：结果存入本地，可搜索、按站点筛选、收藏与回看
-• 专注阅读：独立阅读页带文档导航，Markdown 导出与长截图分享卡
+• YouTube 视频总结：优先读取字幕与翻译字幕，多级来源回退，支持字幕导出——看视频前先看要点
+• B 站视频总结：优先使用 B 站官方 AI 总结，字幕回退，支持字幕导出
 
-—— BYOK：自带 API Key，支持 11+ 厂商预设 ——
+—— 二次生成：一份总结，多种产出 ——
+在已有总结上一键生成：行动项（待办清单）、术语表、问答卡片，适合课程、讲座与技术分享的整理与复习。
+
+—— 自带 API Key（BYOK），支持 11+ 厂商 ——
 OpenAI、Anthropic Claude、DeepSeek、Google Gemini、xAI Grok、通义千问 Qwen、智谱 GLM、MiniMax、豆包、腾讯混元、小米 MiMo，以及任意 OpenAI 兼容接口。内置连接测试与 Endpoint 自动探测，配置一次长期可用。
 
 —— 本地优先，边界说清楚 ——
 • 无账号体系，无内置统计与跟踪
 • 页面内容只发送给你自己配置的模型服务商
-• 历史仅存本地，可随时删除；无痕模式不写入历史
+• 历史仅存本地，可搜索、按站点筛选、收藏；可随时删除；无痕模式不写入历史
 • 完全开源：https://github.com/mutuyihao/yilan
 
 —— 使用方式 ——
-在任意网页右键选择「用一览总结此页」，或按 Alt + S，侧栏自动开始工作。
+在任意网页右键选择「用一览总结此页」，或按 Alt + S，侧边栏自动开始生成摘要。
 
-适合需要高效读长文、视频学习、资料整理与知识沉淀的用户。
+适合长文阅读、视频学习、网课笔记、技术文档调研、资讯整理与知识沉淀的用户。
 ```
 
-理由：厂商名（DeepSeek / GLM / Qwen / 豆包等）是真实支持的预设，写进描述能命中"XX 总结""XX 摘要"这类搜索；无账号、无跟踪、开源是可信度卖点，前置。
+理由：厂商名（DeepSeek / GLM / Qwen / 豆包等）是真实支持的预设，写进描述能命中「XX 总结」「XX 摘要」这类搜索；「插件/摘要/总结/字幕/长文/行动项」等词自然分布在各段落，无堆砌（CWS 元数据政策禁止关键词堆砌与无关商标）；无账号、无跟踪、开源是可信度卖点，保持前置；新增场景词段落（网课笔记/技术文档/知识沉淀）扩大长尾搜索命中。
+
+## 英文商店文案（en listing，i18n 已落地，可直接在 CWS 后台添加 English listing）
+
+Title（≤45 字符）：
+
+```
+Yilan - AI Summaries: Web, YouTube, Bilibili
+```
+
+Short description（≤132 字符）：
+
+```
+AI summaries for web pages, YouTube & Bilibili videos. BYOK: bring your own API key. Chunked long reads, local history, focus reading.
+```
+
+Detailed description：
+
+```
+Yilan is a local-first AI summarizer extension for Chrome: turn web articles, YouTube videos, and Bilibili videos into structured summaries, then refine them into action items, glossaries, and Q&A cards — all saved to a local, searchable history.
+
+— Three surfaces, one extension —
+• Web page AI summaries: clean extraction of article body, title, byline, and publish time; automatic long-article chunking; four depth modes (brief / standard / detailed / key points)
+• YouTube summaries: reads captions and translated captions with multi-level fallbacks; export subtitles — get the points before you watch
+• Bilibili summaries: prefers Bilibili's official AI summary with caption fallback; export subtitles
+
+— Second-pass generation —
+From an existing summary, generate action items, a glossary, or Q&A cards in one click — great for lectures, talks, and study notes.
+
+— Bring your own API key (BYOK) —
+Works with OpenAI, Anthropic Claude, DeepSeek, Google Gemini, xAI Grok, Alibaba Qwen, Zhipu GLM, MiniMax, ByteDance Doubao, Tencent Hunyuan, Xiaomi MiMo, and any OpenAI-compatible endpoint. Connection testing and endpoint auto-detection built in.
+
+— Local-first, clearly scoped —
+• No account required, no built-in analytics or tracking
+• Page content is sent only to the provider you configure
+• History stays on your device: searchable, filterable by site, favoritable, deletable anytime; private mode writes nothing
+• Fully open source: https://github.com/mutuyihao/yilan
+
+— How to use —
+Right-click any page and choose "Summarize with Yilan", or press Alt + S; the side panel starts summarizing immediately.
+Interface in English or Chinese, following your browser language.
+
+For long reads, video learning, research, and knowledge management.
+```
 
 ## 截图顺序（CWS 后台可改）
 
@@ -66,7 +113,7 @@ OpenAI、Anthropic Claude、DeepSeek、Google Gemini、xAI Grok、通义千问 Q
 ## 分类与语言
 
 - [ ] 分类确认：Productivity（工具效率类是此类扩展的主流分类）
-- [ ] 语言：中文（简体）为主；英文 listing 等完成 i18n 批次后新增，不要提前
+- [ ] 语言：中文（简体）为主；i18n 批次已随 1.5.0 落地，英文 listing 文案见上文「英文商店文案」，可在 CWS 后台直接添加 English locale
 
 ---
 

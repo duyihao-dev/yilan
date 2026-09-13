@@ -1,9 +1,9 @@
 {
   "extName": {
-    "message": "Yilan - AI Reading Workspace"
+    "message": "Yilan - AI Summaries: Web, YouTube, Bilibili"
   },
   "extDescription": {
-    "message": "Yilan: reliable AI summaries for web pages, YouTube and Bilibili videos, with long-article chunking, subtitle export, local history, share cards, and flexible provider support."
+    "message": "AI summaries for web pages, YouTube & Bilibili. BYOK: bring your own API key. Chunked long reads, subtitle export, local history."
   },
   "shortcutDescription": {
     "message": "Summarize the current page with Yilan"
