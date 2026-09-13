@@ -2,9 +2,30 @@
 
 ## Unreleased
 
+- Added a user-facing chunk concurrency setting (1-4, default 2) in the popup preferences tab: it controls how many long-article chunk summaries run in parallel, with 1 keeping fully sequential requests for strictly rate-limited gateways.
+- Speed up long-article summaries by running chunk requests two at a time (results and progress stay in chunk order; cancellation and failure semantics are unchanged), and bound streaming memory by capping the raw SSE capture used for previews and fallback parsing; stream readers are also closed on parse failures instead of leaving the connection open.
+- Hardened the network layer: streaming retries now restart the visible output instead of appending to partial text (this also fixed duplicated copy in saved records); the request deadline now covers response-body reads with a 30s stall watchdog for streams; `/models` requests gained a 15s timeout; auto-endpoint compatibility probes run with a short 20s deadline; 429/5xx responses honor `Retry-After` while other 4xx statuses fail fast instead of retrying; exponential backoff now uses full jitter; and the sidebar pings the stream port mid-run to keep the MV3 service worker alive.
+- Localized the model-connector catalog: all 12 provider presets, 26 routes (labels, hints, API-Key hints, key-prefix rules), and the five endpoint modes now resolve through locale catalogs under id-derived keys, with the generated Chinese catalog as fallback; a contract test keeps both locales in sync with the generated catalog.
+- Added a user-selectable interface language (跟随浏览器/中文/English) in the popup appearance tab: the choice is persisted as `uiLanguage`, applied before first paint in the popup, sidebar, reader, and service worker through fetched locale catalogs, switched live via storage change events, and it also pins the prompt locale. Error-catalog and label lookups now resolve lazily so the override applies to runtime copy as well.
+- Fixed the extension failing to load ("Variable $p1$ used but not defined"): the `reader_read_minutes` catalog message now declares its placeholder in both locales, and a new i18n contract test rejects any message referencing an undefined placeholder before packaging.
+- Fixed locale catalogs loading after their consumers in popup, sidebar, and reader pages: `shared/i18n.js` now loads before `shared/errors.js`/`shared/ui-labels.js` so labels and error copy follow the browser locale again, with script-order contract coverage.
+- Aligned the E2E content-script injection list with the production background list (adds `shared/constants.js`) and pinned the E2E prompt locale via target-language settings, since Playwright's chromium ships no locale packs; all 29 Playwright E2E specs now pass.
+- Added full UI internationalization (chrome.i18n) with zh_CN and English catalogs: extension name/description, popup, sidebar, reader, context menu, background notifications, and the error catalog now follow the browser locale. Chinese output stays byte-identical to previous versions.
+- Localized the AI prompt pipeline by output language first (zh/en), then UI locale, then Chinese: summary mode prompts, format skeletons, Markdown output rules, chunk/synthesis/secondary glue copy, and per-strategy focus instructions all have reviewed English variants; other output languages keep the localized prompt body plus the existing output-language instruction.
+- Added `shared/i18n.js` (YilanI18n) with `data-i18n` DOM bindings, locale catalogs under `_locales/`, and unit coverage for catalog completeness and placeholder substitution.
+- Localized summary mode, record status, strategy, chunking, and warning labels through `shared/ui-labels.js`; Markdown export headers and the share card follow the locale as well.
+- Pinned the E2E browser locale to zh-CN (`--lang=zh-CN`) so text assertions stay stable across machines; Node tests resolve UI copy through the injected zh_CN catalog.
+- Landing page SEO follow-ups: remaining screenshots converted to WebP (about 1.8MB saved), lazy loading plus hero fetch priority, dedicated 1200x630 OG share image, AI-crawler robots rules, and root favicon.ico fallback.
+- Added a GitHub Actions CI workflow running typecheck, unit/contract tests, and Playwright E2E on pushes and pull requests.
+- Added a release version-consistency contract test covering package.json, package-lock.json, manifest.json, and shared/version.js.
 - Simplified the popup connection tab around a provider → API Key → model flow, moving routes, custom Base URL, protocol, and endpoint mode into one collapsed advanced section.
 - Removed the redundant connection summary grid and the inline route panel toggle; profile management now sits in a compact section below the test action.
-- Kept provider settings, profiles, and model cache storage fully compatible with previous versions.
+- Kept provider settings, profiles, IndexedDB history, reader sessions, model cache storage, and runtime message actions compatible with previous versions.
+- Refactored the popup into dedicated theme, profile, provider-selection, model, and entrypoint controllers while keeping `popup.js` as the runtime entrypoint.
+- Centralized Chrome callback APIs and persisted storage-key constants, and split background endpoint/model caches into isolated modules.
+- Fixed popup/background model-cache key mismatches for default OpenAI-compatible endpoints and normalized endpoint suffixes consistently.
+- Improved history and storage performance with a reused IndexedDB connection, single-pass site grouping, debounced stale-safe history search, batched DOM rendering, and reduced repeated sidebar/reader DOM work.
+- Consolidated text-file downloads, removed dead sidebar stats/UI styles, and fixed custom prompt paragraphs to use real line breaks.
 
 ## 1.4.1 - 2026-06-27
 

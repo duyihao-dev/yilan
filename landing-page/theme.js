@@ -8,7 +8,6 @@
   };
   var root = document.documentElement;
   var themeMeta = document.querySelector('meta[name="theme-color"]');
-  var ogImageMeta = document.querySelector('meta[property="og:image"]');
   var mediaQuery = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
 
   function isValidMode(value) {
@@ -70,13 +69,6 @@
         image.setAttribute('src', nextSrc);
       }
     });
-
-    if (ogImageMeta) {
-      var nextOg = theme === 'light' ? ogImageMeta.getAttribute('data-light-src') : ogImageMeta.getAttribute('data-dark-src');
-      if (nextOg) {
-        ogImageMeta.setAttribute('content', nextOg);
-      }
-    }
   }
 
   function applyTheme(mode, options) {

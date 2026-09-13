@@ -1,12 +1,12 @@
 # Release Checklist
 
-Last updated: 2026-07-01
+Last updated: 2026-09-13
 
 This checklist is the fixed release gate for every version. Use it for both Chrome Web Store submission and the GitHub/community release package.
 
 ## Every Release Flow
 
-- Bump the version in `package.json`, `package-lock.json`, `manifest.json`, and `shared/version.js`.
+- Bump the version in `package.json`, `package-lock.json`, `manifest.json`, and `shared/version.js`. The static contract test `release version stays in sync...` enforces consistency; run `npm test` to verify.
 - Add a dated `CHANGELOG.md` entry for the target version.
 - Update Chrome Web Store copy, version update notes, permission/privacy text, and known limitations in `docs/STORE_LISTING.md`.
 - Update README and docs references when release gates, supported features, or user-visible workflows change.
@@ -21,7 +21,9 @@ This checklist is the fixed release gate for every version. Use it for both Chro
 - `npm.cmd run test:e2e`
 - `npm.cmd run package:release`
 
-The release package script writes `release/yilan-<version>/`, `release/yilan-<version>-extension.zip`, and `release/yilan-<version>-package-manifest.json`. The package must not contain `node_modules`, tests, Playwright artifacts, private folders, landing-page files, or source-only docs.
+The release package script writes `release/yilan-<version>/`, `release/yilan-<version>-extension.zip`, and `release/yilan-<version>-package-manifest.json`. The package must not contain `node_modules`, tests, Playwright artifacts, private folders, landing-page files, or source-only docs. The manifest must include `popup/*`, `background/endpoint-cache.js`, `background/models-cache.js`, `shared/chrome-api.js`, and both locale catalogs.
+
+If Playwright times out while `launchExtensionContext()` is waiting for the extension service worker, verify that the selected Chrome/Chromium binary accepts unpacked extension command-line loading. This is a test-environment blocker until an extension context is created; it is not a passed E2E gate. Do not release until the 29 listed E2E scenarios run in a browser that actually loads the extension.
 
 ## Manual Product Regression
 

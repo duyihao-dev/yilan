@@ -1,6 +1,6 @@
 # 技术架构
 
-Last updated: 2026-05-24
+Last updated: 2026-09-12
 
 这份文档描述当前仓库已经落地并仍然有效的运行时边界、数据模型，以及支撑重构的工程验证边界。TypeScript、构建链和 React 迁移属于规划草案，见 [TS + React 迁移评估与执行计划](TS_REACT_MIGRATION.md)。
 
@@ -8,12 +8,12 @@ Last updated: 2026-05-24
 
 当前主链路如下：
 
-1. `popup.html / popup.js` 负责设置页 UI、标签切换、自动保存、连接测试和入口状态检查。
+1. `popup.html / popup.js / popup/*` 负责设置页 UI、标签切换、自动保存、连接测试和入口状态检查；主题、配置方案、Provider 联动、模型列表和入口状态分别由对应 controller 模块维护。
 2. `content.js` 在网页中抽取正文和元信息，并在 Bilibili 视频页使用 `shared/bilibili-source.js` 抽取视频元信息、官方 AI 总结或字幕来源，然后注入侧栏容器。
 3. `shared/article-utils.js` 把抽取结果标准化为文章快照，并根据长度决定是否分段。
 4. `shared/page-strategy.js` 基于页面类型给出页面策略和推荐摘要模式。
 5. `sidebar/state.js` 负责侧栏初始状态、导航策略常量和 DOM 元素绑定；`sidebar.js` 负责侧栏编排和收藏；侧栏摘要渲染、来源/信任卡、状态提示和诊断展示由 `sidebar/render.js` 管理；历史面板由 `sidebar/history.js` 管理，Markdown 导出和分享卡由 `sidebar/export.js` 管理，阅读页快照和打开由 `sidebar/reader-session.js` 管理，主摘要、二次生成、取消和流式连接由 `sidebar/generation.js` 管理，摘要模式控件由 `sidebar/mode-control.js` 管理，按钮、键盘和入口消息事件由 `sidebar/events.js` 管理。
-6. `background.js` 通过 `adapters/` 执行请求，统一处理连接测试、模型列表刷新、自动 endpoint 试探、流式、取消、重试和错误；右键菜单、快捷键和入口状态由 `background/entrypoints.js` 管理，运行状态表和 port-run 映射由 `background/run-state.js` 管理，阅读页临时会话由 `background/reader-sessions.js` 管理。
+6. `background.js` 通过 `adapters/` 执行请求，统一处理连接测试、模型列表刷新、自动 endpoint 试探、流式、取消、重试和错误；右键菜单、快捷键和入口状态由 `background/entrypoints.js` 管理，运行状态表和 port-run 映射由 `background/run-state.js` 管理，阅读页临时会话由 `background/reader-sessions.js` 管理，自动 endpoint 与模型列表缓存分别由 `background/endpoint-cache.js`、`background/models-cache.js` 管理。
 7. `db.js` 把结构化结果保存到 IndexedDB，并提供搜索、收藏、删除和站点聚合能力。
 8. `reader.html / reader.js` 从临时阅读会话中恢复当前摘要，在新标签页提供专注阅读体验。
 
@@ -57,7 +57,7 @@ flowchart TB
   BG["background.js<br/>后台主流程"]
   BGParts["background/*<br/>entrypoints / run-state / reader-sessions"]
   Content["content.js<br/>网页抽取和侧栏注入"]
-  Popup["popup.js<br/>设置和入口状态"]
+  Popup["popup.js + popup/*<br/>设置和入口状态"]
   Sidebar["sidebar.js + sidebar/*<br/>侧栏 UI 和工作流"]
   Reader["reader.js<br/>阅读页恢复和渲染"]
 
@@ -170,7 +170,7 @@ flowchart TB
 
 当前 Manifest 仍直接引用根目录 service worker、popup HTML 和 web accessible resources；动态 content 注入列表维护在 `background.js` 的 `CONTENT_SCRIPT_FILES`。未来如果引入 `dist/` 构建产物，需要同步更新 Playwright 加载目录、静态契约测试和文档入口。
 
-### `popup.html / popup.js`
+### `popup.html / popup.js / popup/*`
 
 职责：
 
@@ -184,6 +184,15 @@ flowchart TB
 - 配置入口是否优先复用本页历史摘要
 - 检查右键菜单 / 快捷键状态
 - 打开浏览器快捷键设置页
+
+模块边界：
+
+- `popup.js`：表单数据收集/应用、自动保存、连接测试、标签页与 controller 接线。
+- `popup/theme-controls.js`：主题偏好和色板控件。
+- `popup/profiles.js`：配置方案索引、激活、复制、重命名和删除；历史 key `yilanProfilesIndexV1`、`yilanActiveProfileIdV1`、`yilanProfileV1:*` 保持不变。
+- `popup/provider-selection.js`：Provider、route、endpoint mode 联动和提示。
+- `popup/models.js`：模型列表缓存读取、刷新和 datalist 渲染。
+- `popup/entrypoints-view.js`：右键菜单/快捷键状态展示；popup 初次打开走只读检查，用户主动刷新才执行入口修复。
 
 自动保存策略：
 
@@ -207,7 +216,7 @@ flowchart TB
 
 - `content.js` 使用 `libs/readability.js` 这个 vendored 的外部库做正文抽取。
 - `readability.js` 属于第三方依赖，不是项目自研模块。
-- 动态注入列表由 `background.js` 中的 `CONTENT_SCRIPT_FILES` 维护，当前包括 `shared/domain.js`、`shared/strings.js`、`shared/page-strategy.js`、`shared/article-utils.js`、`shared/bilibili-source.js`、`shared/constants.js`、`libs/readability.js` 和 `content.js`。
+- 动态注入列表由 `background.js` 中的 `CONTENT_SCRIPT_FILES` 维护，当前包括 `shared/domain.js`、`shared/strings.js`、`shared/page-strategy.js`、`shared/article-utils.js`、`shared/bilibili-source.js`、`shared/youtube-source.js`、`shared/constants.js`、`libs/readability.js` 和 `content.js`。
 - 右键、快捷键和 popup 等显式入口仍通过 `injectSidebar()` 打开或重建侧栏。
 - SPA / 同文档路由切换不会重建 iframe；`content.js` 会向现有 iframe `postMessage` 发送 `articleData`，并带上 `source: 'navigation'` 与内部 `navigationPolicy`。
 
@@ -243,7 +252,7 @@ SPA 路由切换的当前默认策略：
 `sidebar/render.js` 负责侧栏渲染边界：
 
 - Markdown 渲染、DOMPurify 净化、流式渲染节流、代码高亮和自动滚动。
-- 占位态、内联提示、错误态、取消态、分段进度、状态栏和统计栏。
+- 占位态、内联提示、错误态、取消态、分段进度和状态栏。
 - 来源信息、trust card 和运行诊断的 DOM 写入；展示数据仍来自 `shared/sidebar-meta-view.js` 和 `shared/diagnostics-view.js`。
 
 `sidebar/export.js` 负责侧栏导出边界：
@@ -319,6 +328,18 @@ SPA 路由切换的当前默认策略：
 - 为 `openReaderTab` 创建 24 小时有效的 reader session snapshot。
 - 保持 reader 会话与后台运行状态解耦。
 
+`background/endpoint-cache.js` 和 `background/models-cache.js` 负责运行缓存：
+
+- endpoint 自动探测结果继续写入 `yilanAutoEndpointModeCacheV1`。
+- 模型列表继续写入 `yilanModelsCacheV1`，最多保留最近 20 个 Provider + Base URL 维度的条目。
+- popup 与 background 共用 `shared/url-utils.js` 的缓存键算法，避免默认 OpenAI Base URL 下读写键不一致。
+
+`shared/chrome-api.js` 统一 Chrome callback API 的 Promise 封装：
+
+- 默认 strict API 遇到 `chrome.runtime.lastError` 时 reject。
+- 侧栏设置读取保留显式 lenient 语义，不因一次 storage 错误中断 UI。
+- runtime message、tab 创建和错误文案归一化不再由多个页面重复实现。
+
 主要消息入口：
 
 - `testConnection`
@@ -346,6 +367,9 @@ SPA 路由切换的当前默认策略：
 - `DB_VERSION = 2`
 - 主 store：`summaryRecords`
 - 旧 store：`history`
+- IndexedDB 连接在页面生命周期内复用；`versionchange` / `close` 时失效并按需重开
+- 站点分组采用单次扫描；当前文章 URL 在历史复用匹配前只归一化一次
+- 侧栏历史搜索使用 250ms 防抖、过时响应丢弃和 `DocumentFragment` 批量渲染
 
 ### `shared/`
 
@@ -369,7 +393,9 @@ SPA 路由切换的当前默认策略：
 - `errors.js`：统一错误模型
 - `abort-utils.js`：取消控制工具
 - `run-utils.js`：运行终态、取消说明、诊断摘要
-- `transport-utils.js`：SSE / raw body 解析与传输层辅助工具
+- `url-utils.js`：Base URL、endpoint 后缀和 Provider 缓存键归一化
+- `chrome-api.js`：Chrome callback API 的 strict / lenient Promise 封装、runtime message 与 tab 创建
+- `transport-utils.js`：SSE / raw body 解析、可序列化 payload、敏感诊断裁剪与安全发送
 
 ### `adapters/`
 

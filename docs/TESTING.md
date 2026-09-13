@@ -1,6 +1,6 @@
 # 测试体系
 
-Last updated: 2026-05-05
+Last updated: 2026-09-13
 
 当前测试体系分成两层：
 
@@ -44,6 +44,17 @@ npm run test:e2e
 npm run playwright:install
 ```
 
+扩展 E2E 依赖浏览器允许 `--load-extension` / `--disable-extensions-except` 加载 unpacked MV3 扩展。若用例在 `launchExtensionContext()` 等待 service worker 而超时，先确认自动化浏览器确实加载了扩展，而不要将该超时误判为产品断言失败。可以用系统浏览器通道排查：
+
+```powershell
+$env:YILAN_E2E_CHANNEL = "chrome"
+npm run test:e2e
+```
+
+WorkBuddy 沙箱若拦截 Playwright 清理旧 `test-results`，需要在允许的隔离环境中关闭对应安全删除 shim 后执行；不要修改测试代码去规避产品层断言。
+
+当前 E2E 只保留 trace 与失败截图；没有视频产物依赖，避免无视频编码器环境导致测试配置错误。
+
 在某些 Windows PowerShell 环境中，`npm.ps1` 可能被执行策略拦截；这种情况下可改用：
 
 ```powershell
@@ -72,6 +83,8 @@ node tests/run-tests.js
 - `tests/unit-background-entrypoints.test.js`：右键菜单、快捷键状态、入口注册和触发契约。
 - `tests/unit-background-run-state.test.js`：active run、stream port 映射和取消清理。
 - `tests/unit-background-reader-sessions.test.js`：阅读页临时会话创建和过期清理。
+- `tests/unit-background-caches.test.js`：自动 endpoint 和模型列表缓存的 key、读写、失败降级与最近 20 项淘汰。
+- `tests/unit-chrome-api.test.js`：Chrome API strict/lenient Promise 封装、runtime message、tab 创建和错误文案。
 - `tests/unit-sidebar-*.test.js`：侧栏状态、模式控件、渲染、事件、生成、导出和阅读页打开控制器。
 - `tests/unit-record-store.test.js`：记录存储、历史搜索、站点聚合、收藏删除、当前页复用、session-only 记录。
 - `tests/static-contracts.test.js`：Manifest、HTML DOM 契约、脚本顺序、background/content/sidebar/popup/reader 入口契约、一方 JS 语法检查，以及规划文档 guardrail。
@@ -98,6 +111,14 @@ node tests/run-tests.js
 - `e2e/test-server.js`：本地 fixture 页面与 mock AI 接口。
 - `e2e/extension-harness.js`：扩展加载、service worker、storage、侧栏触发 helper。
 - `e2e/extension.spec.js`：浏览器端主链路测试。
+
+### i18n 与测试
+
+- UI 文案统一走 `shared/i18n.js`（YilanI18n）：HTML 静态文案用 `data-i18n` / `data-i18n-placeholder` / `data-i18n-title` / `data-i18n-aria-label` 绑定，JS 动态文案用 `YilanI18n.get(key, substitutions)`。
+- 新增用户可见文案时，必须同时在 `_locales/zh_CN/messages.json` 与 `_locales/en/messages.json` 增加同名 key；`tests/unit-i18n.test.js` 会校验两份词典的 key 与占位符一致性。
+- zh_CN 词典的文案必须与既有中文逐字一致（含标点），Node 单测与 E2E 的文本断言依赖它。
+- E2E 通过 `e2e/extension-harness.js` 里的 `--lang=zh-CN` 把应用语言固定为中文，保证断言在任意机器语言环境下稳定。
+- Node 测试由 `tests/run-tests.js` 注入 zh_CN 词典，因此共享模块在单测中渲染出的文案与浏览器 zh 环境一致。
 
 ## 新增功能要求
 

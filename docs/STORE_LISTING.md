@@ -1,30 +1,76 @@
-# Chrome Web Store Listing Draft
+# Chrome Web Store Listing（商店列表文案与提交素材）
 
-Last updated: 2026-07-01
+Last updated: 2026-09-04
 
-## Title
+说明：商店条目名称来自 manifest.json 的 `name`，改标题需要改包（或等 i18n 批次用 `_locales` 落地）；简短描述、详细描述、截图、分类可直接在 CWS 后台随时更新，零代码。
 
-一览 - AI Reading Workspace
+## 标题（≤45 字符，随下个版本包更新）
 
-## Short Description
+当前线上：`一览 - AI 阅读工作台`
 
-Summarize web pages, YouTube and Bilibili videos with your own AI provider, local history, reader, and exports.
+建议改为（品牌在前，补齐高频搜索词）：
 
-## Long Description
+```
+一览 - AI 摘要 · 网页 / YouTube / B 站视频总结
+```
 
-一览 is a local-first Chromium extension for web and video reading workflows. It extracts article content from the current page, handles YouTube and Bilibili video pages with caption, official-summary, or metadata fallbacks, sends source text directly to the AI provider you configure when model generation is needed, and presents a readable summary in a sidebar. You can continue processing a result into action items, glossary entries, or Q&A cards, then keep it in local history or open it in a focused reader.
+备选：`一览 Yilan - AI 网页与视频摘要（YouTube / B站总结）`
 
-Key features:
+理由：CWS 搜索里标题权重最高，"AI 摘要 / 总结 / YouTube / B站" 是目标用户最可能输入的词；"AI 阅读工作台" 是品牌叙事，不是搜索词。
 
-- Web article extraction with page-type strategy detection and long-article chunking.
-- YouTube video summaries with caption and translated-caption extraction, DOM/watch-page/InnerTube recovery, diagnostics, metadata fallback, and subtitle export.
-- Bilibili video summaries with video metadata, official AI summary fast path, subtitle fallback, diagnostics, and subtitle export.
-- BYOK provider setup with OpenAI, Anthropic, custom compatible gateways, regional provider presets, generated provider catalog, and recommended Base URL routes.
-- Explicit or automatic endpoint modes for Responses, Chat Completions, legacy Completions, and Anthropic Messages.
-- Local IndexedDB history, favorites, page-level reuse, and no-trace mode.
-- Sidebar workspace with standard and compact layouts, focused reader page with document navigation, Markdown export, and share-card image export.
-- Light/dark/system theme mode plus four palette presets.
-- No analytics, no tracking, and no vendor server operated by Yilan.
+## 简短描述（Short Description，≤132 字符，立即可改）
+
+```
+用你自己的 AI Key 总结网页、YouTube 与 B 站视频：字幕级来源、结构化摘要、二次生成、本地历史与专注阅读。BYOK 本地优先。
+```
+
+## 详细描述（立即可改）
+
+```
+一览（Yilan）是一款本地优先的 AI 阅读工作台浏览器扩展：把网页、YouTube 视频和 B 站视频变成结构化摘要，支持继续加工、本地沉淀与专注阅读。
+
+—— 核心能力 ——
+• 网页 AI 摘要：自动抽取正文、标题、作者与发布时间，长文自动分段；简短总结 / 标准总结 / 详细分析 / 关键要点四种模式
+• YouTube 总结：优先读取字幕与翻译字幕，多级来源回退，支持字幕导出
+• B 站总结：优先使用 B 站官方 AI 总结，字幕回退，支持字幕导出
+• 二次生成：行动项、术语表、问答卡片
+• 历史与收藏：结果存入本地，可搜索、按站点筛选、收藏与回看
+• 专注阅读：独立阅读页带文档导航，Markdown 导出与长截图分享卡
+
+—— BYOK：自带 API Key，支持 11+ 厂商预设 ——
+OpenAI、Anthropic Claude、DeepSeek、Google Gemini、xAI Grok、通义千问 Qwen、智谱 GLM、MiniMax、豆包、腾讯混元、小米 MiMo，以及任意 OpenAI 兼容接口。内置连接测试与 Endpoint 自动探测，配置一次长期可用。
+
+—— 本地优先，边界说清楚 ——
+• 无账号体系，无内置统计与跟踪
+• 页面内容只发送给你自己配置的模型服务商
+• 历史仅存本地，可随时删除；无痕模式不写入历史
+• 完全开源：https://github.com/mutuyihao/yilan
+
+—— 使用方式 ——
+在任意网页右键选择「用一览总结此页」，或按 Alt + S，侧栏自动开始工作。
+
+适合需要高效读长文、视频学习、资料整理与知识沉淀的用户。
+```
+
+理由：厂商名（DeepSeek / GLM / Qwen / 豆包等）是真实支持的预设，写进描述能命中"XX 总结""XX 摘要"这类搜索；无账号、无跟踪、开源是可信度卖点，前置。
+
+## 截图顺序（CWS 后台可改）
+
+素材在 `store-assets/chrome-web-store/`（`scripts/generate-store-assets.js` 生成）：
+
+1. [ ] 第一张放「视频摘要」场景（YouTube 或 B 站侧栏摘要图）——视频总结是最高频搜索意图，若现成 5 张里没有，用生成脚本补一张
+2. [ ] 第二张放网页摘要工作台（现 screenshot-01）
+3. [ ] 后续依次：二次生成模式 → 历史收藏 → 厂商配置 → 主题
+4. [ ] 宣传图（marquee 440x280）确认含"AI 摘要 / YouTube / B站"字样
+
+## 分类与语言
+
+- [ ] 分类确认：Productivity（工具效率类是此类扩展的主流分类）
+- [ ] 语言：中文（简体）为主；英文 listing 等完成 i18n 批次后新增，不要提前
+
+---
+
+以下为提交表单用的英文素材（权限说明、隐私答案等保持英文，便于直接粘贴）。
 
 ## Version Update Notes
 
